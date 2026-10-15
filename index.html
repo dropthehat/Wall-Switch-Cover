@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v8 — Caliper-Calibrated Legrand 5-760-40 Studio</title>
+  <title>ArteorCAD v9 — 94.2×53.3mm Pin Grid & Slim Lug Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -25,9 +25,9 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-rose-500">CAD</span> <span class="text-xs font-mono text-emerald-400">v8.0 Caliper-Calibrated</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-rose-500">CAD</span> <span class="text-xs font-mono text-emerald-400">v9.0 Precision</span></h1>
         </div>
-        <p class="text-[11px] text-slate-400">Legrand 5-760-40 (113×78.5mm Base | 10mm Switch Throw | 22.5mm Pitch)</p>
+        <p class="text-[11px] text-slate-400">94.2×53.3mm Pin Grid | Slim 1.2mm Lug Base | 10mm Throw</p>
       </div>
       <button id="btn-flip" class="px-2.5 py-1 rounded bg-emerald-600/30 hover:bg-emerald-600/50 text-[10px] font-semibold text-emerald-200 border border-emerald-500/40 transition">
         Inspect Back Frame
@@ -37,10 +37,10 @@
     <!-- Presets Bar -->
     <div class="px-3.5 py-2.5 bg-slate-950/70 border-b border-slate-800 space-y-1.5">
       <div class="flex items-center justify-between">
-        <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Caliper-Calibrated Presets</label>
+        <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Precision Presets (94.2 × 53.3 mm Pins)</label>
         <div class="flex gap-1.5">
           <button id="btn-pin-closeup" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 hover:bg-sky-500/30 transition">
-            Zoom to Pin
+            Zoom to Pin & Lug
           </button>
           <button id="btn-knob-only" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition">
             Isolate Knob
@@ -49,8 +49,8 @@
       </div>
       <div class="grid grid-cols-2 gap-1.5">
         <button id="pre-test-frame" class="px-2.5 py-1.5 text-[11px] font-semibold rounded bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 transition flex items-center justify-between">
-          <span>1. Calibrated Base Test Frame</span>
-          <span class="text-[9px] font-mono opacity-80">114.5×79.5</span>
+          <span>1. Slim Test Frame Only</span>
+          <span class="text-[9px] font-mono opacity-80">94.2×53.3</span>
         </button>
         <button id="pre-diner-stripes" class="px-2.5 py-1.5 text-[11px] font-semibold rounded bg-rose-600/25 hover:bg-rose-600/40 text-rose-200 border border-rose-500/40 transition flex items-center justify-between">
           <span>2. 3-Gang Diner Stripes</span>
@@ -70,68 +70,77 @@
     <!-- Scrollable Controls -->
     <div class="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs">
 
-      <!-- SECTION 1: CALIPER-CALIBRATED LEGRAND 5-760-40 BASE & 10MM ROCKER CLEARANCE -->
+      <!-- SECTION 1: 94.2 x 53.3 PIN GRID & SLIM LUG BASE -->
       <div class="bg-emerald-950/25 border border-emerald-500/40 rounded-lg p-3 space-y-2.5">
         <div class="flex items-center justify-between">
-          <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">1. Legrand 5-760-40 Base & 10mm Throw</span>
-          <button id="btn-reset-caliper" class="text-[10px] underline text-emerald-300 hover:text-white">Reset to Caliper</button>
+          <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">1. 94.2×53.3 Pin Grid & Slim Lug Base</span>
+          <button id="btn-reset-caliper" class="text-[10px] underline text-emerald-300 hover:text-white">Reset to 94.2×53.3</button>
         </div>
 
-        <!-- Inner Recess Size (Caliper: 113.0 x 78.5 mm -> +1.5mm clearance = 114.5 x 79.5 mm, Sharp 1.2mm Corners) -->
-        <div class="grid grid-cols-3 gap-2">
+        <!-- 4 Corner Snap Pins (Updated to 94.2 x 53.3 mm + Slim Lug Base & Pin Root) -->
+        <div class="grid grid-cols-4 gap-1.5">
           <div>
-            <div class="flex justify-between mb-1"><span title="Caliper measured 113mm + 1.5mm tab clearance">Inner W</span><span id="val-inw" class="font-mono text-emerald-400">114.5</span></div>
+            <div class="flex justify-between mb-1"><span class="font-semibold text-white">Pin X</span><span id="val-pinx" class="font-mono text-emerald-300 font-bold">94.2</span></div>
+            <input id="inp-pinx" type="range" min="80" max="105" step="0.1" value="94.2" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span class="font-semibold text-white">Pin Y</span><span id="val-piny" class="font-mono text-emerald-300 font-bold">53.3</span></div>
+            <input id="inp-piny" type="range" min="45" max="70" step="0.1" value="53.3" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Pin Dia</span><span id="val-pindia" class="font-mono text-emerald-400">5.3</span></div>
+            <input id="inp-pindia" type="range" min="3.8" max="7.5" step="0.1" value="5.3" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Pin Len</span><span id="val-pinl" class="font-mono text-emerald-400">3.6</span></div>
+            <input id="inp-pinl" type="range" min="2.0" max="8.0" step="0.1" value="3.6" class="w-full" />
+          </div>
+        </div>
+
+        <!-- NEW: Slim Lug Flat Base Thickness & Pin Flat Root Collar Thickness -->
+        <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-emerald-500/20">
+          <div>
+            <div class="flex justify-between mb-1"><span class="font-semibold text-amber-200" title="Thickness of the flat corner tab that holds the pin (image_7.png)">Lug Base Z</span><span id="val-lugt" class="font-mono text-amber-300 font-bold">1.2 mm</span></div>
+            <input id="inp-lugt" type="range" min="0.6" max="3.5" step="0.1" value="1.2" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span class="font-semibold text-amber-200" title="Thickness of the flat base step at the bottom of the cylindrical pin">Pin Base Z</span><span id="val-pinbase" class="font-mono text-amber-300 font-bold">0.4 mm</span></div>
+            <input id="inp-pinbase" type="range" min="0.1" max="1.8" step="0.1" value="0.4" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span title="Margin of the corner lug around the pin">Lug Margin</span><span id="val-lugm" class="font-mono text-emerald-400">3.0 mm</span></div>
+            <input id="inp-lugm" type="range" min="1.8" max="6.0" step="0.2" value="3.0" class="w-full" />
+          </div>
+        </div>
+
+        <!-- Inner Recess Size & Z-Depths -->
+        <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-emerald-500/20">
+          <div>
+            <div class="flex justify-between mb-1"><span>Inner W</span><span id="val-inw" class="font-mono text-emerald-400">114.5</span></div>
             <input id="inp-inw" type="range" min="108" max="125" step="0.5" value="114.5" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span title="Caliper measured 78.5mm + 1.0mm clearance">Inner H</span><span id="val-inh" class="font-mono text-emerald-400">79.5</span></div>
+            <div class="flex justify-between mb-1"><span>Inner H</span><span id="val-inh" class="font-mono text-emerald-400">79.5</span></div>
             <input id="inp-inh" type="range" min="74" max="90" step="0.5" value="79.5" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span title="Sharp corner radius of the black Legrand base">Base Corner R</span><span id="val-inrad" class="font-mono text-emerald-400">1.2 mm</span></div>
+            <div class="flex justify-between mb-1"><span>Base Corner R</span><span id="val-inrad" class="font-mono text-emerald-400">1.2 mm</span></div>
             <input id="inp-inrad" type="range" min="0.4" max="6.0" step="0.2" value="1.2" class="w-full" />
           </div>
         </div>
 
-        <!-- Z-Depths: Switch Protrusion Clearance (10mm!) + Rim Depth over Black Base -->
-        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-emerald-500/20">
+        <div class="grid grid-cols-3 gap-2">
           <div>
-            <div class="flex justify-between mb-1"><span class="font-semibold text-white" title="Depth from pin lug plane to inner faceplate so the 10mm protruding switch never hits the cover">Switch Clear Z</span><span id="val-swclear" class="font-mono text-amber-300 font-bold">11.0 mm</span></div>
+            <div class="flex justify-between mb-1"><span title="Depth from pin lug plane to inner faceplate so the 10mm protruding switch never hits the cover">Switch Clear Z</span><span id="val-swclear" class="font-mono text-emerald-400">11.0 mm</span></div>
             <input id="inp-swclear" type="range" min="0.0" max="16.0" step="0.5" value="11.0" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span title="Skirt depth that steps over the black base frame">Base Skirt Z</span><span id="val-rimd" class="font-mono text-emerald-400">3.5 mm</span></div>
-            <input id="inp-rimd" type="range" min="0.0" max="10.0" step="0.5" value="3.5" class="w-full" />
+            <div class="flex justify-between mb-1"><span title="Skirt depth that steps over the black base frame">Base Skirt Z</span><span id="val-rimd" class="font-mono text-emerald-400">3.2 mm</span></div>
+            <input id="inp-rimd" type="range" min="0.0" max="10.0" step="0.2" value="3.2" class="w-full" />
           </div>
           <div>
             <div class="flex justify-between mb-1"><span>Rim Wall</span><span id="val-wall" class="font-mono text-emerald-400">2.5 mm</span></div>
             <input id="inp-wall" type="range" min="1.5" max="8.0" step="0.25" value="2.5" class="w-full" />
-          </div>
-        </div>
-
-        <!-- 4 Corner Snap Pins (Calibrated to Legrand 5-760-40 notched receivers) -->
-        <div class="pt-1 border-t border-emerald-500/20 space-y-2">
-          <div class="flex items-center justify-between text-[10px] text-emerald-200">
-            <span class="font-semibold uppercase">4 Corner Snap Pins (Legrand 5-760-40)</span>
-            <span id="hud-pin-readout" class="font-mono">94.0 × 60.2 mm</span>
-          </div>
-          <div class="grid grid-cols-4 gap-1.5">
-            <div>
-              <div class="flex justify-between mb-1"><span>Pin X</span><span id="val-pinx" class="font-mono text-emerald-400">94.0</span></div>
-              <input id="inp-pinx" type="range" min="80" max="105" step="0.2" value="94.0" class="w-full" />
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span>Pin Y</span><span id="val-piny" class="font-mono text-emerald-400">60.2</span></div>
-              <input id="inp-piny" type="range" min="50" max="72" step="0.2" value="60.2" class="w-full" />
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span>Pin Dia</span><span id="val-pindia" class="font-mono text-emerald-400">5.4</span></div>
-              <input id="inp-pindia" type="range" min="3.8" max="7.5" step="0.1" value="5.4" class="w-full" />
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span>Pin Len</span><span id="val-pinl" class="font-mono text-emerald-400">4.2</span></div>
-              <input id="inp-pinl" type="range" min="2.0" max="9.0" step="0.2" value="4.2" class="w-full" />
-            </div>
           </div>
         </div>
       </div>
@@ -182,11 +191,11 @@
 
         <div class="grid grid-cols-3 gap-2 pt-1 border-t border-amber-500/20">
           <div>
-            <div class="flex justify-between mb-1"><span class="font-semibold text-white">Base Thick</span><span id="val-foott" class="font-mono text-amber-300 font-bold">2.4 mm</span></div>
-            <input id="inp-foott" type="range" min="0.8" max="8.0" step="0.2" value="2.4" class="w-full" />
+            <div class="flex justify-between mb-1"><span class="font-semibold text-white">Knob Base Z</span><span id="val-foott" class="font-mono text-amber-300 font-bold">2.0 mm</span></div>
+            <input id="inp-foott" type="range" min="0.8" max="6.0" step="0.2" value="2.0" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span title="Max 22.0mm to stay within a single 22.5mm switch paddle">Base W (≤22)</span><span id="val-footw" class="font-mono text-amber-400">14.0</span></div>
+            <div class="flex justify-between mb-1"><span>Base W (≤22)</span><span id="val-footw" class="font-mono text-amber-400">14.0</span></div>
             <input id="inp-footw" type="range" min="6" max="22.0" step="0.5" value="14.0" class="w-full" />
           </div>
           <div>
@@ -205,8 +214,8 @@
             <input id="inp-tbase" type="range" min="2.6" max="8.0" step="0.2" value="4.4" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Rocker V-Bridge</span><span id="val-vroof" class="font-mono text-amber-400">1.5 mm</span></div>
-            <input id="inp-vroof" type="range" min="0.0" max="3.5" step="0.25" value="1.5" class="w-full" />
+            <div class="flex justify-between mb-1"><span>Rocker V-Bridge</span><span id="val-vroof" class="font-mono text-amber-400">1.2 mm</span></div>
+            <input id="inp-vroof" type="range" min="0.0" max="3.5" step="0.2" value="1.2" class="w-full" />
           </div>
         </div>
       </div>
@@ -222,8 +231,8 @@
           <div>
             <label class="text-slate-400 block mb-1">Outer Body Shape</label>
             <select id="inp-silhouette" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
-              <option value="open_frame">Open Test Frame Only (Quick Print)</option>
-              <option value="vstripes" selected>Multi-Color Vertical Stripes</option>
+              <option value="open_frame" selected>Open Test Frame Only (Quick Print)</option>
+              <option value="vstripes">Multi-Color Vertical Stripes</option>
               <option value="pillow_rect">Solid Cover Plate</option>
               <option value="bubble_rim">Rosetta 3D Bubble Cloud</option>
               <option value="merged_lobes">Rosetta Merged Circles</option>
@@ -248,8 +257,8 @@
             <input id="inp-corner" type="range" min="0.5" max="24" step="0.5" value="2.5" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Face Z</span><span id="val-face" class="font-mono text-rose-400">2.8</span></div>
-            <input id="inp-face" type="range" min="1.6" max="6.0" step="0.2" value="2.8" class="w-full" />
+            <div class="flex justify-between mb-1"><span>Face Z</span><span id="val-face" class="font-mono text-rose-400">2.6</span></div>
+            <input id="inp-face" type="range" min="1.4" max="6.0" step="0.2" value="2.6" class="w-full" />
           </div>
           <div>
             <div class="flex justify-between mb-1"><span>Disc W</span><span id="val-ovwidth" class="font-mono text-purple-400">21</span></div>
@@ -275,7 +284,7 @@
             </select>
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span title="Exact 2.25cm switch width">Pitch (22.5)</span><span id="val-pitch" class="font-mono text-sky-400 font-bold">22.5</span></div>
+            <div class="flex justify-between mb-1"><span>Pitch (22.5)</span><span id="val-pitch" class="font-mono text-sky-400 font-bold">22.5</span></div>
             <input id="inp-pitch" type="range" min="18" max="42" step="0.25" value="22.5" class="w-full mt-1" />
           </div>
           <div>
@@ -291,7 +300,7 @@
         <div class="grid grid-cols-6 gap-1.5 pt-1">
           <div>
             <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Body A</label>
-            <input id="inp-cola" type="color" value="#f8fafc" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
+            <input id="inp-cola" type="color" value="#e2e8f0" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
           </div>
           <div>
             <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Body B</label>
@@ -351,13 +360,13 @@
     <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
       <div class="bg-slate-900/90 backdrop-blur border border-slate-800 rounded-lg px-3 py-2 pointer-events-auto flex items-center gap-4 text-xs shadow-lg">
         <div>
-          <span class="text-slate-400">Legrand 5-760-40 Fit:</span>
-          <span id="hud-mount-spec" class="font-mono text-emerald-400 font-semibold ml-1">114.5×79.5 mm Inner | 10mm Switch Throw Clear</span>
+          <span class="text-slate-400">Pin Center Grid:</span>
+          <span id="hud-mount-spec" class="font-mono text-emerald-400 font-semibold ml-1">94.2 × 53.3 mm | Lug Base: 1.2 mm</span>
         </div>
         <div class="h-3 w-px bg-slate-700"></div>
         <div>
-          <span class="text-slate-400">3× Rockers:</span>
-          <span class="font-mono text-sky-400 font-semibold ml-1">22.5 mm × 3 = 67.5 mm Window</span>
+          <span class="text-slate-400">Inner Recess:</span>
+          <span id="hud-recess-spec" class="font-mono text-sky-400 font-semibold ml-1">114.5 × 79.5 mm</span>
         </div>
       </div>
 
@@ -365,7 +374,7 @@
         <button id="btn-rock-sim" class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition">
           Click-Rock Switch (10mm)
         </button>
-        <button id="btn-wall" class="px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/30 transition">
+        <button id="btn-wall" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
           Show 5-760-40 Base
         </button>
         <button id="btn-explode" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
@@ -380,11 +389,11 @@
     <!-- 3D Canvas Container -->
     <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
-    <!-- Bottom 2D Side Kinematic & 10mm Switch Protrusion HUD -->
+    <!-- Bottom 2D Blueprint HUD (Matches image_6.png 94.2 x 53.3 mm diagram) -->
     <div class="absolute bottom-4 right-4 bg-slate-900/95 backdrop-blur border border-slate-800 rounded-lg p-3 shadow-xl pointer-events-auto w-88 z-10">
       <div class="flex items-center justify-between mb-1.5">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-200">Side Kinematic Section (10mm Switch Throw)</span>
-        <span id="hud-throw-status" class="text-[10px] font-mono text-emerald-400">Clears Cover OK</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-200">2D Pin Blueprint (94.2 × 53.3 mm)</span>
+        <span id="hud-throw-status" class="text-[10px] font-mono text-emerald-400">Lug Z: 1.2mm</span>
       </div>
       <canvas id="hud-canvas" width="328" height="135" class="w-full rounded bg-slate-950 border border-slate-800"></canvas>
     </div>
@@ -397,10 +406,10 @@
       const initH = Math.max(400, container.clientHeight || window.innerHeight);
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x1e2436);
+      scene.background = new THREE.Color(0x181e2e);
 
       const camera = new THREE.PerspectiveCamera(38, initW / initH, 0.5, 2500);
-      camera.position.set(-85, -45, 205);
+      camera.position.set(-70, -35, 190);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
       renderer.setSize(initW, initH);
@@ -427,7 +436,7 @@
       rimLight.position.set(-120, -80, -140);
       scene.add(rimLight);
 
-      // --- LEGRAND 5-760-40 REFERENCE BASE + 3 WHITE ROCKERS (10MM PROTRUSION, 22.5MM WIDTH) ---
+      // --- LEGRAND 5-760-40 REFERENCE BASE + 3 WHITE ROCKERS ---
       const legrandRefGroup = new THREE.Group();
       scene.add(legrandRefGroup);
 
@@ -447,7 +456,7 @@
       let isWireframe = false;
       let isBackView = false;
       let isKnobOnly = false;
-      let showWall = true;
+      let showWall = false;
       let rockPolarity = 1;
 
       function clearAndDisposeGroup(group) {
@@ -500,14 +509,14 @@
         return new THREE.Path(getRoundedRectPoints(w, h, r, 16).reverse());
       }
 
-      // Cross-shaped inner window that leaves the 4 corner pin lugs intact AND clears the 67.5 x 45 mm switch bank
-      function createFreeCAD4LugCutoutHolePath(inW, inH, pinX, pinY, pinDia) {
+      // Cross-shaped inner window matching your orange hand-drawn lug lines in image_6.png!
+      // Keeps the 4 corner tabs wrapping around (±pinX/2, ±pinY/2) with adjustable lugMargin, while clearing the central switch bank.
+      function createFreeCAD4LugCutoutHolePath(inW, inH, pinX, pinY, pinDia, lugMargin) {
         const hw = inW / 2;
         const hh = inH / 2;
-        // Ensure inner window is at least 70mm wide (for 3 x 22.5mm = 67.5mm switches) and 47mm tall
-        const lugInX = Math.max(35.5, (pinX / 2) - (pinDia / 2 + 3.4));
-        const lugInY = Math.max(23.5, (pinY / 2) - (pinDia / 2 + 3.4));
-        const filR = 2.5;
+        const lugInX = Math.max(34.5, (pinX / 2) - (pinDia / 2 + lugMargin));
+        const lugInY = Math.max(19.0, (pinY / 2) - (pinDia / 2 + lugMargin));
+        const filR = 2.6;
 
         const pts = [];
         const segs = 8;
@@ -538,24 +547,24 @@
         return new THREE.Path(pts);
       }
 
-      // Stepped Cylindrical Bullnose Pin (#4 image_d9475f.png)
-      function buildExactSteppedPinGeometry(pinDia, pinLen) {
+      // Stepped Cylindrical Bullnose Pin with Adjustable Slim Root Base Thickness (pinBaseZ)
+      function buildExactSteppedPinGeometry(pinDia, pinLen, pinBaseZ) {
         const rBase = (pinDia * 1.04) / 2;
-        const rWaist = (pinDia * 0.88) / 2;
+        const rWaist = (pinDia * 0.86) / 2;
         const rHead = (pinDia * 1.00) / 2;
-        const filR = Math.min(0.85, pinLen * 0.25);
+        const filR = Math.min(0.8, pinLen * 0.24);
 
-        const z1 = pinLen * 0.30;
-        const z2 = pinLen * 0.56;
+        const z1 = Math.min(pinBaseZ, pinLen * 0.45); // Slim flat base collar at root of pin
+        const z2 = Math.max(z1 + 0.4, pinLen * 0.55); // Retention waist groove
         const z3 = pinLen;
 
         const lathePts = [
           new THREE.Vector2(0.001, 0),
           new THREE.Vector2(rBase, 0),
           new THREE.Vector2(rBase, z1),
-          new THREE.Vector2(rWaist, z1 + 0.08),
+          new THREE.Vector2(rWaist, z1 + 0.06),
           new THREE.Vector2(rWaist, z2),
-          new THREE.Vector2(rHead, z2 + 0.15),
+          new THREE.Vector2(rHead, z2 + 0.14),
           new THREE.Vector2(rHead, z3 - filR)
         ];
 
@@ -621,16 +630,19 @@
 
       function getParams() {
         return {
+          pinX: parseFloat(document.getElementById('inp-pinx').value),
+          pinY: parseFloat(document.getElementById('inp-piny').value),
+          pinDia: parseFloat(document.getElementById('inp-pindia').value),
+          pinL: parseFloat(document.getElementById('inp-pinl').value),
+          lugT: parseFloat(document.getElementById('inp-lugt').value),
+          pinBase: parseFloat(document.getElementById('inp-pinbase').value),
+          lugM: parseFloat(document.getElementById('inp-lugm').value),
           inW: parseFloat(document.getElementById('inp-inw').value),
           inH: parseFloat(document.getElementById('inp-inh').value),
           inRad: parseFloat(document.getElementById('inp-inrad').value),
           swClear: parseFloat(document.getElementById('inp-swclear').value),
           rimD: parseFloat(document.getElementById('inp-rimd').value),
           wall: parseFloat(document.getElementById('inp-wall').value),
-          pinX: parseFloat(document.getElementById('inp-pinx').value),
-          pinY: parseFloat(document.getElementById('inp-piny').value),
-          pinDia: parseFloat(document.getElementById('inp-pindia').value),
-          pinL: parseFloat(document.getElementById('inp-pinl').value),
           tipStyle: document.getElementById('inp-tipstyle').value,
           tipJoint: document.getElementById('inp-tipjoint').value,
           tipDia: parseFloat(document.getElementById('inp-tipdia').value),
@@ -659,7 +671,7 @@
           colD2: document.getElementById('inp-cold2').value,
           colT: document.getElementById('inp-colt').value,
           colTip: document.getElementById('inp-coltip').value,
-          tAng: 11 * rockPolarity // 10mm max throw on a 45mm tall rocker corresponds to ~11° tilt
+          tAng: 11 * rockPolarity
         };
       }
 
@@ -680,7 +692,6 @@
         return new THREE.Path(pts);
       }
 
-      // --- BUILD GLUE-ON BASE + V-SADDLE FOR ARTEOR ROCKER + STEM ---
       function buildKnobBaseAndStem(p) {
         const group = new THREE.Group();
         const mat = createGlossMat(p.colT, isWireframe);
@@ -688,7 +699,6 @@
         const fRad = Math.min(2.0, fW * 0.22, fH * 0.22);
 
         if (p.vRoof > 0.05) {
-          // V-Saddle underside that matches the shallow V-ridge of the white Legrand Arteor rocker switch (image.png)
           const vShape = new THREE.Shape();
           const hh = fH / 2;
           const vDrop = p.vRoof;
@@ -739,7 +749,6 @@
         return group;
       }
 
-      // --- BUILD SCREW-ON TIP VOLUME ---
       function buildKnobTipVolume(p) {
         const group = new THREE.Group();
         const mat = createGlossMat(p.colTip, isWireframe);
@@ -799,17 +808,14 @@
         return group;
       }
 
-      // --- BUILD SIMULATED LEGRAND 5-760-40 SUPPORT FRAME & 3 WHITE ROCKERS (10MM PROTRUSION) ---
       function buildLegrandReferenceHardware(p) {
         clearAndDisposeGroup(legrandRefGroup);
 
         const darkFrameMat = new THREE.MeshStandardMaterial({ color: 0x26292e, roughness: 0.65 });
         const whiteRockerMat = new THREE.MeshStandardMaterial({ color: 0xebe6dc, roughness: 0.3 });
 
-        // 1. Black Support Frame (113.0 x 78.5 x 3.2 mm with 1.2mm sharp corners, sitting from Z = 0.3 to Z = 3.5)
         const frameShape = createRoundedRectShape(113.0, 78.5, 1.2);
         frameShape.holes.push(createRoundedRectPath(68.2, 45.6, 0.5));
-        // Subtract the 4 corner snap holes at ±47.0, ±30.1
         const hx = p.pinX / 2, hy = p.pinY / 2;
         [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
           const hPath = new THREE.Path();
@@ -820,14 +826,12 @@
         frameGeo.translate(0, 0, p.rimD - 3.2);
         legrandRefGroup.add(new THREE.Mesh(frameGeo, darkFrameMat));
 
-        // 2. Three 22.5mm Wide x 45.0mm Tall White Rocker Switches protruding up to 10mm forward from Z = p.rimD
         const startX = -((p.gangs - 1) * p.pitch) / 2;
         for (let i = 0; i < p.gangs; i++) {
           const gx = startX + i * p.pitch;
           const gangTiltDeg = (i % 2 === 1 && p.gangs > 1) ? -p.tAng : p.tAng;
           const tiltRad = THREE.MathUtils.degToRad(gangTiltDeg);
 
-          // Rocker center ridge sits at Z = p.rimD + 6.0mm; when tilted 11°, the high end reaches Z = p.rimD + 10.0mm (1cm)!
           const rockerPivot = new THREE.Group();
           rockerPivot.position.set(gx, 0, p.rimD + 5.8);
           rockerPivot.rotation.x = tiltRad;
@@ -843,17 +847,19 @@
       function rebuildModel() {
         const p = getParams();
 
+        document.getElementById('val-pinx').textContent = p.pinX.toFixed(1);
+        document.getElementById('val-piny').textContent = p.pinY.toFixed(1);
+        document.getElementById('val-pindia').textContent = p.pinDia.toFixed(1);
+        document.getElementById('val-pinl').textContent = p.pinL.toFixed(1);
+        document.getElementById('val-lugt').textContent = `${p.lugT.toFixed(1)} mm`;
+        document.getElementById('val-pinbase').textContent = `${p.pinBase.toFixed(1)} mm`;
+        document.getElementById('val-lugm').textContent = `${p.lugM.toFixed(1)} mm`;
         document.getElementById('val-inw').textContent = p.inW.toFixed(1);
         document.getElementById('val-inh').textContent = p.inH.toFixed(1);
         document.getElementById('val-inrad').textContent = `${p.inRad.toFixed(1)} mm`;
         document.getElementById('val-swclear').textContent = `${p.swClear.toFixed(1)} mm`;
         document.getElementById('val-rimd').textContent = `${p.rimD.toFixed(1)} mm`;
         document.getElementById('val-wall').textContent = `${p.wall.toFixed(2)} mm`;
-        document.getElementById('val-pinx').textContent = p.pinX.toFixed(1);
-        document.getElementById('val-piny').textContent = p.pinY.toFixed(1);
-        document.getElementById('val-pindia').textContent = p.pinDia.toFixed(1);
-        document.getElementById('val-pinl').textContent = p.pinL.toFixed(1);
-        document.getElementById('hud-pin-readout').textContent = `${p.pinX.toFixed(1)} × ${p.pinY.toFixed(1)} mm`;
         document.getElementById('val-tipdia').textContent = p.tipDia.toFixed(1);
         document.getElementById('val-tiplen').textContent = p.tipLen.toFixed(1);
         document.getElementById('val-pegdia').textContent = p.pegDia.toFixed(1);
@@ -862,7 +868,7 @@
         document.getElementById('val-footh').textContent = p.footH.toFixed(1);
         document.getElementById('val-tlen').textContent = p.tLen.toFixed(1);
         document.getElementById('val-tbase').textContent = p.tBase.toFixed(1);
-        document.getElementById('val-vroof').textContent = `${p.vRoof.toFixed(2)} mm`;
+        document.getElementById('val-vroof').textContent = `${p.vRoof.toFixed(1)} mm`;
         document.getElementById('val-corner').textContent = p.corner.toFixed(1);
         document.getElementById('val-face').textContent = p.face.toFixed(1);
         document.getElementById('val-ovwidth').textContent = p.ovWidth.toFixed(1);
@@ -871,21 +877,13 @@
         document.getElementById('val-slotw').textContent = p.slotW.toFixed(1);
         document.getElementById('val-sloth').textContent = p.slotH.toFixed(1);
 
-        // Ensure outer corners never cut into the sharp inner base corners!
         const cornerExtra = Math.max(0, (p.corner - p.inRad) * 0.293);
         const outerW = p.inW + (p.wall + cornerExtra) * 2;
         const outerH = p.inH + (p.wall + cornerExtra) * 2;
         document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(1)} × ${outerH.toFixed(1)} mm`;
-        document.getElementById('hud-mount-spec').textContent = `${p.inW.toFixed(1)}×${p.inH.toFixed(1)} Inner | ${p.swClear.toFixed(1)}mm Switch Clear`;
-
-        const throwStatusEl = document.getElementById('hud-throw-status');
-        if (p.swClear >= 10.0 || p.silhouette === 'open_frame') {
-          throwStatusEl.textContent = `10mm Switch Clears (${p.swClear.toFixed(1)}mm Space)`;
-          throwStatusEl.className = 'text-[10px] font-mono text-emerald-400';
-        } else {
-          throwStatusEl.textContent = `Warning: < 10mm Switch Protrusion!`;
-          throwStatusEl.className = 'text-[10px] font-mono text-rose-400 font-bold';
-        }
+        document.getElementById('hud-mount-spec').textContent = `${p.pinX.toFixed(1)} × ${p.pinY.toFixed(1)} mm | Lug Base: ${p.lugT.toFixed(1)} mm`;
+        document.getElementById('hud-recess-spec').textContent = `${p.inW.toFixed(1)} × ${p.inH.toFixed(1)} mm`;
+        document.getElementById('hud-throw-status').textContent = `Lug Z: ${p.lugT.toFixed(1)}mm | Pin Root: ${p.pinBase.toFixed(1)}mm`;
 
         clearAndDisposeGroup(coverGroup);
         clearAndDisposeGroup(bubblesGroup);
@@ -900,13 +898,8 @@
         const discColors = [p.colD1, p.colD2, '#8b0000', p.colD1];
         const startX = -((p.gangs - 1) * p.pitch) / 2;
 
-        // Z-coordinate stack (Calibrated to Legrand 5-760-40):
-        // Z = 0 -> Back edge of the outer flush skirt (touches wall)
-        // Z = p.rimD (3.5mm) -> Front face of the black Legrand 5-760-40 frame where the 4 corner lugs rest!
-        // Z = p.rimD + 2.4mm -> Top of the 4 corner pin lugs
-        // Z = p.rimD + p.swClear (3.5 + 11.0 = 14.5mm) -> Inner back surface of the front cover faceplate (clears the 10mm protruding switch!)
-        // Z = p.rimD + p.swClear + p.face -> Outer front surface of the cover plate
-        const lugThickness = 2.4;
+        // Z-coordinate stack with Slim Lug Base (p.lugT = 1.2mm default):
+        const lugThickness = p.lugT;
         const zFaceBack = p.rimD + Math.max(lugThickness, p.swClear);
         const totalDepth = p.silhouette === 'open_frame' ? (p.rimD + lugThickness) : (zFaceBack + p.face);
 
@@ -922,8 +915,7 @@
           currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 24);
         }
 
-        // --- 1. BUILD BACK ARCHITECTURE (SHARP-CORNER 114.5x79.5 SKIRT + 4 CORNER LUGS + STEPPED PINS) ---
-        // A. Lower Skirt (Z = 0 to Z = p.rimD): steps over the 113 x 78.5 mm black Legrand base with sharp 1.2mm corners
+        // --- 1. BUILD BACK ARCHITECTURE (114.5x79.5 SKIRT + SLIM 1.2MM CORNER LUGS + 94.2x53.3 PINS) ---
         if (p.rimD > 0.05) {
           const rimShape = new THREE.Shape(currentOutlinePts);
           rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, p.inRad));
@@ -931,15 +923,15 @@
           coverGroup.add(new THREE.Mesh(rimGeo, matA));
         }
 
-        // B. 4 Corner Pin Lugs Shelf (Z = p.rimD to Z = p.rimD + lugThickness)
+        // Slim 4 Corner Pin Lugs Shelf (Z = p.rimD to Z = p.rimD + p.lugT)
         const lugFrameShape = new THREE.Shape(currentOutlinePts);
-        lugFrameShape.holes.push(createFreeCAD4LugCutoutHolePath(p.inW, p.inH, p.pinX, p.pinY, p.pinDia));
+        lugFrameShape.holes.push(createFreeCAD4LugCutoutHolePath(p.inW, p.inH, p.pinX, p.pinY, p.pinDia, p.lugM));
         const lugFrameGeo = new THREE.ExtrudeGeometry(lugFrameShape, { depth: lugThickness, bevelEnabled: false });
         lugFrameGeo.translate(0, 0, p.rimD);
         coverGroup.add(new THREE.Mesh(lugFrameGeo, matA));
 
-        // C. 4 Stepped Cylindrical Bullnose Snap Pins (at ±pinX/2, ±pinY/2, protruding from Z = p.rimD into the Legrand holes)
-        const singlePinGeo = buildExactSteppedPinGeometry(p.pinDia, p.pinL);
+        // 4 Stepped Cylindrical Bullnose Snap Pins at 94.2 x 53.3 mm (±47.1, ±26.65) with slim Pin Base Z
+        const singlePinGeo = buildExactSteppedPinGeometry(p.pinDia, p.pinL, p.pinBase);
         const hx = p.pinX / 2, hy = p.pinY / 2;
         [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
           const pinMesh = new THREE.Mesh(singlePinGeo.clone(), matA);
@@ -948,7 +940,7 @@
         });
         singlePinGeo.dispose();
 
-        // D. Upper Riser Wall (Z = p.rimD + lugThickness to Z = zFaceBack) that creates the 11mm deep pocket for the 10mm protruding switches!
+        // Upper Riser Wall (for full cover plates)
         const upperRiserH = zFaceBack - (p.rimD + lugThickness);
         if (p.silhouette !== 'open_frame' && upperRiserH > 0.05) {
           const riserShape = new THREE.Shape(currentOutlinePts);
@@ -958,7 +950,7 @@
           coverGroup.add(new THREE.Mesh(riserGeo, matA));
         }
 
-        // --- 2. BUILD FRONT FACEPLATE (AT Z = zFaceBack, CLEARING THE 10MM PROTRUDING SWITCHES) ---
+        // --- 2. BUILD FRONT FACEPLATE ---
         if (p.silhouette !== 'open_frame' && p.face > 0.1) {
           if (p.silhouette === 'vstripes') {
             const stripeW = outerW / 5;
@@ -1030,9 +1022,9 @@
           }
         }
 
-        // --- 3. BUILD 3D FRONT OVERLAYS (SCALED TO 22.5MM MODULE PITCH!) ---
+        // --- 3. BUILD 3D FRONT OVERLAYS ---
         if (p.silhouette !== 'open_frame') {
-          const maxDiscR = Math.min(p.ovWidth / 2, p.pitch * 0.48); // Prevents overlapping on 22.5mm pitch
+          const maxDiscR = Math.min(p.ovWidth / 2, p.pitch * 0.48);
           if (p.overlay === 'rosetta_discs') {
             for (let i = 0; i < p.gangs; i++) {
               const gx = startX + i * p.pitch;
@@ -1074,13 +1066,12 @@
           }
         }
 
-        // --- 4. PLACE GLUE-ON BASE + STEM AND SCREW-ON TIP VOLUMES ON THE 22.5MM ROCKERS ---
+        // --- 4. PLACE GLUE-ON BASE + STEM AND SCREW-ON TIP VOLUMES ---
         if (p.showToggles && p.silhouette !== 'open_frame') {
           for (let i = 0; i < p.gangs; i++) {
             const gx = startX + i * p.pitch;
             const gangTiltDeg = (i % 2 === 1 && p.gangs > 1) ? -p.tAng : p.tAng;
             const tiltRad = THREE.MathUtils.degToRad(gangTiltDeg);
-            // Center of the white rocker switch face sits ~5.8mm forward of the black support frame
             const rockerFaceZ = p.rimD + 5.8;
 
             const stemAssy = new THREE.Group();
@@ -1100,7 +1091,7 @@
         }
 
         updateTransforms(totalDepth);
-        drawSideKinematicHUD(p, zFaceBack, totalDepth);
+        drawBlueprintHUD(p, outerW, outerH);
       }
 
       function updateTransforms(totalDepth = 16) {
@@ -1142,101 +1133,96 @@
         }
       }
 
-      // --- 2D SIDE KINEMATIC HUD SHOWING THE 10MM ROCKER PROTRUSION & COVER CLEARANCE ---
-      function drawSideKinematicHUD(p, zFaceBack, totalDepth) {
+      // --- 2D BLUEPRINT HUD MATCHING YOUR HAND-DRAWN 94.2 x 53.3 MM DIAGRAM (image_6.png) ---
+      function drawBlueprintHUD(p, outerW, outerH) {
         const canvas = document.getElementById('hud-canvas');
         const ctx = canvas.getContext('2d');
         const cw = canvas.width, ch = canvas.height;
         ctx.clearRect(0, 0, cw, ch);
 
-        const scale = 2.25;
-        const cy = ch / 2;
-        const wallX = 34;
+        const scale = Math.min((cw - 44) / outerW, (ch - 28) / outerH);
+        const cx = cw / 2, cy = ch / 2;
 
-        // 1. Wall Line (Z = 0)
+        // 1. Outer & Inner Recess Rectangles
+        const ow = outerW * scale, oh = outerH * scale;
+        const iw = p.inW * scale, ih = p.inH * scale;
         ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - ow / 2, cy - oh / 2, ow, oh);
+        ctx.strokeRect(cx - iw / 2, cy - ih / 2, iw, ih);
+
+        // 2. Orange Corner Lugs & Cross Cutout (Matches your orange marker lines in image_6.png!)
+        const holePath = createFreeCAD4LugCutoutHolePath(p.inW, p.inH, p.pinX, p.pinY, p.pinDia, p.lugM);
+        const pts = holePath.getPoints(10);
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
-        ctx.moveTo(wallX, 6);
-        ctx.lineTo(wallX, ch - 6);
+        pts.forEach((pt, idx) => {
+          const px = cx + pt.x * scale;
+          const py = cy - pt.y * scale;
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.closePath();
         ctx.stroke();
 
-        // 2. Black Legrand 5-760-40 Support Frame (Z = 0.3 to p.rimD)
-        const rimX = wallX + p.rimD * scale;
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(wallX + 1, 10, (p.rimD - 0.3) * scale, ch - 20);
+        // 3. Center 3-Gang Switch Bank Outline (67.5 x 45 mm)
+        const swW = (p.gangs * p.pitch) * scale;
+        const swH = 45.0 * scale;
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - swW / 2, cy - swH / 2, swW, swH);
 
-        // 3. 10mm Protrusion Limit Dashed Line (Z = p.rimD + 10.0mm)
-        const maxThrowX = rimX + 10.0 * scale;
-        ctx.strokeStyle = '#f43f5e88';
+        // 4. 4 Pins & Dimension Lines (94.2 mm & 53.3 mm)
+        const hx = (p.pinX / 2) * scale;
+        const hy = (p.pinY / 2) * scale;
+        const pr = Math.max(2.5, (p.pinDia / 2) * scale);
+
+        ctx.strokeStyle = '#f9731699';
         ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.moveTo(maxThrowX, 8);
-        ctx.lineTo(maxThrowX, ch - 8);
-        ctx.stroke();
+        ctx.strokeRect(cx - hx, cy - hy, hx * 2, hy * 2);
         ctx.setLineDash([]);
-        ctx.fillStyle = '#fb7185';
-        ctx.font = '9px monospace';
-        ctx.fillText('10mm Throw', maxThrowX - 24, 16);
 
-        // 4. White Tilting Rocker Switch (45mm tall, protrudes 10mm at top/bottom tip) + Glue-On Knob
-        const rockerFaceX = rimX + 5.8 * scale;
-        ctx.save();
-        ctx.translate(rockerFaceX, cy);
-        ctx.rotate(THREE.MathUtils.degToRad(-p.tAng));
-
-        // White Rocker Paddle
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(-5.0 * scale, -22.5 * scale, 5.0 * scale, 45.0 * scale);
-
-        // Glue-On Knob Foot + Shaft + Tip Ball
-        if (p.showToggles && p.silhouette !== 'open_frame') {
-          ctx.fillStyle = p.colT;
-          ctx.fillRect(0, -(p.footh || 18) * scale / 2, p.footT * scale, (p.footh || 18) * scale);
-          ctx.fillRect(p.footT * scale, -(p.tBase * scale) / 2, p.tLen * scale, p.tBase * scale);
-
-          ctx.fillStyle = p.colTip;
-          const tipCx = (p.footT + p.tLen + p.tipLen * 0.45) * scale;
+        ctx.fillStyle = '#10b981';
+        ctx.strokeStyle = '#f8fafc';
+        ctx.lineWidth = 1.2;
+        [[-hx, -hy], [hx, -hy], [-hx, hy], [hx, hy]].forEach(([px, py]) => {
           ctx.beginPath();
-          ctx.arc(tipCx, 0, (p.tipDia / 2) * scale, 0, Math.PI * 2);
+          ctx.arc(cx + px, cy + py, pr, 0, Math.PI * 2);
           ctx.fill();
-        }
-        ctx.restore();
+          ctx.stroke();
+        });
 
-        // 5. Cover Plate Cross-Section (Skirt + Riser + Front Faceplate at zFaceBack)
-        if (p.silhouette !== 'open_frame') {
-          const faceBackPx = wallX + zFaceBack * scale;
-          const faceThickPx = p.face * scale;
-          const slotHalfPx = (p.slotH / 2) * scale;
-
-          ctx.fillStyle = p.colA;
-          ctx.fillRect(faceBackPx, 6, faceThickPx, cy - slotHalfPx - 6);
-          ctx.fillRect(faceBackPx, cy + slotHalfPx, faceThickPx, ch - (cy + slotHalfPx) - 6);
-        }
+        ctx.fillStyle = '#fb923c';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText(`${p.pinX.toFixed(1)}`, cx - 12, cy + hy + 11);
+        ctx.fillText(`${p.pinY.toFixed(1)}`, cx - hx - 28, cy + 3);
       }
 
       // --- PRESETS ---
       function applyPreset(name) {
         isKnobOnly = false;
         document.getElementById('btn-knob-only').textContent = 'Isolate Knob';
-        camera.position.set(-85, -45, 205);
+        camera.position.set(-70, -35, 190);
         controls.target.set(0, 0, 0);
 
-        // Lock in Caliper-Calibrated Base Values for Legrand 5-760-40
+        // Lock in your exact 94.2 x 53.3 mm pin coordinates & slim 1.2mm lug base
+        document.getElementById('inp-pinx').value = 94.2;
+        document.getElementById('inp-piny').value = 53.3;
+        document.getElementById('inp-pindia').value = 5.3;
+        document.getElementById('inp-pinl').value = 3.6;
+        document.getElementById('inp-lugt').value = 1.2;
+        document.getElementById('inp-pinbase').value = 0.4;
         document.getElementById('inp-inw').value = 114.5;
         document.getElementById('inp-inh').value = 79.5;
         document.getElementById('inp-inrad').value = 1.2;
-        document.getElementById('inp-pinx').value = 94.0;
-        document.getElementById('inp-piny').value = 60.2;
-        document.getElementById('inp-pindia').value = 5.4;
-        document.getElementById('inp-pinl').value = 4.2;
         document.getElementById('inp-pitch').value = 22.5;
 
         if (name === 'test_frame') {
           document.getElementById('inp-silhouette').value = 'open_frame';
           document.getElementById('inp-overlay').value = 'none';
           document.getElementById('inp-corner').value = 2.5;
-          document.getElementById('inp-cola').value = '#cbd5e1';
+          document.getElementById('inp-cola').value = '#e2e8f0';
           isBackView = true;
           document.getElementById('btn-flip').textContent = 'Front View';
         } else if (name === 'diner_stripes') {
@@ -1293,17 +1279,19 @@
       document.getElementById('pre-rosetta-lobes').addEventListener('click', () => applyPreset('rosetta_lobes'));
 
       document.getElementById('btn-reset-caliper').addEventListener('click', () => {
+        document.getElementById('inp-pinx').value = 94.2;
+        document.getElementById('inp-piny').value = 53.3;
+        document.getElementById('inp-pindia').value = 5.3;
+        document.getElementById('inp-pinl').value = 3.6;
+        document.getElementById('inp-lugt').value = 1.2;
+        document.getElementById('inp-pinbase').value = 0.4;
         document.getElementById('inp-inw').value = 114.5;
         document.getElementById('inp-inh').value = 79.5;
         document.getElementById('inp-inrad').value = 1.2;
-        document.getElementById('inp-swclear').value = 11.0;
-        document.getElementById('inp-pinx').value = 94.0;
-        document.getElementById('inp-piny').value = 60.2;
-        document.getElementById('inp-pindia').value = 5.4;
-        document.getElementById('inp-pitch').value = 22.5;
         rebuildModel();
       });
 
+      // Zoom right into the corner lug & pin (like image_7.png) so you can inspect Lug Base Z & Pin Base Z
       document.getElementById('btn-pin-closeup').addEventListener('click', () => {
         isBackView = true;
         document.getElementById('btn-flip').textContent = 'Front View';
@@ -1311,7 +1299,7 @@
         const p = getParams();
         const pinX = p.pinX / 2, pinY = p.pinY / 2;
         controls.target.set(pinX, pinY, 2);
-        camera.position.set(pinX - 14, pinY - 12, 22);
+        camera.position.set(pinX - 16, pinY - 8, 18);
         controls.update();
       });
 
@@ -1376,7 +1364,7 @@
         combined.add(coverGroup.clone(true));
         combined.add(bubblesGroup.clone(true));
         combined.add(overlayGroup.clone(true));
-        downloadSTL(combined, `Arteor_576040_Calibrated_${p.silhouette}.stl`);
+        downloadSTL(combined, `Arteor_94.2x53.3_Lug${p.lugT}mm_${p.silhouette}.stl`);
       });
 
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
@@ -1426,7 +1414,8 @@
       });
       resizeObserver.observe(container);
 
-      applyPreset('diner_stripes');
+      // Start on Preset 1 (Slim Test Frame Only) so you can immediately verify the 94.2 x 53.3 pin grid & slim lug base!
+      applyPreset('test_frame');
 
       function animate() {
         requestAnimationFrame(animate);
