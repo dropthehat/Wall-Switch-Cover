@@ -3,51 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v4 — Ceramic Bubble Silhouettes & Sharp Rectangular Cavity</title>
+  <title>ArteorCAD v5 — Ceramic Switch Covers & Modular Screw-On Knob Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+  <!-- Load Three.js via classic UMD scripts so it never fails on importmap restrictions -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
   <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #090d16; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
     input[type="range"] { accent-color: #f43f5e; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans h-screen w-screen flex overflow-hidden select-none m-0 p-0">
+<body class="text-slate-100 font-sans flex h-screen w-screen overflow-hidden select-none">
 
   <!-- LEFT SIDEBAR -->
-  <aside class="w-[27rem] min-w-[27rem] bg-slate-900 border-r border-slate-800 flex flex-col h-full z-10 shadow-2xl">
+  <aside class="w-[27.5rem] min-w-[27.5rem] bg-slate-900 border-r border-slate-800 flex flex-col h-full z-20 shadow-2xl">
     <!-- Header -->
-    <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/95">
+    <div class="p-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95">
       <div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
-          <h1 class="font-bold text-lg tracking-tight text-white">Arteor<span class="text-rose-500">CAD</span> <span class="text-xs font-mono text-amber-400">v4.0 Ceramic</span></h1>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-rose-500">CAD</span> <span class="text-xs font-mono text-amber-400">v5.0 Modular</span></h1>
         </div>
-        <p class="text-xs text-slate-400">Sharp Rectangular Arteor Cavity + 3D Bubble Shells</p>
+        <p class="text-[11px] text-slate-400">Sharp 90° Arteor Cavity + Modular Screw-On Tip Knobs</p>
       </div>
-      <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">90° Inner Lock</span>
+      <button id="btn-knob-only" class="px-2.5 py-1 text-[10px] font-semibold rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition">
+        Inspect Knob Only
+      </button>
     </div>
 
     <!-- Presets Bar -->
-    <div class="px-4 py-3 bg-slate-950/70 border-b border-slate-800 space-y-2">
-      <div class="flex items-center justify-between">
-        <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Design Presets (Rosetta & Retro)</label>
-        <button id="btn-knob-only" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition">
-          Isolate Glue Knob
-        </button>
-      </div>
+    <div class="px-3.5 py-2.5 bg-slate-950/70 border-b border-slate-800 space-y-1.5">
+      <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">Design Presets (Cover + Knob Combos)</label>
       <div class="grid grid-cols-2 gap-1.5">
         <button id="pre-rosetta-bubble" class="px-2.5 py-1.5 text-[11px] font-semibold rounded bg-red-600/25 hover:bg-red-600/40 text-red-200 border border-red-500/40 transition flex items-center justify-between">
           <span>1. Red Bubble Cloud</span>
-          <span class="text-[9px] font-mono opacity-75">Rosetta</span>
+          <span class="text-[9px] font-mono opacity-75">Ball Tip</span>
         </button>
         <button id="pre-rosetta-lobes" class="px-2.5 py-1.5 text-[11px] font-semibold rounded bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 transition flex items-center justify-between">
           <span>2. Merged Circles + Discs</span>
@@ -55,32 +49,126 @@
         </button>
         <button id="pre-diner-stripes" class="px-2.5 py-1.5 text-[11px] font-medium rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-between">
           <span>3. 3-Gang Diner Stripes</span>
-          <span class="text-[9px] font-mono opacity-75">AMS Split</span>
+          <span class="text-[9px] font-mono opacity-75">Bat Lever</span>
         </button>
         <button id="pre-deco-fluted" class="px-2.5 py-1.5 text-[11px] font-medium rounded bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 transition flex items-center justify-between">
-          <span>4. Fluted + Gold Collars</span>
-          <span class="text-[9px] font-mono opacity-75">3D Relief</span>
+          <span>4. Fluted + Screw Finial</span>
+          <span class="text-[9px] font-mono opacity-75">Cone Tip</span>
         </button>
       </div>
     </div>
 
     <!-- Scrollable Controls -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+    <div class="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs">
 
-      <!-- SECTION 1: SHARP ARTEOR INNER CAVITY (LOCKED RECTANGLE) -->
-      <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-lg p-3 space-y-3">
+      <!-- SECTION 1: GLUE-ON KNOB BASE & MODULAR SCREW-ON TIP VOLUMES -->
+      <div class="bg-amber-950/25 border border-amber-500/40 rounded-lg p-3 space-y-3">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-sm bg-emerald-400"></span>
-            <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">1. Sharp Rectangular Arteor Cavity</span>
+          <span class="font-semibold text-amber-300 uppercase tracking-wider text-[11px]">1. Glue-On Knob & Screw-On Tip Volume</span>
+          <input id="inp-showtoggles" type="checkbox" checked class="accent-amber-500 w-4 h-4 rounded cursor-pointer" />
+        </div>
+
+        <!-- Tip Volume Style & Assembly Mode -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-slate-300 block mb-1 font-medium">Tip Volume / Finial Shape</label>
+            <select id="inp-tipstyle" class="w-full bg-slate-900 border border-amber-500/40 rounded px-2 py-1.5 text-amber-100">
+              <option value="ball" selected>Large Sphere Ball</option>
+              <option value="teardrop">Rosetta Bulbous Teardrop</option>
+              <option value="mushroom">Mushroom Dome Cap</option>
+              <option value="cone">Conical Saturn Finial</option>
+              <option value="gem">Faceted Octahedron Gem</option>
+              <option value="tbar">Horizontal T-Bar Cylinder</option>
+              <option value="bat">Classic Rounded Bat Stick</option>
+            </select>
           </div>
+          <div>
+            <label class="text-slate-300 block mb-1 font-medium">Tip Assembly Mode</label>
+            <select id="inp-tipjoint" class="w-full bg-slate-900 border border-amber-500/40 rounded px-2 py-1.5 text-amber-100">
+              <option value="screw" selected>2-Part Screw/Peg (Fits Slot!)</option>
+              <option value="onepiece">1-Piece Solid Merged</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tip Volume Dimensions -->
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <div class="flex justify-between mb-1"><span>Tip Dia (W)</span><span id="val-tipdia" class="font-mono text-amber-400">11.0</span></div>
+            <input id="inp-tipdia" type="range" min="4.0" max="24.0" step="0.5" value="11.0" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Tip Len (Z)</span><span id="val-tiplen" class="font-mono text-amber-400">11.0</span></div>
+            <input id="inp-tiplen" type="range" min="4.0" max="22.0" step="0.5" value="11.0" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Thread Peg</span><span id="val-pegdia" class="font-mono text-amber-400">3.2</span></div>
+            <input id="inp-pegdia" type="range" min="2.0" max="5.5" step="0.2" value="3.2" class="w-full" />
+          </div>
+        </div>
+
+        <!-- Shaft / Stick Dimensions -->
+        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-amber-500/20">
+          <div>
+            <div class="flex justify-between mb-1"><span>Shaft Len</span><span id="val-tlen" class="font-mono text-amber-400">14.0</span></div>
+            <input id="inp-tlen" type="range" min="6" max="28" step="0.5" value="14.0" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Shaft Dia</span><span id="val-tbase" class="font-mono text-amber-400">4.4</span></div>
+            <input id="inp-tbase" type="range" min="2.6" max="8.0" step="0.2" value="4.4" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Neck Riser</span><span id="val-neckh" class="font-mono text-amber-400">2.5</span></div>
+            <input id="inp-neckh" type="range" min="0" max="8.0" step="0.5" value="2.5" class="w-full" />
+          </div>
+        </div>
+
+        <!-- Glue-On Base Pad Dimensions (Including Base Thickness!) -->
+        <div class="pt-1 border-t border-amber-500/20 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-200">Glue-On Switch Base Pad</span>
+            <span class="text-[10px] font-mono text-amber-400">Glues to Original Switch</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <div class="flex justify-between mb-1"><span class="font-semibold text-white">Base Thick</span><span id="val-foott" class="font-mono text-amber-300 font-bold">2.8 mm</span></div>
+              <input id="inp-foott" type="range" min="0.8" max="8.0" step="0.2" value="2.8" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Base W</span><span id="val-footw" class="font-mono text-amber-400">11.0</span></div>
+              <input id="inp-footw" type="range" min="5" max="22" step="0.5" value="11.0" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Base H</span><span id="val-footh" class="font-mono text-amber-400">18.0</span></div>
+              <input id="inp-footh" type="range" min="8" max="32" step="0.5" value="18.0" class="w-full" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-slate-400 block mb-1">Base Underside Profile</label>
+              <select id="inp-footprofile" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="flat">Flat Pad (Prints Flat)</option>
+                <option value="vroof">Rocker V-Saddle</option>
+                <option value="pocket">Recessed Glue/Tape Pocket</option>
+              </select>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Rocker Tilt</span><span id="val-tang" class="font-mono text-amber-400">15°</span></div>
+              <input id="inp-tang" type="range" min="-25" max="25" step="1" value="15" class="w-full mt-1" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: SHARP ARTEOR INNER CAVITY (LOCKED 90° RECTANGLE) -->
+      <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-lg p-3 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">2. Sharp 90° Arteor Inner Cavity</span>
           <button id="btn-flip" class="px-2 py-0.5 rounded bg-emerald-600/30 hover:bg-emerald-600/50 text-[10px] text-emerald-200 border border-emerald-500/40 transition">
             Inspect Back Pocket
           </button>
         </div>
-        <p class="text-[11px] text-slate-400 leading-tight">
-          Always stays a sharp 90° rectangle on the inside to fit your original wall plate—even when the outer shell is bubbly or round.
-        </p>
 
         <div class="grid grid-cols-3 gap-2">
           <div>
@@ -97,136 +185,75 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-1">
+        <div class="grid grid-cols-3 gap-2">
           <div>
-            <div class="flex justify-between mb-1"><span>Min Wall</span><span id="val-wall" class="font-mono text-emerald-400">3.5 mm</span></div>
+            <div class="flex justify-between mb-1"><span>Min Wall</span><span id="val-wall" class="font-mono text-emerald-400">3.5</span></div>
             <input id="inp-wall" type="range" min="2.0" max="12.0" step="0.5" value="3.5" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Face Thick</span><span id="val-face" class="font-mono text-emerald-400">3.2 mm</span></div>
+            <div class="flex justify-between mb-1"><span>Face Z</span><span id="val-face" class="font-mono text-emerald-400">3.2</span></div>
             <input id="inp-face" type="range" min="2.0" max="7.0" step="0.2" value="3.2" class="w-full" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Snap Lip</span><span id="val-lip" class="font-mono text-emerald-400">0.8 mm</span></div>
+            <div class="flex justify-between mb-1"><span>Snap Lip</span><span id="val-lip" class="font-mono text-emerald-400">0.8</span></div>
             <input id="inp-lip" type="range" min="0" max="2.0" step="0.1" value="0.8" class="w-full" />
           </div>
         </div>
       </div>
 
-      <!-- SECTION 2: 3D OUTER SILHOUETTE & BUBBLES -->
-      <div class="bg-rose-950/20 border border-rose-500/30 rounded-lg p-3 space-y-3">
+      <!-- SECTION 3: OUTER SILHOUETTE & 3D INLAYS -->
+      <div class="bg-rose-950/20 border border-rose-500/30 rounded-lg p-3 space-y-2.5">
         <div class="flex items-center justify-between">
-          <span class="font-semibold text-rose-300 uppercase tracking-wider text-[11px]">2. Outer 3D Body & Ceramic Bubbles</span>
-          <span id="hud-outer-dims" class="text-[10px] font-mono text-rose-300">125 × 91 mm</span>
+          <span class="font-semibold text-rose-300 uppercase tracking-wider text-[11px]">3. Outer Silhouette & 3D Overlays</span>
+          <span id="hud-outer-dims" class="text-[10px] font-mono text-rose-300">133 × 99 mm</span>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-slate-400 block mb-1">Outer Silhouette Mode</label>
-            <select id="inp-silhouette" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-slate-200">
-              <option value="bubble_rim">Rosetta 3D Bubble Perimeter</option>
-              <option value="merged_lobes">Rosetta Merged Circle Lobes</option>
+            <label class="text-slate-400 block mb-1">Outer Body Shape</label>
+            <select id="inp-silhouette" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
+              <option value="bubble_rim">Rosetta 3D Bubble Cloud</option>
+              <option value="merged_lobes">Rosetta Merged Circles</option>
               <option value="pillow_rect">Rounded Pillow Plate</option>
               <option value="vstripes">Multi-Color Vertical Stripes</option>
             </select>
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Outer Corner R</span><span id="val-corner" class="font-mono text-rose-400">14.0 mm</span></div>
-            <input id="inp-corner" type="range" min="1" max="32" step="0.5" value="14.0" class="w-full mt-1" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <div class="flex justify-between mb-1"><span>Bubble Dia</span><span id="val-bubdia" class="font-mono text-rose-400">22.0</span></div>
-            <input id="inp-bubdia" type="range" min="10" max="38" step="1" value="22" class="w-full" />
-          </div>
-          <div>
-            <div class="flex justify-between mb-1"><span>3D Puff Z</span><span id="val-bubpuff" class="font-mono text-rose-400">6.5</span></div>
-            <input id="inp-bubpuff" type="range" min="1.5" max="14" step="0.5" value="6.5" class="w-full" />
-          </div>
-          <div>
-            <div class="flex justify-between mb-1"><span>Stripes</span><span id="val-stripes" class="font-mono text-rose-400">5</span></div>
-            <input id="inp-stripes" type="range" min="2" max="9" step="1" value="5" class="w-full" />
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 3: 3D SURFACE INLAYS, DISCS & RELIEFS -->
-      <div class="bg-purple-950/20 border border-purple-500/30 rounded-lg p-3 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="font-semibold text-purple-300 uppercase tracking-wider text-[11px]">3. 3D Disc Inlays & Surface Reliefs</span>
-          <span class="text-[10px] font-mono text-purple-400">AMS Separate STL</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-slate-400 block mb-1">Front 3D Accent Style</label>
-            <select id="inp-overlay" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-slate-200">
-              <option value="rosetta_discs">Rosetta Color Discs + Rim</option>
-              <option value="donut_wells">Deep Ceramic Donut Wells</option>
+            <label class="text-slate-400 block mb-1">3D Front Relief / Discs</label>
+            <select id="inp-overlay" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
+              <option value="donut_wells">Ceramic Donut Wells</option>
+              <option value="rosetta_discs">Multi-Color Discs + Rim</option>
               <option value="collars">Raised Pill Slot Collars</option>
               <option value="fluted">3D Fluted Columns</option>
               <option value="deco">Stepped Art Deco Frame</option>
               <option value="none">None (Clean Face)</option>
             </select>
           </div>
-          <div>
-            <div class="flex justify-between mb-1"><span>Disc / Feature W</span><span id="val-ovwidth" class="font-mono text-purple-400">34.0 mm</span></div>
-            <input id="inp-ovwidth" type="range" min="4" max="54" step="1" value="34" class="w-full mt-1" />
-          </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-4 gap-2">
           <div>
-            <div class="flex justify-between mb-1"><span>3D Relief Height (Z)</span><span id="val-ovheight" class="font-mono text-purple-400">2.6 mm</span></div>
-            <input id="inp-ovheight" type="range" min="0.6" max="7.0" step="0.2" value="2.6" class="w-full" />
+            <div class="flex justify-between mb-1"><span>Corner R</span><span id="val-corner" class="font-mono text-rose-400">14</span></div>
+            <input id="inp-corner" type="range" min="1" max="32" step="0.5" value="14" class="w-full" />
           </div>
-          <div class="flex items-center justify-between pt-4">
-            <span class="text-slate-300">Glossy Ceramic Glaze</span>
-            <input id="inp-gloss" type="checkbox" checked class="accent-purple-500 w-4 h-4 rounded cursor-pointer" />
+          <div>
+            <div class="flex justify-between mb-1"><span>Bub Dia</span><span id="val-bubdia" class="font-mono text-rose-400">23</span></div>
+            <input id="inp-bubdia" type="range" min="10" max="38" step="1" value="23" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Disc W</span><span id="val-ovwidth" class="font-mono text-purple-400">34</span></div>
+            <input id="inp-ovwidth" type="range" min="6" max="54" step="1" value="34" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Relief Z</span><span id="val-ovheight" class="font-mono text-purple-400">2.8</span></div>
+            <input id="inp-ovheight" type="range" min="0.6" max="7.0" step="0.2" value="2.8" class="w-full" />
           </div>
         </div>
       </div>
 
-      <!-- SECTION 4: COLOR PALETTE (MULTI-GANG DISCS + BODY) -->
+      <!-- SECTION 4: GANGS, SLOTS & COLORS -->
       <div class="bg-slate-800/40 border border-slate-800 rounded-lg p-3 space-y-2.5">
-        <span class="font-semibold text-slate-200 uppercase tracking-wider text-[11px] block">4. Multi-Color Ceramic Palette</span>
-        <div class="grid grid-cols-5 gap-1.5">
-          <div>
-            <label class="text-[9px] text-slate-400 block mb-1 truncate">Body A</label>
-            <input id="inp-cola" type="color" value="#d91b1b" class="w-full h-7 rounded cursor-pointer bg-transparent border border-slate-700" />
-          </div>
-          <div>
-            <label class="text-[9px] text-slate-400 block mb-1 truncate">Body B / Rim</label>
-            <input id="inp-colb" type="color" value="#f5ebe1" class="w-full h-7 rounded cursor-pointer bg-transparent border border-slate-700" />
-          </div>
-          <div>
-            <label class="text-[9px] text-slate-400 block mb-1 truncate">Disc 1</label>
-            <input id="inp-cold1" type="color" value="#f4b6c2" class="w-full h-7 rounded cursor-pointer bg-transparent border border-slate-700" />
-          </div>
-          <div>
-            <label class="text-[9px] text-slate-400 block mb-1 truncate">Disc 2</label>
-            <input id="inp-cold2" type="color" value="#8ec5d6" class="w-full h-7 rounded cursor-pointer bg-transparent border border-slate-700" />
-          </div>
-          <div>
-            <label class="text-[9px] text-slate-400 block mb-1 truncate">Disc 3</label>
-            <input id="inp-cold3" type="color" value="#8b0000" class="w-full h-7 rounded cursor-pointer bg-transparent border border-slate-700" />
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 5: GANGS, CUTOUTS & GLUE-ON KNOB -->
-      <div class="bg-amber-950/20 border border-amber-500/30 rounded-lg p-3 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="font-semibold text-amber-300 uppercase tracking-wider text-[11px]">5. Gangs & Glue-On Switch Knobs</span>
-          <div class="flex items-center gap-2">
-            <input id="inp-colt" type="color" value="#7c2d12" class="w-6 h-5 rounded cursor-pointer bg-transparent border border-slate-700" />
-            <input id="inp-showtoggles" type="checkbox" checked class="accent-amber-500 w-4 h-4 rounded cursor-pointer" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-4 gap-2">
           <div>
             <label class="text-slate-400 block mb-1">Gangs</label>
             <select id="inp-gangs" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200">
@@ -237,35 +264,43 @@
             </select>
           </div>
           <div>
-            <label class="text-slate-400 block mb-1">Cutout</label>
-            <select id="inp-slotstyle" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200">
-              <option value="pill">Pill Slot</option>
-              <option value="round">Round Hole</option>
-              <option value="rect">Rocker Slot</option>
-            </select>
-          </div>
-          <div>
-            <div class="flex justify-between mb-1"><span>Pitch</span><span id="val-pitch" class="font-mono text-amber-400">36.0</span></div>
+            <div class="flex justify-between mb-1"><span>Pitch</span><span id="val-pitch" class="font-mono text-sky-400">36.0</span></div>
             <input id="inp-pitch" type="range" min="18" max="48" step="0.5" value="36.0" class="w-full mt-1" />
           </div>
-        </div>
-
-        <div class="grid grid-cols-4 gap-2">
           <div>
             <div class="flex justify-between mb-1"><span>Slot W</span><span id="val-slotw" class="font-mono text-sky-400">5.8</span></div>
-            <input id="inp-slotw" type="range" min="3.5" max="28" step="0.2" value="5.8" class="w-full" />
+            <input id="inp-slotw" type="range" min="3.5" max="28" step="0.2" value="5.8" class="w-full mt-1" />
           </div>
           <div>
             <div class="flex justify-between mb-1"><span>Slot H</span><span id="val-sloth" class="font-mono text-sky-400">14.5</span></div>
-            <input id="inp-sloth" type="range" min="5" max="35" step="0.5" value="14.5" class="w-full" />
+            <input id="inp-sloth" type="range" min="5" max="35" step="0.5" value="14.5" class="w-full mt-1" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-6 gap-1.5 pt-1">
+          <div>
+            <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Body A</label>
+            <input id="inp-cola" type="color" value="#d91b1b" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Stick L</span><span id="val-tlen" class="font-mono text-amber-400">16.5</span></div>
-            <input id="inp-tlen" type="range" min="8" max="28" step="0.5" value="16.5" class="w-full" />
+            <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Body B</label>
+            <input id="inp-colb" type="color" value="#f5ebe1" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
           </div>
           <div>
-            <div class="flex justify-between mb-1"><span>Foot W</span><span id="val-footw" class="font-mono text-amber-400">10.5</span></div>
-            <input id="inp-footw" type="range" min="5" max="20" step="0.5" value="10.5" class="w-full" />
+            <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Disc 1</label>
+            <input id="inp-cold1" type="color" value="#f4b6c2" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Disc 2</label>
+            <input id="inp-cold2" type="color" value="#8ec5d6" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-400 block mb-0.5 truncate">Knob Base</label>
+            <input id="inp-colt" type="color" value="#f5ebe1" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" />
+          </div>
+          <div>
+            <label class="text-[9px] text-amber-300 block mb-0.5 truncate">Tip Ball</label>
+            <input id="inp-coltip" type="color" value="#fbbf24" class="w-full h-6 rounded cursor-pointer bg-transparent border border-amber-500/50" />
           </div>
         </div>
       </div>
@@ -273,42 +308,45 @@
     </div>
 
     <!-- EXPORT FOOTER -->
-    <div class="p-4 border-t border-slate-800 bg-slate-950 space-y-2">
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btn-exp-cover" class="py-2 px-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-xs shadow-lg shadow-rose-600/25 transition">
-          Export Full Cover STL
+    <div class="p-3.5 border-t border-slate-800 bg-slate-950 space-y-1.5">
+      <div class="grid grid-cols-3 gap-1.5">
+        <button id="btn-exp-cover" class="py-2 px-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-[11px] shadow-lg shadow-rose-600/25 transition truncate">
+          STL: Full Cover
         </button>
-        <button id="btn-exp-toggle" class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded-lg text-xs shadow-lg shadow-amber-500/20 transition">
-          Export Glue Knob STL
+        <button id="btn-exp-stem" class="py-2 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded-lg text-[11px] shadow-lg shadow-amber-500/20 transition truncate">
+          STL: Glue Base+Stem
+        </button>
+        <button id="btn-exp-tip" class="py-2 px-2 bg-amber-300 hover:bg-amber-200 text-slate-950 font-semibold rounded-lg text-[11px] shadow-lg transition truncate">
+          STL: Screw-On Tip
         </button>
       </div>
       <div class="grid grid-cols-3 gap-1.5">
-        <button id="btn-exp-a" class="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">
-          STL: Base Body
+        <button id="btn-exp-a" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">
+          AMS: Base Body
         </button>
-        <button id="btn-exp-b" class="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">
-          STL: Bubbles / B
+        <button id="btn-exp-b" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">
+          AMS: Bubbles / B
         </button>
-        <button id="btn-exp-ov" class="py-1.5 px-2 bg-purple-900/40 hover:bg-purple-800/50 text-purple-200 rounded text-[10px] border border-purple-500/40 transition truncate">
-          STL: 3D Inlays
+        <button id="btn-exp-ov" class="py-1 px-2 bg-purple-900/40 hover:bg-purple-800/50 text-purple-200 rounded text-[10px] border border-purple-500/40 transition truncate">
+          AMS: 3D Inlays
         </button>
       </div>
     </div>
   </aside>
 
   <!-- MAIN 3D VIEWPORT -->
-  <main class="flex-1 relative h-full overflow-hidden bg-slate-950">
+  <main id="viewport-main" class="flex-1 relative h-full overflow-hidden bg-slate-950">
     <!-- Top Floating Toolbar -->
     <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
       <div class="bg-slate-900/90 backdrop-blur border border-slate-800 rounded-lg px-3 py-2 pointer-events-auto flex items-center gap-4 text-xs shadow-lg">
         <div>
-          <span class="text-slate-400">Sharp Arteor Pocket:</span>
-          <span id="hud-cavity" class="font-mono text-emerald-400 font-semibold ml-1">118.0 × 84.0 × 11.5 mm (90° Corners)</span>
+          <span class="text-slate-400">Sharp 90° Arteor Cavity:</span>
+          <span id="hud-cavity" class="font-mono text-emerald-400 font-semibold ml-1">118.0 × 84.0 × 11.5 mm</span>
         </div>
         <div class="h-3 w-px bg-slate-700"></div>
         <div>
-          <span class="text-slate-400">Corner Wall Safety:</span>
-          <span id="hud-safety" class="font-mono text-sky-400 font-semibold ml-1">Auto-Protected</span>
+          <span class="text-slate-400">Slot Assembly:</span>
+          <span id="hud-slot-check" class="font-mono text-amber-400 font-semibold ml-1">2-Part Screw Tip Active</span>
         </div>
       </div>
 
@@ -320,7 +358,7 @@
           Show Arteor Plate
         </button>
         <button id="btn-explode" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
-          Explode Layers
+          Explode Assembly
         </button>
         <button id="btn-wire" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
           Wireframe
@@ -331,983 +369,1082 @@
     <!-- 3D Canvas Container -->
     <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
-    <!-- Bottom 2D Footprint & Sharp Cavity Verification HUD -->
+    <!-- Bottom 2D Side Kinematic & Screw-Tip Section HUD -->
     <div class="absolute bottom-4 right-4 bg-slate-900/95 backdrop-blur border border-slate-800 rounded-lg p-3 shadow-xl pointer-events-auto w-84 z-10">
       <div class="flex items-center justify-between mb-1.5">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-200">Back Footprint vs. Sharp Arteor Plate</span>
-        <span class="text-[10px] font-mono text-emerald-400">Green = 90° Cavity</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-200">Knob Base + Slot + Screw Tip Section</span>
+        <span class="text-[10px] font-mono text-emerald-400">Side & Cavity Fit</span>
       </div>
       <canvas id="hud-canvas" width="312" height="125" class="w-full rounded bg-slate-950 border border-slate-800"></canvas>
     </div>
   </main>
 
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+  <script>
+    // Wait for DOM layout so container dimensions are guaranteed non-zero
+    window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('canvas-container');
+      const initW = Math.max(400, container.clientWidth || (window.innerWidth - 440));
+      const initH = Math.max(400, container.clientHeight || window.innerHeight);
 
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b1120);
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x090d16);
 
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 1, 2500);
-    camera.position.set(0, -25, 245);
+      const camera = new THREE.PerspectiveCamera(40, initW / initH, 1, 2500);
+      camera.position.set(55, -35, 235);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-    container.appendChild(renderer.domElement);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(initW, initH);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
 
-    // --- LIGHTING (GLOSSY CERAMIC STUDIO) ---
-    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+      // --- STUDIO LIGHTING ---
+      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
-    keyLight.position.set(80, 120, 180);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(2048, 2048);
-    keyLight.shadow.camera.left = -150;
-    keyLight.shadow.camera.right = 150;
-    keyLight.shadow.camera.top = 150;
-    keyLight.shadow.camera.bottom = -150;
-    keyLight.shadow.bias = -0.0005;
-    scene.add(keyLight);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
+      keyLight.position.set(85, 130, 185);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.set(2048, 2048);
+      keyLight.shadow.camera.left = -150;
+      keyLight.shadow.camera.right = 150;
+      keyLight.shadow.camera.top = 150;
+      keyLight.shadow.camera.bottom = -150;
+      keyLight.shadow.bias = -0.0005;
+      scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xbae6fd, 0.75);
-    rimLight.position.set(-110, -90, 120);
-    scene.add(rimLight);
+      const rimLight = new THREE.DirectionalLight(0x93c5fd, 0.65);
+      rimLight.position.set(-120, -80, 110);
+      scene.add(rimLight);
 
-    const topSpecLight = new THREE.PointLight(0xffffff, 0.9, 500);
-    topSpecLight.position.set(0, 90, 140);
-    scene.add(topSpecLight);
+      const pointLight = new THREE.PointLight(0xffffff, 0.6, 450);
+      pointLight.position.set(0, 80, 150);
+      scene.add(pointLight);
 
-    // --- SHARP ARTEOR REFERENCE PLATE & WALL ---
-    const wallGroup = new THREE.Group();
-    scene.add(wallGroup);
+      // --- WALL & ARTEOR ORIGINAL SWITCH BASE ---
+      const wallGroup = new THREE.Group();
+      scene.add(wallGroup);
 
-    const arteorUnderMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(118, 84, 5.5),
-      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25 })
-    );
-    arteorUnderMesh.position.z = 2.75;
-    wallGroup.add(arteorUnderMesh);
+      const arteorUnderMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(118, 84, 5.5),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 })
+      );
+      arteorUnderMesh.position.z = 2.75;
+      wallGroup.add(arteorUnderMesh);
 
-    const originalRockersGroup = new THREE.Group();
-    wallGroup.add(originalRockersGroup);
+      const originalRockersGroup = new THREE.Group();
+      wallGroup.add(originalRockersGroup);
 
-    // --- EXPORTABLE MODEL GROUPS ---
-    const coverGroup = new THREE.Group();
-    const bubblesGroup = new THREE.Group();
-    const overlayGroup = new THREE.Group();
-    const toggleGroup = new THREE.Group();
-    scene.add(coverGroup);
-    scene.add(bubblesGroup);
-    scene.add(overlayGroup);
-    scene.add(toggleGroup);
+      // --- EXPORTABLE MODEL GROUPS ---
+      const coverGroup = new THREE.Group();
+      const bubblesGroup = new THREE.Group();
+      const overlayGroup = new THREE.Group();
+      const toggleStemGroup = new THREE.Group();
+      const toggleTipGroup = new THREE.Group();
+      scene.add(coverGroup);
+      scene.add(bubblesGroup);
+      scene.add(overlayGroup);
+      scene.add(toggleStemGroup);
+      scene.add(toggleTipGroup);
 
-    let isExploded = false;
-    let isWireframe = false;
-    let isBackView = false;
-    let isKnobOnly = false;
-    let showWall = false;
-    wallGroup.visible = showWall;
-    let rockPolarity = 1;
+      let isExploded = false;
+      let isWireframe = false;
+      let isBackView = false;
+      let isKnobOnly = false;
+      let showWall = false;
+      wallGroup.visible = showWall;
+      let rockPolarity = 1;
 
-    // --- GEOMETRY HELPERS ---
-    // Sharp rectangle hole path (clockwise winding for Three.js hole subtraction)
-    function createSharpRectHolePath(w, h) {
-      const hw = w / 2, hh = h / 2;
-      const pts = [
-        new THREE.Vector2(-hw, -hh),
-        new THREE.Vector2(-hw,  hh),
-        new THREE.Vector2( hw,  hh),
-        new THREE.Vector2( hw, -hh)
-      ];
-      return new THREE.Path(pts);
-    }
-
-    function getRoundedRectPoints(w, h, r, segmentsPerCorner = 16) {
-      const hw = w / 2, hh = h / 2;
-      const rad = Math.min(Math.max(0.2, r), hw - 0.05, hh - 0.05);
-      const pts = [];
-      const corners = [
-        { cx: hw - rad, cy: -hh + rad, start: -Math.PI / 2 },
-        { cx: hw - rad, cy: hh - rad, start: 0 },
-        { cx: -hw + rad, cy: hh - rad, start: Math.PI / 2 },
-        { cx: -hw + rad, cy: -hh + rad, start: Math.PI }
-      ];
-      for (let c = 0; c < 4; c++) {
-        const startIdx = c === 0 ? 0 : 1;
-        for (let i = startIdx; i <= segmentsPerCorner; i++) {
-          const ang = corners[c].start + (i / segmentsPerCorner) * (Math.PI / 2);
-          pts.push(new THREE.Vector2(
-            corners[c].cx + rad * Math.cos(ang),
-            corners[c].cy + rad * Math.sin(ang)
-          ));
-        }
+      // --- 2D SHAPE & CLIPPING HELPERS ---
+      function createSharpRectHolePath(w, h) {
+        const hw = w / 2, hh = h / 2;
+        const pts = [
+          new THREE.Vector2(-hw, -hh),
+          new THREE.Vector2(-hw,  hh),
+          new THREE.Vector2( hw,  hh),
+          new THREE.Vector2( hw, -hh)
+        ];
+        return new THREE.Path(pts);
       }
-      return pts;
-    }
 
-    function createRoundedRectShape(w, h, r) {
-      return new THREE.Shape(getRoundedRectPoints(w, h, r, 16));
-    }
-
-    function createRoundedRectPath(w, h, r) {
-      return new THREE.Path(getRoundedRectPoints(w, h, r, 16).reverse());
-    }
-
-    // Generate exact 2D union outline of N horizontally merged circles (Rosetta IMG_7768 style)
-    function getMergedLobesOutline(gangs, pitch, lobeRadius, samples = 220) {
-      const n = Math.max(1, gangs);
-      const span = (n - 1) * pitch;
-      const xStart = -span / 2 - lobeRadius;
-      const xEnd = span / 2 + lobeRadius;
-      const topPts = [];
-      const botPts = [];
-
-      for (let i = 0; i <= samples; i++) {
-        const x = xStart + (i / samples) * (xEnd - xStart);
-        let maxY = 0;
-        for (let g = 0; g < n; g++) {
-          const cx = -span / 2 + g * pitch;
-          const dx = x - cx;
-          if (Math.abs(dx) <= lobeRadius) {
-            const y = Math.sqrt(Math.max(0, lobeRadius * lobeRadius - dx * dx));
-            if (y > maxY) maxY = y;
+      function getRoundedRectPoints(w, h, r, segmentsPerCorner = 16) {
+        const hw = w / 2, hh = h / 2;
+        const rad = Math.min(Math.max(0.2, r), hw - 0.05, hh - 0.05);
+        const pts = [];
+        const corners = [
+          { cx: hw - rad, cy: -hh + rad, start: -Math.PI / 2 },
+          { cx: hw - rad, cy: hh - rad, start: 0 },
+          { cx: -hw + rad, cy: hh - rad, start: Math.PI / 2 },
+          { cx: -hw + rad, cy: -hh + rad, start: Math.PI }
+        ];
+        for (let c = 0; c < 4; c++) {
+          const startIdx = c === 0 ? 0 : 1;
+          for (let i = startIdx; i <= segmentsPerCorner; i++) {
+            const ang = corners[c].start + (i / segmentsPerCorner) * (Math.PI / 2);
+            pts.push(new THREE.Vector2(
+              corners[c].cx + rad * Math.cos(ang),
+              corners[c].cy + rad * Math.sin(ang)
+            ));
           }
         }
-        topPts.push(new THREE.Vector2(x, maxY));
-        botPts.push(new THREE.Vector2(x, -maxY));
+        return pts;
       }
-      botPts.reverse();
-      return [...topPts, ...botPts];
-    }
 
-    // 2D Polygon Clipper against a bounding box
-    function clipPolygonBounds(points, xMin, xMax, yMin = -1e5, yMax = 1e5) {
-      function clipEdge(poly, insideFn, intersectFn) {
-        const out = [];
-        if (poly.length === 0) return out;
-        for (let i = 0; i < poly.length; i++) {
-          const cur = poly[i];
-          const prev = poly[(i + poly.length - 1) % poly.length];
-          const curIn = insideFn(cur);
-          const prevIn = insideFn(prev);
-          if (curIn !== prevIn) out.push(intersectFn(prev, cur));
-          if (curIn) out.push(cur.clone());
+      function createRoundedRectShape(w, h, r) {
+        return new THREE.Shape(getRoundedRectPoints(w, h, r, 16));
+      }
+
+      function createRoundedRectPath(w, h, r) {
+        return new THREE.Path(getRoundedRectPoints(w, h, r, 16).reverse());
+      }
+
+      function getMergedLobesOutline(gangs, pitch, lobeRadius, samples = 200) {
+        const n = Math.max(1, gangs);
+        const span = (n - 1) * pitch;
+        const xStart = -span / 2 - lobeRadius;
+        const xEnd = span / 2 + lobeRadius;
+        const topPts = [];
+        const botPts = [];
+
+        for (let i = 0; i <= samples; i++) {
+          const x = xStart + (i / samples) * (xEnd - xStart);
+          let maxY = 0;
+          for (let g = 0; g < n; g++) {
+            const cx = -span / 2 + g * pitch;
+            const dx = x - cx;
+            if (Math.abs(dx) <= lobeRadius) {
+              const y = Math.sqrt(Math.max(0, lobeRadius * lobeRadius - dx * dx));
+              if (y > maxY) maxY = y;
+            }
+          }
+          topPts.push(new THREE.Vector2(x, maxY));
+          botPts.push(new THREE.Vector2(x, -maxY));
         }
-        return out;
+        botPts.reverse();
+        return [...topPts, ...botPts];
       }
-      let res = points;
-      res = clipEdge(res, p => p.x >= xMin, (a, b) => new THREE.Vector2(xMin, a.y + ((xMin - a.x) / (b.x - a.x)) * (b.y - a.y)));
-      res = clipEdge(res, p => p.x <= xMax, (a, b) => new THREE.Vector2(xMax, a.y + ((xMax - a.x) / (b.x - a.x)) * (b.y - a.y)));
-      res = clipEdge(res, p => p.y >= yMin, (a, b) => new THREE.Vector2(a.x + ((yMin - a.y) / (b.y - a.y)) * (b.x - a.x), yMin));
-      res = clipEdge(res, p => p.y <= yMax, (a, b) => new THREE.Vector2(a.x + ((yMax - a.y) / (b.y - a.y)) * (b.x - a.x), yMax));
-      return res;
-    }
 
-    // Clip outer rounded skirt against sharp rectangular inner cavity [±cavW/2, ±cavH/2] for vertical stripes
-    function buildSharpCavityStripeSkirts(outerPts, xMin, xMax, cavW, cavH, cavD, mat) {
-      const meshes = [];
-      const halfInW = cavW / 2;
-      const halfInH = cavH / 2;
+      function clipPolygonBounds(points, xMin, xMax, yMin = -1e5, yMax = 1e5) {
+        function clipEdge(poly, insideFn, intersectFn) {
+          const out = [];
+          if (poly.length === 0) return out;
+          for (let i = 0; i < poly.length; i++) {
+            const cur = poly[i];
+            const prev = poly[(i + poly.length - 1) % poly.length];
+            const curIn = insideFn(cur);
+            const prevIn = insideFn(prev);
+            if (curIn !== prevIn) out.push(intersectFn(prev, cur));
+            if (curIn) out.push(cur.clone());
+          }
+          return out;
+        }
+        let res = points;
+        res = clipEdge(res, p => p.x >= xMin, (a, b) => new THREE.Vector2(xMin, a.y + ((xMin - a.x) / (b.x - a.x)) * (b.y - a.y)));
+        res = clipEdge(res, p => p.x <= xMax, (a, b) => new THREE.Vector2(xMax, a.y + ((xMax - a.x) / (b.x - a.x)) * (b.y - a.y)));
+        res = clipEdge(res, p => p.y >= yMin, (a, b) => new THREE.Vector2(a.x + ((yMin - a.y) / (b.y - a.y)) * (b.x - a.x), yMin));
+        res = clipEdge(res, p => p.y <= yMax, (a, b) => new THREE.Vector2(a.x + ((yMax - a.y) / (b.y - a.y)) * (b.x - a.x), yMax));
+        return res;
+      }
 
-      if (xMax <= -halfInW + 0.05 || xMin >= halfInW - 0.05) {
-        const poly = clipPolygonBounds(outerPts, xMin, xMax);
-        if (poly.length >= 3) {
-          meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(poly), { depth: cavD, bevelEnabled: false }), mat));
+      function buildSharpCavityStripeSkirts(outerPts, xMin, xMax, cavW, cavH, cavD, mat) {
+        const meshes = [];
+        const halfInW = cavW / 2;
+        const halfInH = cavH / 2;
+
+        if (xMax <= -halfInW + 0.05 || xMin >= halfInW - 0.05) {
+          const poly = clipPolygonBounds(outerPts, xMin, xMax);
+          if (poly.length >= 3) {
+            meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(poly), { depth: cavD, bevelEnabled: false }), mat));
+          }
+          return meshes;
+        }
+
+        if (xMin < -halfInW) {
+          const leftCap = clipPolygonBounds(outerPts, xMin, -halfInW);
+          if (leftCap.length >= 3) {
+            meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(leftCap), { depth: cavD, bevelEnabled: false }), mat));
+          }
+        }
+
+        if (xMax > halfInW) {
+          const rightCap = clipPolygonBounds(outerPts, halfInW, xMax);
+          if (rightCap.length >= 3) {
+            meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(rightCap), { depth: cavD, bevelEnabled: false }), mat));
+          }
+        }
+
+        const midXMin = Math.max(xMin, -halfInW);
+        const midXMax = Math.min(xMax, halfInW);
+        if (midXMax - midXMin > 0.05) {
+          const topSlice = clipPolygonBounds(outerPts, midXMin, midXMax, halfInH, 1e5);
+          if (topSlice.length >= 3) {
+            meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(topSlice), { depth: cavD, bevelEnabled: false }), mat));
+          }
+          const botSlice = clipPolygonBounds(outerPts, midXMin, midXMax, -1e5, -halfInH);
+          if (botSlice.length >= 3) {
+            meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(botSlice), { depth: cavD, bevelEnabled: false }), mat));
+          }
         }
         return meshes;
       }
 
-      if (xMin < -halfInW) {
-        const leftCap = clipPolygonBounds(outerPts, xMin, -halfInW);
-        if (leftCap.length >= 3) {
-          meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(leftCap), { depth: cavD, bevelEnabled: false }), mat));
-        }
+      function getParams() {
+        return {
+          tipStyle: document.getElementById('inp-tipstyle').value,
+          tipJoint: document.getElementById('inp-tipjoint').value,
+          tipDia: parseFloat(document.getElementById('inp-tipdia').value),
+          tipLen: parseFloat(document.getElementById('inp-tiplen').value),
+          pegDia: parseFloat(document.getElementById('inp-pegdia').value),
+          tLen: parseFloat(document.getElementById('inp-tlen').value),
+          tBase: parseFloat(document.getElementById('inp-tbase').value),
+          neckH: parseFloat(document.getElementById('inp-neckh').value),
+          footT: parseFloat(document.getElementById('inp-foott').value),
+          footW: parseFloat(document.getElementById('inp-footw').value),
+          footH: parseFloat(document.getElementById('inp-footh').value),
+          footProfile: document.getElementById('inp-footprofile').value,
+          tAng: parseFloat(document.getElementById('inp-tang').value) * rockPolarity,
+          showToggles: document.getElementById('inp-showtoggles').checked,
+          cavW: parseFloat(document.getElementById('inp-cavw').value),
+          cavH: parseFloat(document.getElementById('inp-cavh').value),
+          cavD: parseFloat(document.getElementById('inp-cavd').value),
+          wall: parseFloat(document.getElementById('inp-wall').value),
+          face: parseFloat(document.getElementById('inp-face').value),
+          lip: parseFloat(document.getElementById('inp-lip').value),
+          silhouette: document.getElementById('inp-silhouette').value,
+          overlay: document.getElementById('inp-overlay').value,
+          corner: parseFloat(document.getElementById('inp-corner').value),
+          bubDia: parseFloat(document.getElementById('inp-bubdia').value),
+          ovWidth: parseFloat(document.getElementById('inp-ovwidth').value),
+          ovHeight: parseFloat(document.getElementById('inp-ovheight').value),
+          gangs: parseInt(document.getElementById('inp-gangs').value),
+          pitch: parseFloat(document.getElementById('inp-pitch').value),
+          slotW: parseFloat(document.getElementById('inp-slotw').value),
+          slotH: parseFloat(document.getElementById('inp-sloth').value),
+          colA: document.getElementById('inp-cola').value,
+          colB: document.getElementById('inp-colb').value,
+          colD1: document.getElementById('inp-cold1').value,
+          colD2: document.getElementById('inp-cold2').value,
+          colT: document.getElementById('inp-colt').value,
+          colTip: document.getElementById('inp-coltip').value
+        };
       }
 
-      if (xMax > halfInW) {
-        const rightCap = clipPolygonBounds(outerPts, halfInW, xMax);
-        if (rightCap.length >= 3) {
-          meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(rightCap), { depth: cavD, bevelEnabled: false }), mat));
-        }
-      }
-
-      const midXMin = Math.max(xMin, -halfInW);
-      const midXMax = Math.min(xMax, halfInW);
-      if (midXMax - midXMin > 0.05) {
-        const topSlice = clipPolygonBounds(outerPts, midXMin, midXMax, halfInH, 1e5);
-        if (topSlice.length >= 3) {
-          meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(topSlice), { depth: cavD, bevelEnabled: false }), mat));
-        }
-        const botSlice = clipPolygonBounds(outerPts, midXMin, midXMax, -1e5, -halfInH);
-        if (botSlice.length >= 3) {
-          meshes.push(new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(botSlice), { depth: cavD, bevelEnabled: false }), mat));
-        }
-      }
-      return meshes;
-    }
-
-    function getParams() {
-      return {
-        cavW: parseFloat(document.getElementById('inp-cavw').value),
-        cavH: parseFloat(document.getElementById('inp-cavh').value),
-        cavD: parseFloat(document.getElementById('inp-cavd').value),
-        wall: parseFloat(document.getElementById('inp-wall').value),
-        face: parseFloat(document.getElementById('inp-face').value),
-        lip: parseFloat(document.getElementById('inp-lip').value),
-        silhouette: document.getElementById('inp-silhouette').value,
-        corner: parseFloat(document.getElementById('inp-corner').value),
-        bubDia: parseFloat(document.getElementById('inp-bubdia').value),
-        bubPuff: parseFloat(document.getElementById('inp-bubpuff').value),
-        stripes: parseInt(document.getElementById('inp-stripes').value),
-        overlay: document.getElementById('inp-overlay').value,
-        ovWidth: parseFloat(document.getElementById('inp-ovwidth').value),
-        ovHeight: parseFloat(document.getElementById('inp-ovheight').value),
-        gloss: document.getElementById('inp-gloss').checked,
-        colA: document.getElementById('inp-cola').value,
-        colB: document.getElementById('inp-colb').value,
-        colD1: document.getElementById('inp-cold1').value,
-        colD2: document.getElementById('inp-cold2').value,
-        colD3: document.getElementById('inp-cold3').value,
-        colT: document.getElementById('inp-colt').value,
-        gangs: parseInt(document.getElementById('inp-gangs').value),
-        slotStyle: document.getElementById('inp-slotstyle').value,
-        pitch: parseFloat(document.getElementById('inp-pitch').value),
-        slotW: parseFloat(document.getElementById('inp-slotw').value),
-        slotH: parseFloat(document.getElementById('inp-sloth').value),
-        showToggles: document.getElementById('inp-showtoggles').checked,
-        tLen: parseFloat(document.getElementById('inp-tlen').value),
-        footW: parseFloat(document.getElementById('inp-footw').value),
-        tAng: 16 * rockPolarity
-      };
-    }
-
-    function createCeramicMat(hex, isGloss, wire) {
-      return new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color(hex),
-        roughness: isGloss ? 0.12 : 0.38,
-        metalness: 0.03,
-        clearcoat: isGloss ? 1.0 : 0.0,
-        clearcoatRoughness: 0.08,
-        wireframe: wire
-      });
-    }
-
-    function makeSlotHolePath(gx, p, extraMargin = 0) {
-      const w = p.slotW + extraMargin * 2;
-      const h = p.slotH + extraMargin * 2;
-      if (p.slotStyle === 'round') {
-        const path = new THREE.Path();
-        path.absarc(gx, 0, w / 2, 0, Math.PI * 2, true);
-        return path;
-      }
-      const sRad = p.slotStyle === 'pill' ? Math.min(w, h) / 2 : 1.4;
-      const pts = getRoundedRectPoints(w, h, sRad, 14).reverse();
-      pts.forEach(pt => { pt.x += gx; });
-      return new THREE.Path(pts);
-    }
-
-    // --- BUILD GLUE-ON ROCKER KNOB ---
-    function buildGlueOnKnob(p) {
-      const group = new THREE.Group();
-      const mat = createCeramicMat(p.colT, p.gloss, isWireframe);
-
-      const fW = p.footW;
-      const fH = 17.5;
-      const fT = 2.6;
-      const footGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(fW, fH, 2.0), {
-        depth: fT,
-        bevelEnabled: true,
-        bevelSize: 0.3,
-        bevelThickness: 0.3,
-        bevelSegments: 3
-      });
-      group.add(new THREE.Mesh(footGeo, mat));
-
-      const rTip = 2.6;
-      const rBase = 2.1;
-      const neckH = 3.0;
-      const neckGeo = new THREE.CylinderGeometry(rBase * 1.1, Math.min(fW, fH) * 0.35, neckH, 24);
-      neckGeo.rotateX(Math.PI / 2);
-      neckGeo.translate(0, 0, fT + neckH / 2);
-      group.add(new THREE.Mesh(neckGeo, mat));
-
-      const zCursor = fT + neckH;
-      const stemLen = Math.max(4, p.tLen - rTip);
-      const stemGeo = new THREE.CylinderGeometry(rTip, rBase, stemLen, 28);
-      stemGeo.rotateX(Math.PI / 2);
-      stemGeo.translate(0, 0, zCursor + stemLen / 2);
-      group.add(new THREE.Mesh(stemGeo, mat));
-
-      // Bulbous tip like Rosetta Ceramica toggle lever
-      const domeGeo = new THREE.SphereGeometry(rTip * 1.18, 28, 18);
-      domeGeo.translate(0, 0, zCursor + stemLen);
-      group.add(new THREE.Mesh(domeGeo, mat));
-
-      return group;
-    }
-
-    // --- MAIN REBUILD ---
-    function rebuildModel() {
-      const p = getParams();
-
-      // Update UI Readouts
-      document.getElementById('val-cavw').textContent = p.cavW.toFixed(1);
-      document.getElementById('val-cavh').textContent = p.cavH.toFixed(1);
-      document.getElementById('val-cavd').textContent = p.cavD.toFixed(1);
-      document.getElementById('val-wall').textContent = `${p.wall.toFixed(1)} mm`;
-      document.getElementById('val-face').textContent = `${p.face.toFixed(1)} mm`;
-      document.getElementById('val-lip').textContent = `${p.lip.toFixed(1)} mm`;
-      document.getElementById('val-corner').textContent = `${p.corner.toFixed(1)} mm`;
-      document.getElementById('val-bubdia').textContent = p.bubDia.toFixed(1);
-      document.getElementById('val-bubpuff').textContent = p.bubPuff.toFixed(1);
-      document.getElementById('val-stripes').textContent = p.stripes;
-      document.getElementById('val-ovwidth').textContent = `${p.ovWidth.toFixed(1)} mm`;
-      document.getElementById('val-ovheight').textContent = `${p.ovHeight.toFixed(1)} mm`;
-      document.getElementById('val-pitch').textContent = p.pitch.toFixed(1);
-      document.getElementById('val-slotw').textContent = p.slotW.toFixed(1);
-      document.getElementById('val-sloth').textContent = p.slotH.toFixed(1);
-      document.getElementById('val-tlen').textContent = p.tLen.toFixed(1);
-      document.getElementById('val-footw').textContent = p.footW.toFixed(1);
-
-      document.getElementById('hud-cavity').textContent = `${p.cavW.toFixed(1)} × ${p.cavH.toFixed(1)} × ${p.cavD.toFixed(1)} mm (90° Sharp)`;
-
-      // Calculate safe outer dimensions so the outer rounded corner NEVER intrudes into the sharp 90° inner cavity!
-      // For a circle of radius R at the corner to clear the sharp inner corner by at least p.wall:
-      // R * (1 - 1/sqrt(2)) = 0.2929 * R extra margin if needed, or we clamp outerW/outerH safely.
-      const cornerExtra = Math.max(0, p.corner * 0.293);
-      const outerW = p.cavW + (p.wall + cornerExtra) * 2;
-      const outerH = p.cavH + (p.wall + cornerExtra) * 2;
-      const totalDepth = p.cavD + p.face;
-
-      document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(0)} × ${outerH.toFixed(0)} mm`;
-
-      // Update reference sharp-corner Legrand Arteor wall plate
-      arteorUnderMesh.geometry.dispose();
-      arteorUnderMesh.geometry = new THREE.BoxGeometry(p.cavW - 0.8, p.cavH - 0.8, Math.max(4, p.cavD - 1.0));
-      arteorUnderMesh.position.z = Math.max(4, p.cavD - 1.0) / 2;
-
-      originalRockersGroup.clear();
-      coverGroup.clear();
-      bubblesGroup.clear();
-      overlayGroup.clear();
-      toggleGroup.clear();
-
-      const matA = createCeramicMat(p.colA, p.gloss, isWireframe);
-      const matB = createCeramicMat(p.colB, p.gloss, isWireframe);
-      const discColors = [p.colD1, p.colD2, p.colD3, p.colD1];
-
-      const startX = -((p.gangs - 1) * p.pitch) / 2;
-      const sharpInnerHole = createSharpRectHolePath(p.cavW, p.cavH);
-
-      // --- 1. BUILD MAIN SHELL WITH SHARP RECTANGULAR INNER CAVITY ---
-      let currentOutlinePts = [];
-
-      if (p.silhouette === 'merged_lobes') {
-        // Rosetta Ceramica IMG_7768 style: Overlapping circular lobes guaranteed to enclose the sharp rectangular cavity!
-        const halfSpan = ((p.gangs - 1) * p.pitch) / 2;
-        // Minimum radius so the outer lobe circle at the end gang completely covers (cavW/2, cavH/2) + p.wall
-        const dxCorner = Math.max(0, p.cavW / 2 - halfSpan) + p.wall;
-        const dyCorner = p.cavH / 2 + p.wall;
-        const minSafeRadius = Math.sqrt(dxCorner * dxCorner + dyCorner * dyCorner);
-        const lobeR = Math.max(minSafeRadius, p.ovWidth * 0.78);
-
-        currentOutlinePts = getMergedLobesOutline(p.gangs, p.pitch, lobeR, 220);
-
-        // Skirt with sharp rectangular inner hole
-        const skirtShape = new THREE.Shape(currentOutlinePts);
-        skirtShape.holes.push(sharpInnerHole);
-        const skirtGeo = new THREE.ExtrudeGeometry(skirtShape, { depth: p.cavD, bevelEnabled: false });
-        coverGroup.add(new THREE.Mesh(skirtGeo, matA));
-
-        // Front domed faceplate with pill/round switch slots
-        const faceShape = new THREE.Shape(currentOutlinePts);
-        for (let i = 0; i < p.gangs; i++) {
-          faceShape.holes.push(makeSlotHolePath(startX + i * p.pitch, p));
-        }
-        const bevel = Math.min(p.face * 0.75, 2.5);
-        const faceGeo = new THREE.ExtrudeGeometry(faceShape, {
-          depth: Math.max(0.5, p.face - bevel),
-          bevelEnabled: true,
-          bevelSize: bevel,
-          bevelThickness: bevel,
-          bevelSegments: 6
+      function createGlossMat(hex, wire) {
+        return new THREE.MeshStandardMaterial({
+          color: new THREE.Color(hex),
+          roughness: 0.16,
+          metalness: 0.06,
+          wireframe: wire
         });
-        faceGeo.translate(0, 0, p.cavD);
-        coverGroup.add(new THREE.Mesh(faceGeo, matA));
-
-      } else if (p.silhouette === 'vstripes') {
-        // Multi-Color Vertical Stripes with Sharp Rectangular Inner Cavity & Flush Rounded Outer Corners
-        currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 24);
-        const stripeW = outerW / p.stripes;
-
-        for (let s = 0; s < p.stripes; s++) {
-          const xMin = -outerW / 2 + s * stripeW;
-          const xMax = xMin + stripeW;
-          const isGroupB = s % 2 === 1;
-          const mat = isGroupB ? matB : matA;
-
-          const clippedFace = clipPolygonBounds(currentOutlinePts, xMin, xMax);
-          if (clippedFace.length >= 3) {
-            const fShape = new THREE.Shape(clippedFace);
-            for (let i = 0; i < p.gangs; i++) {
-              const gx = startX + i * p.pitch;
-              if (gx + p.slotW / 2 > xMin && gx - p.slotW / 2 < xMax) {
-                fShape.holes.push(makeSlotHolePath(gx, p));
-              }
-            }
-            const fGeo = new THREE.ExtrudeGeometry(fShape, { depth: p.face, bevelEnabled: false });
-            fGeo.translate(0, 0, p.cavD);
-            const fMesh = new THREE.Mesh(fGeo, mat);
-            if (isGroupB) bubblesGroup.add(fMesh);
-            else coverGroup.add(fMesh);
-          }
-
-          const skirtMeshes = buildSharpCavityStripeSkirts(currentOutlinePts, xMin, xMax, p.cavW, p.cavH, p.cavD, mat);
-          skirtMeshes.forEach(m => {
-            if (isGroupB) bubblesGroup.add(m);
-            else coverGroup.add(m);
-          });
-        }
-
-      } else {
-        // Standard Pillow / Rosetta Bubble Perimeter Base Plate (Sharp Inner Cavity)
-        currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 24);
-
-        const skirtShape = new THREE.Shape(currentOutlinePts);
-        skirtShape.holes.push(sharpInnerHole);
-        const skirtGeo = new THREE.ExtrudeGeometry(skirtShape, { depth: p.cavD, bevelEnabled: false });
-        coverGroup.add(new THREE.Mesh(skirtGeo, matA));
-
-        const faceShape = new THREE.Shape(currentOutlinePts);
-        for (let i = 0; i < p.gangs; i++) {
-          faceShape.holes.push(makeSlotHolePath(startX + i * p.pitch, p));
-        }
-        const bevel = Math.min(p.face * 0.7, 2.2);
-        const faceGeo = new THREE.ExtrudeGeometry(faceShape, {
-          depth: Math.max(0.5, p.face - bevel),
-          bevelEnabled: true,
-          bevelSize: bevel,
-          bevelThickness: bevel,
-          bevelSegments: 5
-        });
-        faceGeo.translate(0, 0, p.cavD);
-        coverGroup.add(new THREE.Mesh(faceGeo, matA));
-
-        // Add Rosetta Ceramica 3D Plump Spherical Bubbles around the perimeter (IMG_7775.jpg)
-        if (p.silhouette === 'bubble_rim') {
-          const bRad = p.bubDia / 2;
-          const puffScaleZ = (p.bubPuff + totalDepth * 0.5) / bRad;
-
-          // Distribute tangent bubbles along top/bottom and left/right perimeter outside the sharp cavity
-          const halfPerimX = p.cavW / 2 + bRad * 0.45;
-          const halfPerimY = p.cavH / 2 + bRad * 0.45;
-
-          const cols = Math.max(3, Math.round((halfPerimX * 2) / (p.bubDia * 0.82)) + 1);
-          const rows = Math.max(2, Math.round((halfPerimY * 2) / (p.bubDia * 0.82)) + 1);
-
-          const bubbleCenters = [];
-          for (let c = 0; c < cols; c++) {
-            const bx = -halfPerimX + (c / (cols - 1)) * (halfPerimX * 2);
-            bubbleCenters.push({ x: bx, y: halfPerimY });
-            bubbleCenters.push({ x: bx, y: -halfPerimY });
-          }
-          for (let r = 1; r < rows - 1; r++) {
-            const by = -halfPerimY + (r / (rows - 1)) * (halfPerimY * 2);
-            bubbleCenters.push({ x: -halfPerimX, y: by });
-            bubbleCenters.push({ x: halfPerimX, y: by });
-          }
-
-          bubbleCenters.forEach(bc => {
-            // Flat-backed 3D plump bubble: cylinder base + hemispherical/ellipsoidal dome on top
-            // Ensures back Z = 0 is flat and never enters the sharp rectangular cavity!
-            const distInX = Math.max(0, (p.cavW / 2) - (Math.abs(bc.x) - bRad));
-            const distInY = Math.max(0, (p.cavH / 2) - (Math.abs(bc.y) - bRad));
-
-            // Dome sits on the front faceplate plane (Z = p.cavD) and puffs outward
-            const domeGeo = new THREE.SphereGeometry(bRad, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-            domeGeo.rotateX(Math.PI / 2);
-            domeGeo.scale(1, 1, (p.bubPuff + p.face) / bRad);
-            domeGeo.translate(bc.x, bc.y, p.cavD);
-            const domeMesh = new THREE.Mesh(domeGeo, matA);
-            domeMesh.castShadow = true;
-            bubblesGroup.add(domeMesh);
-
-            // Outer skirt cylinder clipped outside the sharp inner cavity
-            const cylPts = [];
-            for (let a = 0; a < 32; a++) {
-              const ang = (a / 32) * Math.PI * 2;
-              let px = bc.x + bRad * Math.cos(ang);
-              let py = bc.y + bRad * Math.sin(ang);
-              // Clamp any point that would cross inside the sharp rectangular cavity
-              if (Math.abs(px) < p.cavW / 2 && Math.abs(py) < p.cavH / 2) {
-                if (Math.abs(bc.x) > Math.abs(bc.y)) {
-                  px = Math.sign(bc.x) * (p.cavW / 2);
-                } else {
-                  py = Math.sign(bc.y) * (p.cavH / 2);
-                }
-              }
-              cylPts.push(new THREE.Vector2(px, py));
-            }
-            const cylGeo = new THREE.ExtrudeGeometry(new THREE.Shape(cylPts), { depth: p.cavD, bevelEnabled: false });
-            bubblesGroup.add(new THREE.Mesh(cylGeo, matA));
-          });
-        }
       }
 
-      // Snap-Fit Retention Lips on Top/Bottom of the Sharp Rectangular Cavity
-      if (p.lip > 0.05) {
-        const lipLen = p.cavW * 0.55;
-        const lipGeo = new THREE.CylinderGeometry(p.lip, p.lip, lipLen, 16);
-        lipGeo.rotateZ(Math.PI / 2);
-
-        const topLip = new THREE.Mesh(lipGeo, matA);
-        topLip.position.set(0, p.cavH / 2, 1.8);
-        coverGroup.add(topLip);
-
-        const botLip = new THREE.Mesh(lipGeo, matA);
-        botLip.position.set(0, -p.cavH / 2, 1.8);
-        coverGroup.add(botLip);
+      function makeSlotHolePath(gx, p) {
+        const w = p.slotW;
+        const h = p.slotH;
+        const sRad = Math.min(w, h) / 2;
+        const pts = getRoundedRectPoints(w, h, sRad, 14).reverse();
+        pts.forEach(pt => { pt.x += gx; });
+        return new THREE.Path(pts);
       }
 
-      // --- 2. BUILD 3D SURFACE INLAYS, ROSETTA DISCS & RELIEFS ---
-      if (p.overlay === 'rosetta_discs') {
-        // Rosetta Ceramica IMG_7768: Multi-color glazed circular disc inlays + raised rim collar around each gang
-        const discR = p.ovWidth / 2;
-        for (let i = 0; i < p.gangs; i++) {
-          const gx = startX + i * p.pitch;
-          const dMat = createCeramicMat(discColors[i % discColors.length], p.gloss, isWireframe);
+      // --- BUILD MODULAR 2-PART GLUE-ON KNOB (PART 1: GLUE BASE + STEM + THREAD PEG) ---
+      function buildKnobBaseAndStem(p) {
+        const group = new THREE.Group();
+        const mat = createGlossMat(p.colT, isWireframe);
 
-          // Colored Circular Disc with central switch slot cutout
-          const discShape = new THREE.Shape();
-          discShape.absarc(gx, 0, discR, 0, Math.PI * 2, false);
-          discShape.holes.push(makeSlotHolePath(gx, p, 0.1));
+        const fW = p.footW;
+        const fH = p.footH;
+        const fT = p.footT;
+        const fRad = Math.min(2.2, fW * 0.25, fH * 0.25);
 
-          const discGeo = new THREE.ExtrudeGeometry(discShape, {
-            depth: p.ovHeight * 0.65,
+        // 1. Glue-On Base Pad with adjustable thickness (p.footT)
+        if (p.footProfile === 'vroof') {
+          const vShape = new THREE.Shape();
+          const hh = fH / 2;
+          const vDrop = Math.min(1.2, fT * 0.4);
+          vShape.moveTo(-hh, vDrop);
+          vShape.lineTo(0, 0);
+          vShape.lineTo(hh, vDrop);
+          vShape.lineTo(hh, fT + vDrop);
+          vShape.lineTo(-hh, fT + vDrop);
+          vShape.closePath();
+
+          const vGeo = new THREE.ExtrudeGeometry(vShape, { depth: fW, bevelEnabled: false });
+          vGeo.rotateY(Math.PI / 2);
+          vGeo.rotateZ(Math.PI / 2);
+          vGeo.translate(-fW / 2, 0, 0);
+          group.add(new THREE.Mesh(vGeo, mat));
+        } else if (p.footProfile === 'pocket') {
+          const pocketDepth = Math.min(1.0, fT * 0.5);
+          const rimShape = createRoundedRectShape(fW, fH, fRad);
+          rimShape.holes.push(createRoundedRectPath(Math.max(2, fW - 2.4), Math.max(3, fH - 2.4), Math.max(0.5, fRad - 0.8)));
+          group.add(new THREE.Mesh(new THREE.ExtrudeGeometry(rimShape, { depth: pocketDepth, bevelEnabled: false }), mat));
+
+          const topCapGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(fW, fH, fRad), { depth: fT - pocketDepth, bevelEnabled: false });
+          topCapGeo.translate(0, 0, pocketDepth);
+          group.add(new THREE.Mesh(topCapGeo, mat));
+        } else {
+          const footGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(fW, fH, fRad), {
+            depth: fT,
             bevelEnabled: true,
-            bevelSize: 0.6,
-            bevelThickness: 0.6,
+            bevelSize: Math.min(0.35, fT * 0.2),
+            bevelThickness: Math.min(0.35, fT * 0.2),
+            bevelSegments: 3
+          });
+          group.add(new THREE.Mesh(footGeo, mat));
+        }
+
+        // 2. Neck Stand-off Collar
+        const rShaft = p.tBase / 2;
+        let zCursor = fT;
+        if (p.neckH > 0.05) {
+          const neckGeo = new THREE.CylinderGeometry(rShaft * 1.05, Math.min(fW, fH) * 0.36, p.neckH, 24);
+          neckGeo.rotateX(Math.PI / 2);
+          neckGeo.translate(0, 0, zCursor + p.neckH / 2);
+          group.add(new THREE.Mesh(neckGeo, mat));
+          zCursor += p.neckH;
+        }
+
+        // 3. Narrow Shaft that passes cleanly through the switch cover slot
+        const stemGeo = new THREE.CylinderGeometry(rShaft, rShaft, p.tLen, 28);
+        stemGeo.rotateX(Math.PI / 2);
+        stemGeo.translate(0, 0, zCursor + p.tLen / 2);
+        group.add(new THREE.Mesh(stemGeo, mat));
+        zCursor += p.tLen;
+
+        // 4. If 2-Part Screw-On / Peg Joint is enabled, add the male threaded/ribbed stud at the tip of the shaft
+        if (p.tipJoint === 'screw' && p.tipStyle !== 'bat') {
+          const pegR = Math.min(p.pegDia / 2, rShaft - 0.2);
+          const pegLen = Math.min(5.0, p.tipLen * 0.65);
+          const pegGeo = new THREE.CylinderGeometry(pegR, pegR, pegLen, 24);
+          pegGeo.rotateX(Math.PI / 2);
+          pegGeo.translate(0, 0, zCursor + pegLen / 2);
+          group.add(new THREE.Mesh(pegGeo, mat));
+
+          // Add 3 helical/annular thread ribs for mechanical grip
+          for (let tr = 0; tr < 3; tr++) {
+            const ringGeo = new THREE.TorusGeometry(pegR, 0.22, 10, 24);
+            ringGeo.translate(0, 0, zCursor + 1.0 + tr * (pegLen * 0.28));
+            group.add(new THREE.Mesh(ringGeo, mat));
+          }
+        }
+
+        return group;
+      }
+
+      // --- BUILD MODULAR TIP VOLUME / FINIAL CAP (PART 2: SCREWS/SNAPS ONTO SHAFT AFTER COVER IS MOUNTED) ---
+      function buildKnobTipVolume(p, forSTL = false) {
+        const group = new THREE.Group();
+        const mat = createGlossMat(p.colTip, isWireframe);
+
+        const rTip = p.tipDia / 2;
+        const lenTip = p.tipLen;
+        const rShaft = p.tBase / 2;
+        const pegHoleR = Math.min(p.pegDia / 2 + 0.15, rTip - 0.8); // +0.15mm 3D print clearance
+        const pegHoleDepth = Math.min(5.4, lenTip * 0.7);
+
+        if (p.tipStyle === 'bat') {
+          const domeGeo = new THREE.SphereGeometry(rShaft, 24, 16);
+          group.add(new THREE.Mesh(domeGeo, mat));
+          return group;
+        }
+
+        // If exporting STL of a 2-part screw-on tip, we generate a hollow socket in the base of the volume!
+        if (p.tipStyle === 'ball') {
+          const sphereGeo = new THREE.SphereGeometry(rTip, 32, 24);
+          sphereGeo.scale(1, 1, lenTip / p.tipDia);
+          sphereGeo.translate(0, 0, lenTip / 2 - (p.tipJoint === 'screw' ? 1.2 : 0));
+          group.add(new THREE.Mesh(sphereGeo, mat));
+
+          // Brass/Ceramic collar ring at base of ball
+          const collarGeo = new THREE.CylinderGeometry(rTip * 0.55, rShaft * 1.15, 2.2, 28);
+          collarGeo.rotateX(Math.PI / 2);
+          collarGeo.translate(0, 0, 0.5);
+          group.add(new THREE.Mesh(collarGeo, mat));
+
+        } else if (p.tipStyle === 'teardrop') {
+          // Rosetta Ceramica bulbous teardrop finial
+          const lathePts = [];
+          const steps = 20;
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const z = t * lenTip;
+            const profile = Math.sin(t * Math.PI) * Math.pow(t, 0.35);
+            const r = rShaft * 0.9 * (1 - t) + rTip * profile;
+            lathePts.push(new THREE.Vector2(Math.max(0.1, r), z));
+          }
+          const latheGeo = new THREE.LatheGeometry(lathePts, 32);
+          latheGeo.rotateX(Math.PI / 2);
+          group.add(new THREE.Mesh(latheGeo, mat));
+
+        } else if (p.tipStyle === 'mushroom') {
+          // Wide dome cap
+          const domeGeo = new THREE.SphereGeometry(rTip, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.6);
+          domeGeo.rotateX(Math.PI / 2);
+          domeGeo.scale(1, 1, lenTip / rTip);
+          domeGeo.translate(0, 0, 0);
+          group.add(new THREE.Mesh(domeGeo, mat));
+
+        } else if (p.tipStyle === 'cone') {
+          // Conical Saturn Finial
+          const coneGeo = new THREE.CylinderGeometry(rTip * 0.25, rTip, lenTip, 32);
+          coneGeo.rotateX(Math.PI / 2);
+          coneGeo.translate(0, 0, lenTip / 2);
+          group.add(new THREE.Mesh(coneGeo, mat));
+
+          const topBall = new THREE.SphereGeometry(rTip * 0.35, 24, 16);
+          topBall.translate(0, 0, lenTip);
+          group.add(new THREE.Mesh(topBall, mat));
+
+        } else if (p.tipStyle === 'gem') {
+          // Faceted Octahedron / Low-Poly Jewel
+          const gemGeo = new THREE.OctahedronGeometry(rTip, 0);
+          gemGeo.scale(1, 1, lenTip / p.tipDia);
+          gemGeo.translate(0, 0, lenTip / 2);
+          group.add(new THREE.Mesh(gemGeo, mat));
+
+        } else if (p.tipStyle === 'tbar') {
+          // Horizontal T-Bar Cylinder Handle
+          const barGeo = new THREE.CylinderGeometry(lenTip * 0.38, lenTip * 0.38, p.tipDia * 1.35, 28);
+          barGeo.rotateZ(Math.PI / 2);
+          barGeo.translate(0, 0, lenTip * 0.38);
+          group.add(new THREE.Mesh(barGeo, mat));
+        }
+
+        // Visual socket indicator ring when inspecting in exploded/2-part mode
+        if (p.tipJoint === 'screw') {
+          const socketRing = new THREE.RingGeometry(pegHoleR, pegHoleR + 0.9, 24);
+          socketRing.translate(0, 0, -0.05);
+          const darkMat = new THREE.MeshBasicMaterial({ color: 0x090d16, side: THREE.DoubleSide });
+          group.add(new THREE.Mesh(socketRing, darkMat));
+        }
+
+        return group;
+      }
+
+      // --- MAIN REBUILD ---
+      function rebuildModel() {
+        const p = getParams();
+
+        // Update UI labels
+        document.getElementById('val-tipdia').textContent = p.tipDia.toFixed(1);
+        document.getElementById('val-tiplen').textContent = p.tipLen.toFixed(1);
+        document.getElementById('val-pegdia').textContent = p.pegDia.toFixed(1);
+        document.getElementById('val-tlen').textContent = p.tLen.toFixed(1);
+        document.getElementById('val-tbase').textContent = p.tBase.toFixed(1);
+        document.getElementById('val-neckh').textContent = p.neckH.toFixed(1);
+        document.getElementById('val-foott').textContent = `${p.footT.toFixed(1)} mm`;
+        document.getElementById('val-footw').textContent = p.footW.toFixed(1);
+        document.getElementById('val-footh').textContent = p.footH.toFixed(1);
+        document.getElementById('val-tang').textContent = `${Math.abs(p.tAng)}°`;
+        document.getElementById('val-cavw').textContent = p.cavW.toFixed(1);
+        document.getElementById('val-cavh').textContent = p.cavH.toFixed(1);
+        document.getElementById('val-cavd').textContent = p.cavD.toFixed(1);
+        document.getElementById('val-wall').textContent = p.wall.toFixed(1);
+        document.getElementById('val-face').textContent = p.face.toFixed(1);
+        document.getElementById('val-lip').textContent = p.lip.toFixed(1);
+        document.getElementById('val-corner').textContent = p.corner.toFixed(0);
+        document.getElementById('val-bubdia').textContent = p.bubDia.toFixed(0);
+        document.getElementById('val-ovwidth').textContent = p.ovWidth.toFixed(0);
+        document.getElementById('val-ovheight').textContent = p.ovHeight.toFixed(1);
+        document.getElementById('val-pitch').textContent = p.pitch.toFixed(1);
+        document.getElementById('val-slotw').textContent = p.slotW.toFixed(1);
+        document.getElementById('val-sloth').textContent = p.slotH.toFixed(1);
+
+        document.getElementById('hud-cavity').textContent = `${p.cavW.toFixed(1)} × ${p.cavH.toFixed(1)} × ${p.cavD.toFixed(1)} mm`;
+
+        // Check if tip volume is wider than the switch slot
+        const slotCheckEl = document.getElementById('hud-slot-check');
+        if (p.tipDia > p.slotW && p.tipJoint === 'onepiece' && p.tipStyle !== 'bat') {
+          slotCheckEl.textContent = `Tip (${p.tipDia}mm) > Slot (${p.slotW}mm): Use 2-Part Screw!`;
+          slotCheckEl.className = 'font-mono text-rose-400 font-semibold ml-1';
+        } else if (p.tipJoint === 'screw') {
+          slotCheckEl.textContent = `2-Part Screw Tip (${p.pegDia}mm Stud) OK`;
+          slotCheckEl.className = 'font-mono text-emerald-400 font-semibold ml-1';
+        } else {
+          slotCheckEl.textContent = `1-Piece Fits Slot OK`;
+          slotCheckEl.className = 'font-mono text-sky-400 font-semibold ml-1';
+        }
+
+        // Safe outer dimensions so rounded corners NEVER clip into the sharp 90° inner cavity
+        const cornerExtra = Math.max(0, p.corner * 0.293);
+        const outerW = p.cavW + (p.wall + cornerExtra) * 2;
+        const outerH = p.cavH + (p.wall + cornerExtra) * 2;
+        const totalDepth = p.cavD + p.face;
+        document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(0)} × ${outerH.toFixed(0)} mm`;
+
+        arteorUnderMesh.geometry.dispose();
+        arteorUnderMesh.geometry = new THREE.BoxGeometry(p.cavW - 0.8, p.cavH - 0.8, Math.max(4, p.cavD - 1.0));
+        arteorUnderMesh.position.z = Math.max(4, p.cavD - 1.0) / 2;
+
+        originalRockersGroup.clear();
+        coverGroup.clear();
+        bubblesGroup.clear();
+        overlayGroup.clear();
+        toggleStemGroup.clear();
+        toggleTipGroup.clear();
+
+        const matA = createGlossMat(p.colA, isWireframe);
+        const matB = createGlossMat(p.colB, isWireframe);
+        const discColors = [p.colD1, p.colD2, '#8b0000', p.colD1];
+
+        const startX = -((p.gangs - 1) * p.pitch) / 2;
+        const sharpInnerHole = createSharpRectHolePath(p.cavW, p.cavH);
+
+        // --- 1. BUILD OUTER COVER WITH SHARP 90° INNER CAVITY ---
+        let currentOutlinePts = [];
+
+        if (p.silhouette === 'merged_lobes') {
+          const halfSpan = ((p.gangs - 1) * p.pitch) / 2;
+          const dxCorner = Math.max(0, p.cavW / 2 - halfSpan) + p.wall;
+          const dyCorner = p.cavH / 2 + p.wall;
+          const minSafeRadius = Math.sqrt(dxCorner * dxCorner + dyCorner * dyCorner);
+          const lobeR = Math.max(minSafeRadius, p.ovWidth * 0.78);
+
+          currentOutlinePts = getMergedLobesOutline(p.gangs, p.pitch, lobeR, 180);
+
+          const skirtShape = new THREE.Shape(currentOutlinePts);
+          skirtShape.holes.push(sharpInnerHole);
+          coverGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(skirtShape, { depth: p.cavD, bevelEnabled: false }), matA));
+
+          const faceShape = new THREE.Shape(currentOutlinePts);
+          for (let i = 0; i < p.gangs; i++) {
+            faceShape.holes.push(makeSlotHolePath(startX + i * p.pitch, p));
+          }
+          const bevel = Math.min(p.face * 0.7, 2.2);
+          const faceGeo = new THREE.ExtrudeGeometry(faceShape, {
+            depth: Math.max(0.5, p.face - bevel),
+            bevelEnabled: true,
+            bevelSize: bevel,
+            bevelThickness: bevel,
             bevelSegments: 5
           });
-          discGeo.translate(0, 0, totalDepth);
-          overlayGroup.add(new THREE.Mesh(discGeo, dMat));
+          faceGeo.translate(0, 0, p.cavD);
+          coverGroup.add(new THREE.Mesh(faceGeo, matA));
 
-          // Raised Torus / Ceramic Ridge Ring framing each colored disc
-          const ringGeo = new THREE.TorusGeometry(discR + 2.2, 2.4, 20, 48);
-          ringGeo.scale(1, 1, (p.ovHeight * 0.8) / 2.4);
-          ringGeo.translate(gx, 0, totalDepth + 0.5);
-          overlayGroup.add(new THREE.Mesh(ringGeo, matA));
-        }
+        } else if (p.silhouette === 'vstripes') {
+          currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 20);
+          const stripeW = outerW / 5;
 
-      } else if (p.overlay === 'donut_wells') {
-        // Rosetta Ceramica IMG_7775: Thick glazed cream ceramic donut rings around each gang
-        const wellR = p.ovWidth / 2;
-        const tubeR = Math.max(2.5, wellR * 0.24);
-        for (let i = 0; i < p.gangs; i++) {
-          const gx = startX + i * p.pitch;
-          // Recessed inner saucer plate
-          const saucerShape = new THREE.Shape();
-          saucerShape.absarc(gx, 0, wellR, 0, Math.PI * 2, false);
-          saucerShape.holes.push(makeSlotHolePath(gx, p, 0.1));
-          const saucerGeo = new THREE.ExtrudeGeometry(saucerShape, { depth: 1.2, bevelEnabled: false });
-          saucerGeo.translate(0, 0, totalDepth);
-          overlayGroup.add(new THREE.Mesh(saucerGeo, matB));
+          for (let s = 0; s < 5; s++) {
+            const xMin = -outerW / 2 + s * stripeW;
+            const xMax = xMin + stripeW;
+            const isGroupB = s % 2 === 1;
+            const mat = isGroupB ? matB : matA;
 
-          // Plump cream donut rim
-          const torusGeo = new THREE.TorusGeometry(wellR - tubeR * 0.4, tubeR, 24, 48);
-          torusGeo.scale(1, 1, (p.ovHeight + 1.5) / tubeR);
-          torusGeo.translate(gx, 0, totalDepth + 1.0);
-          overlayGroup.add(new THREE.Mesh(torusGeo, matB));
-        }
+            const clippedFace = clipPolygonBounds(currentOutlinePts, xMin, xMax);
+            if (clippedFace.length >= 3) {
+              const fShape = new THREE.Shape(clippedFace);
+              for (let i = 0; i < p.gangs; i++) {
+                const gx = startX + i * p.pitch;
+                if (gx + p.slotW / 2 > xMin && gx - p.slotW / 2 < xMax) {
+                  fShape.holes.push(makeSlotHolePath(gx, p));
+                }
+              }
+              const fGeo = new THREE.ExtrudeGeometry(fShape, { depth: p.face, bevelEnabled: false });
+              fGeo.translate(0, 0, p.cavD);
+              const fMesh = new THREE.Mesh(fGeo, mat);
+              if (isGroupB) bubblesGroup.add(fMesh);
+              else coverGroup.add(fMesh);
+            }
 
-      } else if (p.overlay === 'collars') {
-        const colW = Math.min(12, p.ovWidth * 0.25);
-        for (let i = 0; i < p.gangs; i++) {
-          const gx = startX + i * p.pitch;
-          const pts = getRoundedRectPoints(p.slotW + colW * 2, p.slotH + colW * 2, (p.slotW + colW * 2) / 2, 16);
-          pts.forEach(pt => { pt.x += gx; });
-          const cShape = new THREE.Shape(pts);
-          cShape.holes.push(makeSlotHolePath(gx, p, 0.1));
-          const cGeo = new THREE.ExtrudeGeometry(cShape, {
-            depth: p.ovHeight,
+            const skirtMeshes = buildSharpCavityStripeSkirts(currentOutlinePts, xMin, xMax, p.cavW, p.cavH, p.cavD, mat);
+            skirtMeshes.forEach(m => {
+              if (isGroupB) bubblesGroup.add(m);
+              else coverGroup.add(m);
+            });
+          }
+
+        } else {
+          currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 20);
+
+          const skirtShape = new THREE.Shape(currentOutlinePts);
+          skirtShape.holes.push(sharpInnerHole);
+          coverGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(skirtShape, { depth: p.cavD, bevelEnabled: false }), matA));
+
+          const faceShape = new THREE.Shape(currentOutlinePts);
+          for (let i = 0; i < p.gangs; i++) {
+            faceShape.holes.push(makeSlotHolePath(startX + i * p.pitch, p));
+          }
+          const bevel = Math.min(p.face * 0.7, 2.2);
+          const faceGeo = new THREE.ExtrudeGeometry(faceShape, {
+            depth: Math.max(0.5, p.face - bevel),
             bevelEnabled: true,
-            bevelSize: 0.5,
-            bevelThickness: 0.5,
-            bevelSegments: 4
+            bevelSize: bevel,
+            bevelThickness: bevel,
+            bevelSegments: 5
           });
-          cGeo.translate(0, 0, totalDepth);
-          overlayGroup.add(new THREE.Mesh(cGeo, matB));
+          faceGeo.translate(0, 0, p.cavD);
+          coverGroup.add(new THREE.Mesh(faceGeo, matA));
+
+          if (p.silhouette === 'bubble_rim') {
+            const bRad = p.bubDia / 2;
+            const halfPerimX = p.cavW / 2 + bRad * 0.45;
+            const halfPerimY = p.cavH / 2 + bRad * 0.45;
+            const cols = Math.max(3, Math.round((halfPerimX * 2) / (p.bubDia * 0.82)) + 1);
+            const rows = Math.max(2, Math.round((halfPerimY * 2) / (p.bubDia * 0.82)) + 1);
+
+            const bubbleCenters = [];
+            for (let c = 0; c < cols; c++) {
+              const bx = -halfPerimX + (c / (cols - 1)) * (halfPerimX * 2);
+              bubbleCenters.push({ x: bx, y: halfPerimY });
+              bubbleCenters.push({ x: bx, y: -halfPerimY });
+            }
+            for (let r = 1; r < rows - 1; r++) {
+              const by = -halfPerimY + (r / (rows - 1)) * (halfPerimY * 2);
+              bubbleCenters.push({ x: -halfPerimX, y: by });
+              bubbleCenters.push({ x: halfPerimX, y: by });
+            }
+
+            bubbleCenters.forEach(bc => {
+              const domeGeo = new THREE.SphereGeometry(bRad, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+              domeGeo.rotateX(Math.PI / 2);
+              domeGeo.scale(1, 1, (6.5 + p.face) / bRad);
+              domeGeo.translate(bc.x, bc.y, p.cavD);
+              bubblesGroup.add(new THREE.Mesh(domeGeo, matA));
+
+              const cylPts = [];
+              for (let a = 0; a < 28; a++) {
+                const ang = (a / 28) * Math.PI * 2;
+                let px = bc.x + bRad * Math.cos(ang);
+                let py = bc.y + bRad * Math.sin(ang);
+                if (Math.abs(px) < p.cavW / 2 && Math.abs(py) < p.cavH / 2) {
+                  if (Math.abs(bc.x) > Math.abs(bc.y)) px = Math.sign(bc.x) * (p.cavW / 2);
+                  else py = Math.sign(bc.y) * (p.cavH / 2);
+                }
+                cylPts.push(new THREE.Vector2(px, py));
+              }
+              const cylGeo = new THREE.ExtrudeGeometry(new THREE.Shape(cylPts), { depth: p.cavD, bevelEnabled: false });
+              bubblesGroup.add(new THREE.Mesh(cylGeo, matA));
+            });
+          }
         }
 
-      } else if (p.overlay === 'fluted') {
-        const ribPitch = 6.5;
-        const ribW = 4.2;
-        const numRibs = Math.floor((outerW - 6) / ribPitch);
-        const firstX = -((numRibs - 1) * ribPitch) / 2;
+        // Snap-Fit Retention Lips on Top/Bottom of Sharp Cavity
+        if (p.lip > 0.05) {
+          const lipLen = p.cavW * 0.55;
+          const lipGeo = new THREE.CylinderGeometry(p.lip, p.lip, lipLen, 16);
+          lipGeo.rotateZ(Math.PI / 2);
 
-        for (let r = 0; r < numRibs; r++) {
-          const rx = firstX + r * ribPitch;
-          const xMin = rx - ribW / 2, xMax = rx + ribW / 2;
-          let hitsSlot = false;
+          const topLip = new THREE.Mesh(lipGeo, matA);
+          topLip.position.set(0, p.cavH / 2, 1.8);
+          coverGroup.add(topLip);
+
+          const botLip = new THREE.Mesh(lipGeo, matA);
+          botLip.position.set(0, -p.cavH / 2, 1.8);
+          coverGroup.add(botLip);
+        }
+
+        // --- 2. BUILD 3D OVERLAYS & ROSETTA DISCS ---
+        if (p.overlay === 'rosetta_discs') {
+          const discR = p.ovWidth / 2;
           for (let i = 0; i < p.gangs; i++) {
             const gx = startX + i * p.pitch;
-            if (xMax > gx - p.slotW / 2 - 2 && xMin < gx + p.slotW / 2 + 2) hitsSlot = true;
+            const dMat = createGlossMat(discColors[i % discColors.length], isWireframe);
+
+            const discShape = new THREE.Shape();
+            discShape.absarc(gx, 0, discR, 0, Math.PI * 2, false);
+            discShape.holes.push(makeSlotHolePath(gx, p));
+
+            const discGeo = new THREE.ExtrudeGeometry(discShape, {
+              depth: p.ovHeight * 0.65,
+              bevelEnabled: true,
+              bevelSize: 0.6,
+              bevelThickness: 0.6,
+              bevelSegments: 4
+            });
+            discGeo.translate(0, 0, totalDepth);
+            overlayGroup.add(new THREE.Mesh(discGeo, dMat));
+
+            const ringGeo = new THREE.TorusGeometry(discR + 2.2, 2.2, 18, 40);
+            ringGeo.scale(1, 1, (p.ovHeight * 0.8) / 2.2);
+            ringGeo.translate(gx, 0, totalDepth + 0.5);
+            overlayGroup.add(new THREE.Mesh(ringGeo, matA));
           }
-          const bands = hitsSlot
-            ? [clipPolygonBounds(currentOutlinePts, xMin, xMax, p.slotH / 2 + 2.5, 1e5), clipPolygonBounds(currentOutlinePts, xMin, xMax, -1e5, -p.slotH / 2 - 2.5)]
-            : [clipPolygonBounds(currentOutlinePts, xMin, xMax)];
+        } else if (p.overlay === 'donut_wells') {
+          const wellR = p.ovWidth / 2;
+          const tubeR = Math.max(2.5, wellR * 0.24);
+          for (let i = 0; i < p.gangs; i++) {
+            const gx = startX + i * p.pitch;
+            const saucerShape = new THREE.Shape();
+            saucerShape.absarc(gx, 0, wellR, 0, Math.PI * 2, false);
+            saucerShape.holes.push(makeSlotHolePath(gx, p));
+            const saucerGeo = new THREE.ExtrudeGeometry(saucerShape, { depth: 1.2, bevelEnabled: false });
+            saucerGeo.translate(0, 0, totalDepth);
+            overlayGroup.add(new THREE.Mesh(saucerGeo, matB));
 
-          bands.forEach(b => {
-            if (b.length >= 3) {
-              const g = new THREE.ExtrudeGeometry(new THREE.Shape(b), {
-                depth: p.ovHeight * 0.65,
-                bevelEnabled: true,
-                bevelSize: 0.7,
-                bevelThickness: 0.7,
-                bevelSegments: 4
-              });
-              g.translate(0, 0, totalDepth);
-              overlayGroup.add(new THREE.Mesh(g, matB));
+            const torusGeo = new THREE.TorusGeometry(wellR - tubeR * 0.4, tubeR, 20, 40);
+            torusGeo.scale(1, 1, (p.ovHeight + 1.5) / tubeR);
+            torusGeo.translate(gx, 0, totalDepth + 1.0);
+            overlayGroup.add(new THREE.Mesh(torusGeo, matB));
+          }
+        } else if (p.overlay === 'collars') {
+          const colW = 4.0;
+          for (let i = 0; i < p.gangs; i++) {
+            const gx = startX + i * p.pitch;
+            const pts = getRoundedRectPoints(p.slotW + colW * 2, p.slotH + colW * 2, (p.slotW + colW * 2) / 2, 14);
+            pts.forEach(pt => { pt.x += gx; });
+            const cShape = new THREE.Shape(pts);
+            cShape.holes.push(makeSlotHolePath(gx, p));
+            const cGeo = new THREE.ExtrudeGeometry(cShape, { depth: p.ovHeight, bevelEnabled: true, bevelSize: 0.4, bevelThickness: 0.4, bevelSegments: 3 });
+            cGeo.translate(0, 0, totalDepth);
+            overlayGroup.add(new THREE.Mesh(cGeo, matB));
+          }
+        } else if (p.overlay === 'fluted') {
+          const ribPitch = 6.5, ribW = 4.2;
+          const numRibs = Math.floor((outerW - 6) / ribPitch);
+          const firstX = -((numRibs - 1) * ribPitch) / 2;
+          for (let r = 0; r < numRibs; r++) {
+            const rx = firstX + r * ribPitch;
+            const xMin = rx - ribW / 2, xMax = rx + ribW / 2;
+            let hitsSlot = false;
+            for (let i = 0; i < p.gangs; i++) {
+              const gx = startX + i * p.pitch;
+              if (xMax > gx - p.slotW / 2 - 2 && xMin < gx + p.slotW / 2 + 2) hitsSlot = true;
             }
-          });
+            const bands = hitsSlot
+              ? [clipPolygonBounds(currentOutlinePts, xMin, xMax, p.slotH / 2 + 2.5, 1e5), clipPolygonBounds(currentOutlinePts, xMin, xMax, -1e5, -p.slotH / 2 - 2.5)]
+              : [clipPolygonBounds(currentOutlinePts, xMin, xMax)];
+            bands.forEach(b => {
+              if (b.length >= 3) {
+                const g = new THREE.ExtrudeGeometry(new THREE.Shape(b), { depth: p.ovHeight * 0.65, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6, bevelSegments: 3 });
+                g.translate(0, 0, totalDepth);
+                overlayGroup.add(new THREE.Mesh(g, matB));
+              }
+            });
+          }
+        } else if (p.overlay === 'deco') {
+          for (let s = 0; s < 2; s++) {
+            const inset = s * 5.0;
+            const tw = outerW - inset * 2, th = outerH - inset * 2;
+            const dShape = createRoundedRectShape(tw, th, Math.max(1, p.corner - inset));
+            dShape.holes.push(createRoundedRectPath(tw - 7, th - 7, Math.max(0.5, p.corner - inset - 3.5)));
+            const dGeo = new THREE.ExtrudeGeometry(dShape, { depth: p.ovHeight * ((2 - s) / 2), bevelEnabled: false });
+            dGeo.translate(0, 0, totalDepth);
+            overlayGroup.add(new THREE.Mesh(dGeo, matB));
+          }
         }
 
-      } else if (p.overlay === 'deco') {
-        for (let s = 0; s < 2; s++) {
-          const inset = s * 5.0;
-          const tw = outerW - inset * 2, th = outerH - inset * 2;
-          const dShape = createRoundedRectShape(tw, th, Math.max(1, p.corner - inset));
-          dShape.holes.push(createRoundedRectPath(tw - 7, th - 7, Math.max(0.5, p.corner - inset - 3.5)));
-          const dGeo = new THREE.ExtrudeGeometry(dShape, { depth: p.ovHeight * ((2 - s) / 2), bevelEnabled: false });
-          dGeo.translate(0, 0, totalDepth);
-          overlayGroup.add(new THREE.Mesh(dGeo, matB));
+        // --- 3. PLACE GLUE-ON BASE + STEM AND SCREW-ON TIP VOLUMES ---
+        const rockerMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.4 });
+        for (let i = 0; i < p.gangs; i++) {
+          const gx = startX + i * p.pitch;
+          const gangTiltDeg = (i % 2 === 1 && p.gangs > 1) ? -p.tAng : p.tAng;
+          const tiltRad = THREE.MathUtils.degToRad(gangTiltDeg);
+          const rockerPivotZ = Math.max(3.5, p.cavD - p.footT - p.neckH - 0.4);
+
+          const paddlePivot = new THREE.Group();
+          paddlePivot.position.set(gx, 0, rockerPivotZ);
+          paddlePivot.rotation.x = tiltRad;
+          const paddleMesh = new THREE.Mesh(new THREE.BoxGeometry(15, 34, 4), rockerMat);
+          paddleMesh.position.z = -2;
+          paddlePivot.add(paddleMesh);
+          originalRockersGroup.add(paddlePivot);
+
+          if (p.showToggles) {
+            // Base + Stem Group
+            const stemAssy = new THREE.Group();
+            stemAssy.position.set(gx, 0, rockerPivotZ);
+            stemAssy.rotation.x = tiltRad;
+            stemAssy.add(buildKnobBaseAndStem(p));
+            toggleStemGroup.add(stemAssy);
+
+            // Screw-On / Finial Tip Group
+            const tipAssy = new THREE.Group();
+            tipAssy.position.set(gx, 0, rockerPivotZ);
+            tipAssy.rotation.x = tiltRad;
+            const tipMesh = buildKnobTipVolume(p);
+            const tipStartZ = p.footT + p.neckH + p.tLen + (isExploded ? 18 : 0);
+            tipMesh.position.z = tipStartZ;
+            tipAssy.add(tipMesh);
+            toggleTipGroup.add(tipAssy);
+          }
+        }
+
+        updateTransforms(totalDepth);
+        draw2DHUD(p, totalDepth);
+      }
+
+      function updateTransforms(totalDepth = 15) {
+        coverGroup.visible = !isKnobOnly;
+        bubblesGroup.visible = !isKnobOnly;
+        overlayGroup.visible = !isKnobOnly;
+
+        if (isKnobOnly) {
+          wallGroup.visible = false;
+          toggleStemGroup.rotation.y = 0;
+          toggleTipGroup.rotation.y = 0;
+          toggleStemGroup.position.set(0, 0, 0);
+          toggleTipGroup.position.set(0, 0, 0);
+          return;
+        }
+
+        if (isBackView) {
+          coverGroup.rotation.y = Math.PI;
+          bubblesGroup.rotation.y = Math.PI;
+          overlayGroup.rotation.y = Math.PI;
+          toggleStemGroup.rotation.y = Math.PI;
+          toggleTipGroup.rotation.y = Math.PI;
+          coverGroup.position.z = totalDepth;
+          bubblesGroup.position.z = totalDepth;
+          overlayGroup.position.z = totalDepth;
+          toggleStemGroup.position.z = totalDepth;
+          toggleTipGroup.position.z = totalDepth;
+          wallGroup.visible = false;
+        } else {
+          coverGroup.rotation.y = 0;
+          bubblesGroup.rotation.y = 0;
+          overlayGroup.rotation.y = 0;
+          toggleStemGroup.rotation.y = 0;
+          toggleTipGroup.rotation.y = 0;
+          coverGroup.position.z = isExploded ? 22 : 0;
+          bubblesGroup.position.z = isExploded ? 32 : 0;
+          overlayGroup.position.z = isExploded ? 44 : 0;
+          toggleStemGroup.position.z = 0;
+          toggleTipGroup.position.z = isExploded ? 26 : 0;
+          wallGroup.visible = showWall;
         }
       }
 
-      // --- 3. BUILD GLUE-ON ROCKER KNOBS ---
-      const rockerMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.4 });
-      for (let i = 0; i < p.gangs; i++) {
-        const gx = startX + i * p.pitch;
-        const gangTiltDeg = (i % 2 === 1 && p.gangs > 1) ? -p.tAng : p.tAng;
-        const tiltRad = THREE.MathUtils.degToRad(gangTiltDeg);
-        const rockerPivotZ = Math.max(4.0, p.cavD - 5.8);
+      // --- 2D SIDE KINEMATIC & SCREW-TIP SECTION HUD ---
+      function draw2DHUD(p, totalDepth) {
+        const canvas = document.getElementById('hud-canvas');
+        const ctx = canvas.getContext('2d');
+        const cw = canvas.width, ch = canvas.height;
+        ctx.clearRect(0, 0, cw, ch);
 
-        const paddlePivot = new THREE.Group();
-        paddlePivot.position.set(gx, 0, rockerPivotZ);
-        paddlePivot.rotation.x = tiltRad;
-        const paddleMesh = new THREE.Mesh(new THREE.BoxGeometry(15, 34, 4), rockerMat);
-        paddleMesh.position.z = -2;
-        paddlePivot.add(paddleMesh);
-        originalRockersGroup.add(paddlePivot);
+        const scale = 2.4;
+        const cy = ch / 2;
+        const wallX = 36;
 
-        if (p.showToggles) {
-          const knobAssembly = new THREE.Group();
-          knobAssembly.position.set(gx, 0, rockerPivotZ);
-          knobAssembly.rotation.x = tiltRad;
-          knobAssembly.add(buildGlueOnKnob(p));
-          toggleGroup.add(knobAssembly);
-        }
-      }
-
-      updateTransforms(totalDepth);
-      draw2DFootprintHUD(p, currentOutlinePts, outerW, outerH);
-    }
-
-    function updateTransforms(totalDepth = 15) {
-      coverGroup.visible = !isKnobOnly;
-      bubblesGroup.visible = !isKnobOnly;
-      overlayGroup.visible = !isKnobOnly;
-
-      if (isKnobOnly) {
-        wallGroup.visible = false;
-        toggleGroup.rotation.y = 0;
-        toggleGroup.position.set(0, 0, 0);
-        return;
-      }
-
-      if (isBackView) {
-        coverGroup.rotation.y = Math.PI;
-        bubblesGroup.rotation.y = Math.PI;
-        overlayGroup.rotation.y = Math.PI;
-        toggleGroup.rotation.y = Math.PI;
-        coverGroup.position.z = totalDepth;
-        bubblesGroup.position.z = totalDepth;
-        overlayGroup.position.z = totalDepth;
-        toggleGroup.position.z = isExploded ? totalDepth + 28 : totalDepth;
-        wallGroup.visible = false;
-      } else {
-        coverGroup.rotation.y = 0;
-        bubblesGroup.rotation.y = 0;
-        overlayGroup.rotation.y = 0;
-        toggleGroup.rotation.y = 0;
-        coverGroup.position.z = isExploded ? 24 : 0;
-        bubblesGroup.position.z = isExploded ? 36 : 0;
-        overlayGroup.position.z = isExploded ? 52 : 0;
-        toggleGroup.position.z = isExploded ? 10 : 0;
-        wallGroup.visible = showWall;
-      }
-    }
-
-    // --- 2D BACK FOOTPRINT vs. SHARP RECTANGULAR ARTEOR CAVITY HUD ---
-    function draw2DFootprintHUD(p, outlinePts, outerW, outerH) {
-      const canvas = document.getElementById('hud-canvas');
-      const ctx = canvas.getContext('2d');
-      const cw = canvas.width, ch = canvas.height;
-      ctx.clearRect(0, 0, cw, ch);
-
-      const scale = Math.min((cw - 36) / (outerW + p.bubDia), (ch - 24) / (outerH + p.bubDia));
-      const cx = cw / 2, cy = ch / 2;
-
-      // 1. Draw Outer Silhouette Footprint
-      ctx.fillStyle = p.colA + '55';
-      ctx.strokeStyle = p.colA;
-      ctx.lineWidth = 2;
-
-      if (outlinePts.length > 2) {
+        // 1. Wall & Sharp Cavity Back Line
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        outlinePts.forEach((pt, idx) => {
-          const px = cx + pt.x * scale;
-          const py = cy - pt.y * scale;
-          if (idx === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        });
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(wallX, 8);
+        ctx.lineTo(wallX, ch - 8);
         ctx.stroke();
-      }
 
-      // Draw Perimeter Bubbles if active
-      if (p.silhouette === 'bubble_rim') {
-        const bRad = p.bubDia / 2;
-        const halfPerimX = p.cavW / 2 + bRad * 0.45;
-        const halfPerimY = p.cavH / 2 + bRad * 0.45;
-        const cols = Math.max(3, Math.round((halfPerimX * 2) / (p.bubDia * 0.82)) + 1);
-        const rows = Math.max(2, Math.round((halfPerimY * 2) / (p.bubDia * 0.82)) + 1);
+        // 2. Rocker Switch + Glue Base Pad (Adjustable Thickness) + Stem + Screw Tip
+        const rockerPivotZ = Math.max(3.5, p.cavD - p.footT - p.neckH - 0.4);
+        const pivotX = wallX + rockerPivotZ * scale;
 
-        ctx.fillStyle = p.colA + '88';
-        for (let c = 0; c < cols; c++) {
-          const bx = -halfPerimX + (c / (cols - 1)) * (halfPerimX * 2);
-          [halfPerimY, -halfPerimY].forEach(by => {
-            ctx.beginPath();
-            ctx.arc(cx + bx * scale, cy - by * scale, bRad * scale, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          });
+        ctx.save();
+        ctx.translate(pivotX, cy);
+        ctx.rotate(THREE.MathUtils.degToRad(-p.tAng));
+
+        // Original Arteor Rocker
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(-3.5 * scale, -14 * scale, 3.5 * scale, 28 * scale);
+
+        // Glue-On Base Pad (Highlighted in Amber)
+        const fT = p.footT * scale;
+        const fH = p.footH * scale;
+        ctx.fillStyle = p.colT;
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(0, -fH / 2, fT, fH);
+        ctx.strokeRect(0, -fH / 2, fT, fH);
+
+        // Neck + Shaft
+        const nH = p.neckH * scale;
+        const sLen = p.tLen * scale;
+        const sDia = p.tBase * scale;
+        ctx.fillRect(fT, -sDia / 2, nH + sLen, sDia);
+
+        // Threaded Peg Stud
+        const tipX = fT + nH + sLen;
+        if (p.tipJoint === 'screw') {
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(tipX, -(p.pegDia * scale) / 2, 4.2 * scale, p.pegDia * scale);
         }
-        for (let r = 1; r < rows - 1; r++) {
-          const by = -halfPerimY + (r / (rows - 1)) * (halfPerimY * 2);
-          [-halfPerimX, halfPerimX].forEach(bx => {
-            ctx.beginPath();
-            ctx.arc(cx + bx * scale, cy - by * scale, bRad * scale, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          });
+
+        // Screw-On Tip Ball / Finial Volume
+        ctx.fillStyle = p.colTip;
+        const rTipPx = (p.tipDia / 2) * scale;
+        const lenTipPx = p.tipLen * scale;
+        ctx.beginPath();
+        ctx.ellipse(tipX + lenTipPx * 0.45 + (isExploded ? 14 : 0), 0, lenTipPx / 2, rTipPx, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // 3. Cover Plate Cross-Section (Top & Bottom of Slot)
+        const coverBackX = wallX + p.cavD * scale;
+        const faceW = p.face * scale;
+        const slotHalfH = (p.slotH / 2) * scale;
+
+        ctx.fillStyle = p.colA;
+        ctx.fillRect(coverBackX, 6, faceW, cy - slotHalfH - 6);
+        ctx.fillRect(coverBackX, cy + slotHalfH, faceW, ch - (cy + slotHalfH) - 6);
+      }
+
+      // --- PRESETS ---
+      function applyPreset(name) {
+        if (name === 'rosetta_bubble') {
+          document.getElementById('inp-silhouette').value = 'bubble_rim';
+          document.getElementById('inp-overlay').value = 'donut_wells';
+          document.getElementById('inp-tipstyle').value = 'ball';
+          document.getElementById('inp-tipjoint').value = 'screw';
+          document.getElementById('inp-tipdia').value = 11.5;
+          document.getElementById('inp-tiplen').value = 11.5;
+          document.getElementById('inp-foott').value = 2.8;
+          document.getElementById('inp-cola').value = '#d91b1b';
+          document.getElementById('inp-colb').value = '#f5ebe1';
+          document.getElementById('inp-colt').value = '#f5ebe1';
+          document.getElementById('inp-coltip').value = '#fbbf24';
+        } else if (name === 'rosetta_lobes') {
+          document.getElementById('inp-silhouette').value = 'merged_lobes';
+          document.getElementById('inp-overlay').value = 'rosetta_discs';
+          document.getElementById('inp-tipstyle').value = 'teardrop';
+          document.getElementById('inp-tipjoint').value = 'screw';
+          document.getElementById('inp-tipdia').value = 10.0;
+          document.getElementById('inp-tiplen').value = 12.0;
+          document.getElementById('inp-cola').value = '#8da9b8';
+          document.getElementById('inp-cold1').value = '#eab8c4';
+          document.getElementById('inp-cold2').value = '#8fc3d1';
+          document.getElementById('inp-colt').value = '#7c2d12';
+          document.getElementById('inp-coltip').value = '#7c2d12';
+        } else if (name === 'diner_stripes') {
+          document.getElementById('inp-silhouette').value = 'vstripes';
+          document.getElementById('inp-overlay').value = 'collars';
+          document.getElementById('inp-tipstyle').value = 'bat';
+          document.getElementById('inp-tipjoint').value = 'onepiece';
+          document.getElementById('inp-cola').value = '#f8fafc';
+          document.getElementById('inp-colb').value = '#b91c1c';
+          document.getElementById('inp-colt').value = '#5da9c4';
+          document.getElementById('inp-coltip').value = '#5da9c4';
+        } else if (name === 'deco_fluted') {
+          document.getElementById('inp-silhouette').value = 'pillow_rect';
+          document.getElementById('inp-overlay').value = 'fluted';
+          document.getElementById('inp-tipstyle').value = 'cone';
+          document.getElementById('inp-tipjoint').value = 'screw';
+          document.getElementById('inp-tipdia').value = 12.5;
+          document.getElementById('inp-tiplen').value = 11.0;
+          document.getElementById('inp-cola').value = '#1e293b';
+          document.getElementById('inp-colb').value = '#f59e0b';
+          document.getElementById('inp-colt').value = '#f59e0b';
+          document.getElementById('inp-coltip').value = '#fef08a';
         }
+        rebuildModel();
       }
 
-      // 2. Draw Sharp 90° Rectangular Arteor Inner Cavity (Always Clean & Unbroken!)
-      const cavWpx = p.cavW * scale;
-      const cavHpx = p.cavH * scale;
-      ctx.fillStyle = '#020617';
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2;
-      ctx.fillRect(cx - cavWpx / 2, cy - cavHpx / 2, cavWpx, cavHpx);
-      ctx.strokeRect(cx - cavWpx / 2, cy - cavHpx / 2, cavWpx, cavHpx);
+      document.getElementById('pre-rosetta-bubble').addEventListener('click', () => applyPreset('rosetta_bubble'));
+      document.getElementById('pre-rosetta-lobes').addEventListener('click', () => applyPreset('rosetta_lobes'));
+      document.getElementById('pre-diner-stripes').addEventListener('click', () => applyPreset('diner_stripes'));
+      document.getElementById('pre-deco-fluted').addEventListener('click', () => applyPreset('deco_fluted'));
 
-      // 3. Draw Switch Slots
-      const startX = -((p.gangs - 1) * p.pitch) / 2;
-      ctx.fillStyle = p.colT;
-      for (let i = 0; i < p.gangs; i++) {
-        const gx = startX + i * p.pitch;
-        ctx.fillRect(
-          cx + (gx - p.slotW / 2) * scale,
-          cy - (p.slotH / 2) * scale,
-          p.slotW * scale,
-          p.slotH * scale
-        );
+      document.getElementById('btn-knob-only').addEventListener('click', (e) => {
+        isKnobOnly = !isKnobOnly;
+        e.target.textContent = isKnobOnly ? 'Show Full Cover' : 'Inspect Knob Only';
+        e.target.classList.toggle('bg-amber-500', isKnobOnly);
+        e.target.classList.toggle('text-slate-950', isKnobOnly);
+        updateTransforms();
+      });
+
+      document.getElementById('btn-rock-sim').addEventListener('click', () => {
+        rockPolarity *= -1;
+        rebuildModel();
+      });
+
+      document.getElementById('btn-wall').addEventListener('click', () => {
+        showWall = !showWall;
+        wallGroup.visible = showWall && !isBackView && !isKnobOnly;
+        document.getElementById('btn-wall').classList.toggle('bg-sky-500/20', showWall);
+      });
+
+      document.getElementById('btn-explode').addEventListener('click', () => {
+        isExploded = !isExploded;
+        document.getElementById('btn-explode').classList.toggle('bg-rose-500/20', isExploded);
+        document.getElementById('btn-explode').classList.toggle('text-rose-300', isExploded);
+        rebuildModel();
+      });
+
+      document.getElementById('btn-wire').addEventListener('click', () => {
+        isWireframe = !isWireframe;
+        document.getElementById('btn-wire').classList.toggle('bg-rose-500/20', isWireframe);
+        rebuildModel();
+      });
+
+      document.getElementById('btn-flip').addEventListener('click', () => {
+        isBackView = !isBackView;
+        document.getElementById('btn-flip').textContent = isBackView ? 'Front View' : 'Inspect Back Pocket';
+        updateTransforms();
+      });
+
+      // --- STL EXPORT ---
+      const stlExporter = new THREE.STLExporter();
+      function downloadSTL(object3D, filename) {
+        const clone = object3D.clone(true);
+        clone.rotation.set(0, 0, 0);
+        clone.position.set(0, 0, 0);
+        clone.updateMatrixWorld(true);
+        const result = stlExporter.parse(clone, { binary: true });
+        const blob = new Blob([result], { type: 'application/octet-stream' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
       }
-    }
 
-    // --- PRESETS ---
-    function applyPreset(name) {
-      if (name === 'rosetta_bubble') {
-        document.getElementById('inp-cavw').value = 118;
-        document.getElementById('inp-cavh').value = 84;
-        document.getElementById('inp-cavd').value = 11.5;
-        document.getElementById('inp-wall').value = 4.0;
-        document.getElementById('inp-silhouette').value = 'bubble_rim';
-        document.getElementById('inp-bubdia').value = 23;
-        document.getElementById('inp-bubpuff').value = 7.0;
-        document.getElementById('inp-overlay').value = 'donut_wells';
-        document.getElementById('inp-ovwidth').value = 34;
-        document.getElementById('inp-ovheight').value = 3.0;
-        document.getElementById('inp-gangs').value = '3';
-        document.getElementById('inp-pitch').value = 36.0;
-        document.getElementById('inp-cola').value = '#d91b1b';
-        document.getElementById('inp-colb').value = '#f5ebe1';
-        document.getElementById('inp-colt').value = '#f5ebe1';
-      } else if (name === 'rosetta_lobes') {
-        document.getElementById('inp-cavw').value = 118;
-        document.getElementById('inp-cavh').value = 84;
-        document.getElementById('inp-cavd').value = 11.5;
-        document.getElementById('inp-wall').value = 3.5;
-        document.getElementById('inp-silhouette').value = 'merged_lobes';
-        document.getElementById('inp-overlay').value = 'rosetta_discs';
-        document.getElementById('inp-ovwidth').value = 34;
-        document.getElementById('inp-ovheight').value = 2.6;
-        document.getElementById('inp-gangs').value = '3';
-        document.getElementById('inp-pitch').value = 36.0;
-        document.getElementById('inp-cola').value = '#8da9b8';
-        document.getElementById('inp-cold1').value = '#eab8c4';
-        document.getElementById('inp-cold2').value = '#8fc3d1';
-        document.getElementById('inp-cold3').value = '#7f0909';
-        document.getElementById('inp-colt').value = '#7c2d12';
-      } else if (name === 'diner_stripes') {
-        document.getElementById('inp-cavw').value = 118;
-        document.getElementById('inp-cavh').value = 84;
-        document.getElementById('inp-wall').value = 3.5;
-        document.getElementById('inp-corner').value = 12.0;
-        document.getElementById('inp-silhouette').value = 'vstripes';
-        document.getElementById('inp-stripes').value = 5;
-        document.getElementById('inp-overlay').value = 'collars';
-        document.getElementById('inp-ovwidth').value = 14;
-        document.getElementById('inp-gangs').value = '3';
-        document.getElementById('inp-pitch').value = 25.0;
-        document.getElementById('inp-cola').value = '#f8fafc';
-        document.getElementById('inp-colb').value = '#b91c1c';
-        document.getElementById('inp-colt').value = '#5da9c4';
-      } else if (name === 'deco_fluted') {
-        document.getElementById('inp-cavw').value = 118;
-        document.getElementById('inp-cavh').value = 84;
-        document.getElementById('inp-wall').value = 3.5;
-        document.getElementById('inp-corner').value = 14.0;
-        document.getElementById('inp-silhouette').value = 'pillow_rect';
-        document.getElementById('inp-overlay').value = 'fluted';
-        document.getElementById('inp-ovheight').value = 2.2;
-        document.getElementById('inp-gangs').value = '2';
-        document.getElementById('inp-pitch').value = 30.0;
-        document.getElementById('inp-cola').value = '#1e293b';
-        document.getElementById('inp-colb').value = '#f59e0b';
-        document.getElementById('inp-colt').value = '#fde047';
+      document.getElementById('btn-exp-cover').addEventListener('click', () => {
+        const p = getParams();
+        const combined = new THREE.Group();
+        combined.add(coverGroup.clone(true));
+        combined.add(bubblesGroup.clone(true));
+        combined.add(overlayGroup.clone(true));
+        downloadSTL(combined, `Arteor_FullCover_${p.silhouette}_${p.gangs}G.stl`);
+      });
+
+      document.getElementById('btn-exp-stem').addEventListener('click', () => {
+        const p = getParams();
+        const stem = buildKnobBaseAndStem(p);
+        if (p.tipJoint === 'onepiece' || p.tipStyle === 'bat') {
+          const tip = buildKnobTipVolume(p, true);
+          tip.position.z = p.footT + p.neckH + p.tLen;
+          stem.add(tip);
+        }
+        downloadSTL(stem, `Arteor_Knob_GlueBase_${p.footT}mmThick_Stem.stl`);
+      });
+
+      document.getElementById('btn-exp-tip').addEventListener('click', () => {
+        const p = getParams();
+        const tip = buildKnobTipVolume(p, true);
+        downloadSTL(tip, `Arteor_Knob_ScrewOnTip_${p.tipStyle}_${p.tipDia}mm.stl`);
+      });
+
+      document.getElementById('btn-exp-a').addEventListener('click', () => downloadSTL(coverGroup, `Arteor_AMS_BaseBody.stl`));
+      document.getElementById('btn-exp-b').addEventListener('click', () => downloadSTL(bubblesGroup, `Arteor_AMS_BubblesOrStripeB.stl`));
+      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadSTL(overlayGroup, `Arteor_AMS_3DInlays.stl`));
+
+      document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('input', rebuildModel);
+      });
+
+      // Responsive ResizeObserver ensures canvas never stays 0x0
+      const resizeObserver = new ResizeObserver(() => {
+        const w = container.clientWidth || (window.innerWidth - 440);
+        const h = container.clientHeight || window.innerHeight;
+        if (w > 0 && h > 0) {
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+      });
+      resizeObserver.observe(container);
+
+      applyPreset('rosetta_bubble');
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
       }
-      rebuildModel();
-    }
-
-    document.getElementById('pre-rosetta-bubble').addEventListener('click', () => applyPreset('rosetta_bubble'));
-    document.getElementById('pre-rosetta-lobes').addEventListener('click', () => applyPreset('rosetta_lobes'));
-    document.getElementById('pre-diner-stripes').addEventListener('click', () => applyPreset('diner_stripes'));
-    document.getElementById('pre-deco-fluted').addEventListener('click', () => applyPreset('deco_fluted'));
-
-    document.getElementById('btn-knob-only').addEventListener('click', (e) => {
-      isKnobOnly = !isKnobOnly;
-      e.target.textContent = isKnobOnly ? 'Show Full Assembly' : 'Isolate Glue Knob';
-      e.target.classList.toggle('bg-amber-500', isKnobOnly);
-      e.target.classList.toggle('text-slate-950', isKnobOnly);
-      updateTransforms();
+      animate();
     });
-
-    document.getElementById('btn-rock-sim').addEventListener('click', () => {
-      rockPolarity *= -1;
-      rebuildModel();
-    });
-
-    document.getElementById('btn-wall').addEventListener('click', () => {
-      showWall = !showWall;
-      wallGroup.visible = showWall && !isBackView && !isKnobOnly;
-      document.getElementById('btn-wall').classList.toggle('bg-sky-500/20', showWall);
-    });
-
-    document.getElementById('btn-explode').addEventListener('click', () => {
-      isExploded = !isExploded;
-      document.getElementById('btn-explode').classList.toggle('bg-rose-500/20', isExploded);
-      document.getElementById('btn-explode').classList.toggle('text-rose-300', isExploded);
-      updateTransforms();
-    });
-
-    document.getElementById('btn-wire').addEventListener('click', () => {
-      isWireframe = !isWireframe;
-      document.getElementById('btn-wire').classList.toggle('bg-rose-500/20', isWireframe);
-      rebuildModel();
-    });
-
-    document.getElementById('btn-flip').addEventListener('click', () => {
-      isBackView = !isBackView;
-      document.getElementById('btn-flip').textContent = isBackView ? 'Front View' : 'Inspect Back Pocket';
-      updateTransforms();
-    });
-
-    // --- STL EXPORT ---
-    const stlExporter = new STLExporter();
-    function downloadSTL(object3D, filename) {
-      const clone = object3D.clone(true);
-      clone.rotation.set(0, 0, 0);
-      clone.position.set(0, 0, 0);
-      clone.updateMatrixWorld(true);
-      const result = stlExporter.parse(clone, { binary: true });
-      const blob = new Blob([result], { type: 'application/octet-stream' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
-
-    document.getElementById('btn-exp-cover').addEventListener('click', () => {
-      const p = getParams();
-      const combined = new THREE.Group();
-      combined.add(coverGroup.clone(true));
-      combined.add(bubblesGroup.clone(true));
-      combined.add(overlayGroup.clone(true));
-      downloadSTL(combined, `Arteor_CeramicCover_${p.silhouette}_${p.gangs}G.stl`);
-    });
-
-    document.getElementById('btn-exp-toggle').addEventListener('click', () => {
-      const p = getParams();
-      const singleKnob = buildGlueOnKnob(p);
-      singleKnob.rotation.set(0, 0, 0);
-      downloadSTL(singleKnob, `Arteor_GlueOn_Knob_${p.tLen}mm.stl`);
-    });
-
-    document.getElementById('btn-exp-a').addEventListener('click', () => {
-      downloadSTL(coverGroup, `Arteor_AMS_BaseBody.stl`);
-    });
-
-    document.getElementById('btn-exp-b').addEventListener('click', () => {
-      downloadSTL(bubblesGroup, `Arteor_AMS_BubblesOrStripeB.stl`);
-    });
-
-    document.getElementById('btn-exp-ov').addEventListener('click', () => {
-      downloadSTL(overlayGroup, `Arteor_AMS_3DInlaysAndDiscs.stl`);
-    });
-
-    document.querySelectorAll('input, select').forEach(el => {
-      el.addEventListener('input', rebuildModel);
-    });
-
-    window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-
-    applyPreset('rosetta_bubble');
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
   </script>
 </body>
 </html>
