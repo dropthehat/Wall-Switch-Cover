@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v19 — Inlay & Full-Top 2-Part Quick-Swap, 0.43mm Outlet & Slot Shape Studio</title>
+  <title>ArteorCAD v20 — Full Clamped Rosetta Bubbles, Clean Hardware Cavity & Exact Stripe Slot Booleans</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -78,9 +78,9 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v19.0 Studio</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v20.0 Studio</span></h1>
         </div>
-        <p class="text-[10px] text-slate-400">Inlay & Full-Top 2-Part Swap • 0.43mm Outlet Fit • Pill/Rect/Circle Slots • Satin Light</p>
+        <p class="text-[10px] text-slate-400">Full Clamped Rosetta Bubbles • Clean Hardware Cavity • Unbreakable Stripe Slots</p>
       </div>
       <div class="flex gap-1.5">
         <button id="btn-collapse-all" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700 transition" title="Collapse/Expand All Sections">
@@ -107,7 +107,7 @@
       <!-- Quick Style & Hardware Presets -->
       <div class="grid grid-cols-5 gap-1">
         <button id="pre-vstripes" class="py-1 text-[10px] font-semibold rounded bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 border border-rose-500/40 truncate" title="3-Gang Vertical Stripes + Pill Slots + Ceramic Donut Rings">💈 V-Stripes</button>
-        <button id="pre-rosetta-bubble" class="py-1 text-[10px] font-semibold rounded bg-red-600/25 hover:bg-red-600/40 text-red-200 border border-red-500/40 truncate" title="Rosetta 3D Pillowed Bubbles + Donut Rings">🫧 Rosetta 3D</button>
+        <button id="pre-rosetta-bubble" class="py-1 text-[10px] font-semibold rounded bg-red-600/25 hover:bg-red-600/40 text-red-200 border border-red-500/40 truncate" title="Rosetta 3D Full Pillowed Bubbles + Donut Rings">🫧 Rosetta 3D</button>
         <button id="pre-buttons" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 truncate" title="Stitched Leather Plate + 4-Hole Colorful Sewing Buttons">🧵 Buttons</button>
         <button id="pre-coindisc" class="py-1 text-[10px] font-semibold rounded bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 truncate" title="Recessed Tray + Vertical Spherical-to-Flat Dome Knobs">🌗 Dome-Flat</button>
         <button id="pre-flower" class="py-1 text-[10px] font-semibold rounded bg-violet-500/25 hover:bg-violet-500/40 text-violet-200 border border-violet-500/40 truncate" title="5-Petal Pop Flower (Full-Top Swappable Cover)">🌸 5-Petal</button>
@@ -152,7 +152,7 @@
               </select>
             </div>
             <div>
-              <label class="text-slate-300 block mb-1 font-medium" data-tip="Choose 1-Piece Monolithic OR 2-Part Quick-Swap: 'Inlay Center' keeps the outer rim fixed and swaps the center plate; 'Full-Top Cap' makes the ENTIRE top surface swappable (ideal for Flower, Scallop & Striped plates)!">
+              <label class="text-slate-300 block mb-1 font-medium" data-tip="Choose 1-Piece Monolithic OR 2-Part Quick-Swap: 'Inlay Center' keeps the outer rim fixed and swaps the center plate; 'Full-Top Cap' makes the ENTIRE top surface swappable (ideal for Flower, Bubbles & Striped plates)!">
                 Cover Construction (1-Pc vs 2-Part Swap)
               </label>
               <select id="inp-coverbuild" class="w-full bg-slate-950 border border-cyan-500/50 rounded px-2 py-1.5 text-cyan-100 font-semibold text-[11px]">
@@ -295,11 +295,11 @@
 
           <div class="grid grid-cols-4 gap-2 pt-1">
             <div>
-              <div class="flex justify-between mb-1"><span data-tip="Inner pocket width.">Inner W</span><span id="val-inw" class="font-mono text-sky-400">114.5</span></div>
+              <div class="flex justify-between mb-1"><span data-tip="Inner pocket width (always keeps crisp 1.2mm rectangular hardware corners so the Legrand wall frame fits cleanly).">Inner W</span><span id="val-inw" class="font-mono text-sky-400">114.5</span></div>
               <input id="inp-inw" type="range" min="90" max="155" step="0.5" value="114.5" class="w-full" />
             </div>
             <div>
-              <div class="flex justify-between mb-1"><span data-tip="Inner pocket height.">Inner H</span><span id="val-inh" class="font-mono text-sky-400">79.5</span></div>
+              <div class="flex justify-between mb-1"><span data-tip="Inner pocket height (always keeps crisp 1.2mm rectangular hardware corners).">Inner H</span><span id="val-inh" class="font-mono text-sky-400">79.5</span></div>
               <input id="inp-inh" type="range" min="65" max="110" step="0.5" value="79.5" class="w-full" />
             </div>
             <div>
@@ -314,11 +314,11 @@
 
           <div class="grid grid-cols-4 gap-2 pt-1 border-t border-slate-800">
             <div>
-              <div class="flex justify-between mb-1"><span data-tip="Outer corner rounding radius.">Corner R</span><span id="val-corner" class="font-mono text-sky-400">8.0</span></div>
+              <div class="flex justify-between mb-1"><span data-tip="Outer silhouette corner rounding radius (inner wall cavity always preserves clean rectangular corners for the Legrand frame!).">Corner R</span><span id="val-corner" class="font-mono text-sky-400">8.0</span></div>
               <input id="inp-corner" type="range" min="0.5" max="26" step="0.5" value="8.0" class="w-full" />
             </div>
             <div>
-              <div class="flex justify-between mb-1"><span data-tip="Outer perimeter wall thickness.">Wall</span><span id="val-wall" class="font-mono text-sky-400">2.5</span></div>
+              <div class="flex justify-between mb-1"><span data-tip="Minimum outer perimeter wall thickness.">Wall</span><span id="val-wall" class="font-mono text-sky-400">2.5</span></div>
               <input id="inp-wall" type="range" min="1.5" max="6.0" step="0.25" value="2.5" class="w-full" />
             </div>
             <div>
@@ -372,7 +372,7 @@
               </select>
             </div>
             <div>
-              <label class="text-sky-300 block mb-1 font-semibold" data-tip="Choose the geometry of the switch toggle opening: Pill (Stadium), Crisp Rectangle, or Round Circle. Works on both solid and striped plates!">
+              <label class="text-sky-300 block mb-1 font-semibold" data-tip="Choose the geometry of the switch toggle opening: Pill (Stadium), Crisp Rectangle, or Round Circle. Works cleanly on solid, vertical-striped, and diagonal-striped plates!">
                 Knob Slot Shape
               </label>
               <select id="inp-slotshape" class="w-full bg-slate-950 border border-sky-500/50 rounded px-1.5 py-1 text-sky-100 font-semibold text-[11px]">
@@ -433,12 +433,12 @@
         </div>
       </div>
 
-      <!-- STEP 4: BASE PLATE DESIGN & SILHOUETTE -->
+      <!-- STEP 4: BASE PLATE DESIGN, BUBBLE CONTROLLERS & SILHOUETTE -->
       <div class="cat-card bg-slate-800/40 border border-rose-500/35 rounded-lg transition" data-cat="plate">
         <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('plate', event)">
           <div class="flex items-center gap-2">
             <span class="cat-chevron text-[10px] text-rose-400 transition-transform">▼</span>
-            <span class="font-semibold text-rose-300 uppercase tracking-wider text-[11px]">4. Base Plate Silhouette & Stripes</span>
+            <span class="font-semibold text-rose-300 uppercase tracking-wider text-[11px]">4. Base Plate Silhouette, Bubbles & Stripes</span>
           </div>
           <div class="flex items-center gap-2">
             <button id="btn-load-plate-mesh" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-rose-500/20 hover:bg-rose-500/40 text-rose-200 border border-rose-500/40 transition" onclick="event.stopPropagation()" title="Upload a custom .STL/.OBJ plate body">
@@ -459,7 +459,7 @@
                 <option value="pillow_rect">Solid Rounded Plate</option>
                 <option value="vstripes" selected>Vertical Stripes (AMS Split)</option>
                 <option value="dstripes">Diagonal 45° Stripes (AMS Split)</option>
-                <option value="bubble_rim">Rosetta 3D Bubble Perimeter (2-Part Safe)</option>
+                <option value="bubble_rim">🫧 Rosetta 3D Full Bubble Perimeter (Flush Back)</option>
                 <option value="scallop_stamp">Scalloped Cookie Stamp (Striped)</option>
                 <option value="flower_5petal">🌸 5-Petal Pop Flower (Full Corner Coverage)</option>
                 <option value="merged_lobes">Rosetta Merged Circle Lobes</option>
@@ -470,6 +470,28 @@
             <div>
               <div class="flex justify-between mb-1"><span data-tip="Number of alternating color stripes or scallop lobes.">Stripes</span><span id="val-stripes" class="font-mono text-rose-400">5</span></div>
               <input id="inp-stripes" type="range" min="2" max="11" step="1" value="5" class="w-full mt-1" />
+            </div>
+          </div>
+
+          <!-- NEW v20: ROSETTA 3D BUBBLE SIZE & COUNT CONTROLLERS -->
+          <div id="sub-bubbles" class="hidden p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-rose-300">🫧 Rosetta 3D Full Bubble Controllers</span>
+              <span class="text-[10px] font-mono text-emerald-400">Full Belly • Clamped Flush Back</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <div class="flex justify-between mb-1"><span data-tip="Diameter of each 3D perimeter sphere/bubble (mm).">Bubble Ø</span><span id="val-bubbledia" class="font-mono text-rose-300 font-bold">22.4</span></div>
+                <input id="inp-bubbledia" type="range" min="10.0" max="38.0" step="0.4" value="22.4" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1"><span data-tip="Number of bubbles along the Top and Bottom horizontal edges.">Cols (X)</span><span id="val-bubblecols" class="font-mono text-rose-300 font-bold">7</span></div>
+                <input id="inp-bubblecols" type="range" min="3" max="12" step="1" value="7" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1"><span data-tip="Number of bubbles along the Left and Right vertical edges (including corners).">Rows (Y)</span><span id="val-bubblerows" class="font-mono text-rose-300 font-bold">5</span></div>
+                <input id="inp-bubblerows" type="range" min="2" max="10" step="1" value="5" class="w-full" />
+              </div>
             </div>
           </div>
         </div>
@@ -497,7 +519,7 @@
               <select id="inp-overlay" class="w-full bg-slate-900 border border-purple-500/40 rounded px-2 py-1.5 text-purple-100 font-medium">
                 <option value="none">None (Clean Face)</option>
                 <option value="donut_wells" selected>Rosetta Ceramic Donut Rings (Flat Back)</option>
-                <option value="stitched_leather">Stitched Leather Dash Border (Button Ref)</option>
+                <option value="stitched_leather">Stitched Leather Dash Border (Non-Overlapping)</option>
                 <option value="tray_recessed_wells">Tray Rim + Recessed Slot Wells (Coin Ref)</option>
                 <option value="collars_frame">Rim Border + Slot/Outlet Collars</option>
                 <option value="collars">Raised Slot & Outlet Collars Only</option>
@@ -893,7 +915,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.06;
 
-      // --- FIXED v19 OFF-AXIS CAMERA-TARGET SATIN CAD LIGHTING (ZERO SPECULAR HOTSPOT BLOWOUT!) ---
+      // --- OFF-AXIS CAMERA-TARGET SATIN CAD LIGHTING (ZERO SPECULAR HOTSPOT BLOWOUT) ---
       const ambLight = new THREE.AmbientLight(0xffffff, 0.24);
       scene.add(ambLight);
 
@@ -901,8 +923,6 @@
       hemiLight.position.set(0, 120, 150);
       scene.add(hemiLight);
 
-      // Both camKeyLight AND its target are children of camera at an off-axis 42° grazing angle
-      // so flat front faces never reflect a blinding specular hotspot into the lens!
       const camLightTarget = new THREE.Object3D();
       camLightTarget.position.set(0, 0, -100);
       camera.add(camLightTarget);
@@ -1176,12 +1196,14 @@
         return pts;
       }
 
+      // FIXED IN v20: Ensures 5-Petal Pop Flower outer contour ALWAYS clears the rectangular inner wall cavity (inW × inH) with at least `wall + 1.5mm` margin at all 4 corners!
       function getFivePetalFlowerPoints(inW, inH, wall, samples = 240) {
         const pts = [];
-        const minHalfW = inW / 2 + wall + 1.2;
-        const minHalfH = inH / 2 + wall + 1.2;
-        const rx = minHalfW * 1.26;
-        const ry = minHalfH * 1.26;
+        const cornerHalfW = inW / 2 + wall + 1.5;
+        const cornerHalfH = inH / 2 + wall + 1.5;
+        // At the 4 corners of the rectangular inner pocket, |cos(theta)| and |sin(theta)| must exceed cornerHalfW & cornerHalfH even at petal troughs!
+        const rx = cornerHalfW * 1.34;
+        const ry = cornerHalfH * 1.34;
         const lobeAmp = 10.5;
         for (let i = 0; i < samples; i++) {
           const theta = (i / samples) * Math.PI * 2;
@@ -1190,6 +1212,23 @@
           pts.push(new THREE.Vector2((rx + rAdd) * Math.cos(theta), (ry + rAdd) * Math.sin(theta)));
         }
         return pts;
+      }
+
+      // NEW IN v20: Full 3D Rosetta Bubble Volume (keeps the full lower spherical belly & intersection with the base, while clamping Z >= zFloor so it NEVER protrudes behind the plate!)
+      function buildClampedFullBubbleGeometry(bRad, zCenter, zRadius, zFloor) {
+        const geo = new THREE.SphereGeometry(bRad, 32, 24);
+        geo.scale(1.0, 1.0, zRadius / bRad);
+        geo.translate(0, 0, zCenter);
+
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const z = pos.getZ(i);
+          if (z < zFloor) {
+            pos.setZ(i, zFloor);
+          }
+        }
+        geo.computeVertexNormals();
+        return geo;
       }
 
       function createFreeCAD4LugCutoutHolePath(inW, inH, pinX, pinY, pinDia) {
@@ -1572,25 +1611,22 @@
           return new THREE.Mesh(geo, mat);
         }
 
-        const xSpan = Math.max(20, p.inW - Math.max(14, p.corner * 2));
+        const xSpan = Math.max(20, p.inW - 8.0);
         group.add(makeHorizLipMesh(xSpan, true));
         group.add(makeHorizLipMesh(xSpan, false));
 
         if (p.lipEdges === 'all4') {
-          const ySpan = Math.max(16, p.inH - Math.max(14, p.corner * 2));
+          const ySpan = Math.max(16, p.inH - 8.0);
           group.add(makeVertLipMesh(ySpan, true));
           group.add(makeVertLipMesh(ySpan, false));
         }
         return group;
       }
 
-      // --- FIXED IN v19: CORNER-RADIUS-SAFE MAGNET COORDINATES ---
-      // Guarantees the cylindrical magnet boss (bossOuterR = 4.5mm) stays strictly inside the rounded inner corner arc!
       function getSafeCornerMagnetCenters(inlayW, inlayH, inlayCornerR, bossOuterR = 4.5) {
         const hw = inlayW / 2;
         const hh = inlayH / 2;
         const rCorner = Math.max(1.0, inlayCornerR);
-        // Along the 45° corner bisector, the rounded corner arc pulls inward from the bounding box corner by rCorner * (1 - cos(45°))
         const diagPullIn = Math.max(0, (rCorner - bossOuterR) * 0.293);
         const safeMargin = bossOuterR + 1.0 + diagPullIn;
         const cx = Math.max(20.0, hw - safeMargin);
@@ -1598,7 +1634,6 @@
         return [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]];
       }
 
-      // 1. Inside the Part 1 Base / Collar:
       function buildOuterCollarRetentionFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, mat) {
         const group = new THREE.Group();
         const hw = inlayW / 2;
@@ -1621,7 +1656,7 @@
 
         } else if (isMagnets) {
           const bossOuterR = 4.5;
-          const magHoleR = 3.1; // Ø6.2mm pocket for Ø6x2mm magnet
+          const magHoleR = 3.1;
           const pocketDepth = 2.1;
           const floorThick = 1.2;
 
@@ -1649,7 +1684,6 @@
         return group;
       }
 
-      // 2. On the Back of the Part 2 Swappable Cover (Inlay or Full-Top):
       function buildDropInFaceplateBackFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, mat) {
         const group = new THREE.Group();
         const hw = inlayW / 2;
@@ -1695,7 +1729,6 @@
           });
 
         } else if (isMagnets) {
-          // Blind-capped magnet pocket on the back of Part 2, tucked safely inside the corner radius!
           const bossOuterR = 4.5;
           const magHoleR = 3.1;
           const pocketDepth = 2.1;
@@ -1790,7 +1823,10 @@
         return out;
       }
 
-      // Upgraded in v19: Subtracts Rectangular, Pill (Stadium), OR Circular holes cleanly from Striped Polygons!
+      // --- FIXED IN v20: EXACT CURVED BOOLEAN SUBTRACTION FOR PILL, CIRCLE & RECT SLOTS ON BOTH VERTICAL & DIAGONAL STRIPES ---
+      // Instead of slicing into 10 tiny vertical sub-rectangles (which caused earcut self-intersections on diagonal stripes),
+      // we split the polygon into 4 clean non-overlapping regions around the hole's bounding box, and for the central band
+      // we build 1 single top polygon with the exact curved top arc of the Pill/Circle and 1 single bottom polygon with the exact curved bottom arc!
       function subtractCutoutFromPolygons(polyList, item) {
         if (!item.isRoundCut && item.slotShape === 'rect') {
           return subtractBoxFromPolygons(
@@ -1802,25 +1838,19 @@
           );
         }
 
-        // For Pill or Circle holes on a striped plate: split the stripe along Y = item.cy so no hole is ever left open on a boundary!
-        // Specifically, we slice a thin 1D band only where the hole actually intersects, or split into Top (y >= cy) and Bottom (y <= cy)
-        // with the exact curved semicircle/arc boundary!
-        const x0 = item.cx - item.cutW / 2;
-        const x1 = item.cx + item.cutW / 2;
-        const y0 = item.cy - item.cutH / 2;
-        const y1 = item.cy + item.cutH / 2;
-
-        // Sample top and bottom curved boundary of the Pill or Circle across [x0..x1]
         const r = Math.min(item.cutW, item.cutH) / 2;
         const straightHalfH = Math.max(0, (item.cutH / 2) - r);
+        const x0 = item.cx - r;
+        const x1 = item.cx + r;
 
-        function getHoleTopBottomY(x) {
+        function getHoleTopY(x) {
           const dx = Math.max(-r, Math.min(r, x - item.cx));
-          const dyArc = Math.sqrt(Math.max(0, r * r - dx * dx));
-          return {
-            yTop: item.cy + straightHalfH + dyArc,
-            yBot: item.cy - straightHalfH - dyArc
-          };
+          return item.cy + straightHalfH + Math.sqrt(Math.max(0, r * r - dx * dx));
+        }
+
+        function getHoleBotY(x) {
+          const dx = Math.max(-r, Math.min(r, x - item.cx));
+          return item.cy - straightHalfH - Math.sqrt(Math.max(0, r * r - dx * dx));
         }
 
         const nextList = [];
@@ -1833,21 +1863,67 @@
           const rightP = clipPolygonHalfPlane(poly, 1, 0, x1);
           if (rightP.length >= 3) nextList.push(rightP);
 
-          // 3. Middle band (x0 <= x <= x1): slice into N vertical sub-strips along the curved arc so Pill & Circle slots are 100% smooth!
+          // 3. Central vertical band (x0 <= x <= x1)
           const midBand = clipPolygonHalfPlane(clipPolygonHalfPlane(poly, 1, 0, x0), -1, 0, -x1);
           if (midBand.length >= 3) {
-            const slices = 10;
-            for (let s = 0; s < slices; s++) {
-              const sx0 = x0 + (s / slices) * (x1 - x0);
-              const sx1 = x0 + ((s + 1) / slices) * (x1 - x0);
-              const sMidX = (sx0 + sx1) * 0.5;
-              const { yTop, yBot } = getHoleTopBottomY(sMidX);
-              const strip = clipPolygonHalfPlane(clipPolygonHalfPlane(midBand, 1, 0, sx0), -1, 0, -sx1);
-              if (strip.length >= 3) {
-                const topP = clipPolygonHalfPlane(strip, 0, 1, yTop);
-                if (topP.length >= 3) nextList.push(topP);
-                const botP = clipPolygonHalfPlane(strip, 0, -1, -yBot);
-                if (botP.length >= 3) nextList.push(botP);
+            // Find the actual horizontal span [bxMin, bxMax] of midBand so diagonal stripes clip cleanly!
+            let bxMin = Infinity, bxMax = -Infinity;
+            let byMin = Infinity, byMax = -Infinity;
+            midBand.forEach(pt => {
+              if (pt.x < bxMin) bxMin = pt.x;
+              if (pt.x > bxMax) bxMax = pt.x;
+              if (pt.y < byMin) byMin = pt.y;
+              if (pt.y > byMax) byMax = pt.y;
+            });
+
+            if (bxMax - bxMin > 0.04) {
+              const arcSteps = 20;
+              // Top piece above the hole's upper curved arc:
+              // First clip midBand to y >= item.cy, then replace its bottom edge with the smooth curved top arc of the Pill/Circle!
+              const upperHalf = clipPolygonHalfPlane(midBand, 0, 1, item.cy);
+              if (upperHalf.length >= 3 && byMax > item.cy + straightHalfH + 0.2) {
+                // Collect all points of upperHalf that lie above the hole top curve, plus the sampled curve from bxMax down to bxMin
+                const topBoundary = [];
+                upperHalf.forEach(pt => {
+                  if (pt.y >= getHoleTopY(pt.x) - 0.05) {
+                    topBoundary.push(pt);
+                  }
+                });
+                if (topBoundary.length >= 2) {
+                  // Sort top points left-to-right by X along the upper outer boundary, then return right-to-left along the hole's top arc!
+                  topBoundary.sort((a, b) => a.x - b.x);
+                  const minX = topBoundary[0].x;
+                  const maxX = topBoundary[topBoundary.length - 1].x;
+                  const arcPts = [];
+                  for (let s = arcSteps; s >= 0; s--) {
+                    const ax = minX + (s / arcSteps) * (maxX - minX);
+                    arcPts.push(new THREE.Vector2(ax, getHoleTopY(ax)));
+                  }
+                  nextList.push([...topBoundary, ...arcPts]);
+                }
+              }
+
+              // Bottom piece below the hole's lower curved arc:
+              const lowerHalf = clipPolygonHalfPlane(midBand, 0, -1, -item.cy);
+              if (lowerHalf.length >= 3 && byMin < item.cy - straightHalfH - 0.2) {
+                const botBoundary = [];
+                lowerHalf.forEach(pt => {
+                  if (pt.y <= getHoleBotY(pt.x) + 0.05) {
+                    botBoundary.push(pt);
+                  }
+                });
+                if (botBoundary.length >= 2) {
+                  // Sort bottom outer points right-to-left by X, then return left-to-right along the hole's bottom arc (CCW winding)!
+                  botBoundary.sort((a, b) => b.x - a.x);
+                  const maxX = botBoundary[0].x;
+                  const minX = botBoundary[botBoundary.length - 1].x;
+                  const arcPts = [];
+                  for (let s = 0; s <= arcSteps; s++) {
+                    const ax = minX + (s / arcSteps) * (maxX - minX);
+                    arcPts.push(new THREE.Vector2(ax, getHoleBotY(ax)));
+                  }
+                  nextList.push([...botBoundary, ...arcPts]);
+                }
               }
             }
           }
@@ -1875,16 +1951,52 @@
         return nextList;
       }
 
-      function deduplicatePolygonPoints(pts, eps = 0.02) {
+      function deduplicatePolygonPoints(pts, eps = 0.03) {
         const clean = [];
         for (let i = 0; i < pts.length; i++) {
           const prev = clean.length > 0 ? clean[clean.length - 1] : pts[pts.length - 1];
           if (pts[i].distanceTo(prev) > eps) clean.push(pts[i]);
         }
+        if (clean.length >= 3 && clean[0].distanceTo(clean[clean.length - 1]) <= eps) {
+          clean.pop();
+        }
         return clean;
       }
 
-      // --- PARSE ACTIVE MODULE ITEMS (SUPPORTS PILL/RECT/CIRCLE SLOTS & COVER-BEZEL 2-PIN / SCHUKO HOLES) ---
+      // NEW IN v20: Exact Polyline Arc-Length Sampler so Stitched Leather Dashes NEVER bunch up or overlap!
+      function sampleClosedPolygonUniformly(pts, numSamples) {
+        const segLens = [];
+        let totalLen = 0;
+        for (let i = 0; i < pts.length; i++) {
+          const a = pts[i];
+          const b = pts[(i + 1) % pts.length];
+          const d = a.distanceTo(b);
+          segLens.push(d);
+          totalLen += d;
+        }
+        const results = [];
+        for (let k = 0; k < numSamples; k++) {
+          const targetDist = (k / numSamples) * totalLen;
+          let acc = 0;
+          for (let i = 0; i < pts.length; i++) {
+            const segL = segLens[i];
+            if (acc + segL >= targetDist || i === pts.length - 1) {
+              const a = pts[i];
+              const b = pts[(i + 1) % pts.length];
+              const t = segL > 1e-5 ? (targetDist - acc) / segL : 0;
+              const px = a.x + t * (b.x - a.x);
+              const py = a.y + t * (b.y - a.y);
+              const ang = Math.atan2(b.y - a.y, b.x - a.x);
+              results.push({ x: px, y: py, ang, totalLen });
+              break;
+            }
+            acc += segL;
+          }
+        }
+        return results;
+      }
+
+      // --- PARSE ACTIVE MODULE ITEMS ---
       function getActiveModuleItems(p) {
         const swCount = Math.max(0, Math.min(4, p.swCount));
         const isUncoveredSw = (p.swMode === 'uncovered');
@@ -1987,7 +2099,6 @@
         return items;
       }
 
-      // Expands any `twopin` 1M outlet (when Cover Bezel mode is selected) into its 2 individual Ø5.2mm plug pin holes (spaced 19mm vertically)!
       function getExpandedCutouts(activeItems) {
         const expanded = [];
         activeItems.forEach(it => {
@@ -2008,7 +2119,6 @@
           }
         });
 
-        // Merge adjacent rectangular module windows (e.g., 2 uncovered switches side-by-side or switch + square outlet bezel)
         const rects = expanded.filter(b => !b.isRoundCut && b.slotShape === 'rect' && b.kind !== 'switch').sort((a, b) => (a.cx - a.cutW / 2) - (b.cx - b.cutW / 2));
         const others = expanded.filter(b => b.isRoundCut || b.slotShape !== 'rect' || b.kind === 'switch');
 
@@ -2049,7 +2159,6 @@
         if (item.slotShape === 'rect') {
           return createTranslatedRectHolePath(item.cx, item.cy, w, h, item.kind === 'switch' ? 0.35 : 0.6);
         }
-        // Default: Pill (Stadium) rounded ends
         const rad = Math.min(w, h) / 2;
         return createTranslatedRectHolePath(item.cx, item.cy, w, h, rad);
       }
@@ -2095,6 +2204,9 @@
           slotAxis: document.getElementById('inp-slotaxis').value,
           silhouette: document.getElementById('inp-silhouette').value,
           stripes: parseInt(document.getElementById('inp-stripes').value),
+          bubbleDia: parseFloat(document.getElementById('inp-bubbledia').value),
+          bubbleCols: parseInt(document.getElementById('inp-bubblecols').value),
+          bubbleRows: parseInt(document.getElementById('inp-bubblerows').value),
           overlay: document.getElementById('inp-overlay').value,
           ovHeight: parseFloat(document.getElementById('inp-ovheight').value),
           ovWidth: parseFloat(document.getElementById('inp-ovwidth').value),
@@ -2129,7 +2241,6 @@
         };
       }
 
-      // Upgraded in v19: Satin PLA roughness (0.48) eliminates harsh specular white blowout!
       function createGlossMat(hex, wire, doubleSide = false, roughness = 0.48) {
         return new THREE.MeshStandardMaterial({
           color: new THREE.Color(hex),
@@ -2140,8 +2251,8 @@
         });
       }
 
-      // --- FLAT-BACKED 3D SCULPTED OVERLAYS & COLLARS ---
-      function buildAll3DOverlays(p, outerW, outerH, zBase, mergedCutouts, activeItems, zPerimDeckTop) {
+      // --- FLAT-BACKED 3D SCULPTED OVERLAYS & COLLARS (WITH NON-OVERLAPPING LEATHER STITCHES) ---
+      function buildAll3DOverlays(p, outerW, outerH, zBase, mergedCutouts, activeItems, zPerimDeckTop, plateCornerR) {
         const group = new THREE.Group();
         if (p.overlay === 'none' || p.silhouette === 'open_frame') return group;
 
@@ -2177,40 +2288,50 @@
           addFlatBackCollars();
         } else if (p.overlay === 'collars_frame') {
           addFlatBackCollars();
-          const rimShape = createRoundedRectShape(outerW - 1.5, outerH - 1.5, Math.max(1, p.corner - 0.75));
-          rimShape.holes.push(createRoundedRectPath(outerW - 1.5 - fw * 2, outerH - 1.5 - fw * 2, Math.max(0.5, p.corner - fw)));
+          const rimShape = createRoundedRectShape(outerW - 1.5, outerH - 1.5, Math.max(1, plateCornerR - 0.75));
+          rimShape.holes.push(createRoundedRectPath(outerW - 1.5 - fw * 2, outerH - 1.5 - fw * 2, Math.max(0.5, plateCornerR - fw)));
           const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
           rimGeo.translate(0, 0, zPerimDeckTop);
           group.add(new THREE.Mesh(rimGeo, matOv));
         } else if (p.overlay === 'stitched_leather') {
-          const rimW = 3.2;
-          const rimShape = createRoundedRectShape(outerW - 1.0, outerH - 1.0, Math.max(1.5, p.corner - 0.5));
-          rimShape.holes.push(createRoundedRectPath(outerW - 1.0 - rimW * 2, outerH - 1.0 - rimW * 2, Math.max(1.0, p.corner - rimW)));
-          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h * 0.65, bevelEnabled: false });
+          const rimW = 2.8;
+          const rimShape = createRoundedRectShape(outerW - 1.0, outerH - 1.0, Math.max(1.5, plateCornerR - 0.5));
+          rimShape.holes.push(createRoundedRectPath(outerW - 1.0 - rimW * 2, outerH - 1.0 - rimW * 2, Math.max(1.0, plateCornerR - rimW)));
+          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h * 0.55, bevelEnabled: false });
           rimGeo.translate(0, 0, zPerimDeckTop);
           group.add(new THREE.Mesh(rimGeo, createGlossMat(p.colA, isWireframe)));
 
-          const stitchPts = getRoundedRectPoints(outerW - 10.5, outerH - 10.5, Math.max(1.5, p.corner - 4.5), 12);
-          const stitchCurve = new THREE.CatmullRomCurve3(stitchPts.map(pt => new THREE.Vector3(pt.x, pt.y, 0)), true);
-          const totalLen = stitchCurve.getLength();
-          const stitchPitch = 3.4;
-          const numStitches = Math.floor(totalLen / stitchPitch);
-          const stitchBox = new THREE.BoxGeometry(1.85, 0.85, h * 0.55);
+          // FIXED IN v20: Uniform Polyline Arc-Length Sampling with guaranteed clear gap between stitches (ZERO OVERLAPPING!)
+          const stitchInset = 6.2;
+          const stitchCornerR = Math.max(3.0, plateCornerR - stitchInset * 0.5);
+          const stitchPts = getRoundedRectPoints(outerW - stitchInset * 2, outerH - stitchInset * 2, stitchCornerR, 24);
 
-          for (let i = 0; i < numStitches; i++) {
-            const u = i / numStitches;
-            const pos = stitchCurve.getPointAt(u);
-            const tan = stitchCurve.getTangentAt(u);
-            const ang = Math.atan2(tan.y, tan.x);
-            const sMesh = new THREE.Mesh(stitchBox, matOv);
-            sMesh.position.set(pos.x, pos.y, zPerimDeckTop + (h * 0.25));
-            sMesh.rotation.z = ang;
-            group.add(sMesh);
+          // Compute exact perimeter and space stitches with a 52% clear gap between every dash
+          let perimLen = 0;
+          for (let i = 0; i < stitchPts.length; i++) {
+            perimLen += stitchPts[i].distanceTo(stitchPts[(i + 1) % stitchPts.length]);
           }
+          const targetPitch = Math.max(4.4, 6.2 - p.ovCount * 0.5);
+          const numStitches = Math.max(16, Math.floor(perimLen / targetPitch));
+          const actualPitch = perimLen / numStitches;
+          const dashLen = actualPitch * 0.48; // 48% dash, 52% open leather gap -> impossible to overlap!
+          const dashW = 0.95;
+
+          const dashShape = createRoundedRectShape(dashLen, dashW, dashW * 0.45);
+          const dashGeo = new THREE.ExtrudeGeometry(dashShape, { depth: h * 0.65, bevelEnabled: false });
+
+          const samples = sampleClosedPolygonUniformly(stitchPts, numStitches);
+          samples.forEach(s => {
+            const sMesh = new THREE.Mesh(dashGeo, matOv);
+            sMesh.position.set(s.x, s.y, zPerimDeckTop);
+            sMesh.rotation.z = s.ang;
+            group.add(sMesh);
+          });
+
         } else if (p.overlay === 'tray_recessed_wells') {
           const lipW = 2.6;
-          const rimShape = createRoundedRectShape(outerW - 0.6, outerH - 0.6, Math.max(1.5, p.corner - 0.3));
-          rimShape.holes.push(createRoundedRectPath(outerW - 0.6 - lipW * 2, outerH - 0.6 - lipW * 2, Math.max(1.0, p.corner - lipW)));
+          const rimShape = createRoundedRectShape(outerW - 0.6, outerH - 0.6, Math.max(1.5, plateCornerR - 0.3));
+          rimShape.holes.push(createRoundedRectPath(outerW - 0.6 - lipW * 2, outerH - 0.6 - lipW * 2, Math.max(1.0, plateCornerR - lipW)));
           const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
           rimGeo.translate(0, 0, zPerimDeckTop);
           group.add(new THREE.Mesh(rimGeo, matOv));
@@ -2237,15 +2358,15 @@
             const innerW = tierW - fw * 1.5;
             const innerH = tierH - fw * 1.5;
             if (innerW <= 20 || innerH <= 20) break;
-            const tierShape = createRoundedRectShape(tierW, tierH, Math.max(1, p.corner - inset));
-            tierShape.holes.push(createRoundedRectPath(innerW, innerH, Math.max(0.5, p.corner - inset - fw * 0.75)));
+            const tierShape = createRoundedRectShape(tierW, tierH, Math.max(1, plateCornerR - inset));
+            tierShape.holes.push(createRoundedRectPath(innerW, innerH, Math.max(0.5, plateCornerR - inset - fw * 0.75)));
             const tierZ = h * ((steps - s) / steps);
             const tierGeo = new THREE.ExtrudeGeometry(tierShape, { depth: tierZ, bevelEnabled: false });
             tierGeo.translate(0, 0, zPerimDeckTop);
             group.add(new THREE.Mesh(tierGeo, matOv));
           }
         } else if (p.overlay === 'fluted') {
-          const outerPts = getRoundedRectPoints(outerW - 2, outerH - 2, Math.max(1, p.corner - 1), 16);
+          const outerPts = getRoundedRectPoints(outerW - 2, outerH - 2, Math.max(1, plateCornerR - 1), 16);
           const pitch = fw * 1.45;
           const ribW = fw * 0.85;
           const numRibs = Math.floor((outerW - 4) / pitch);
@@ -2291,7 +2412,7 @@
             group.add(new THREE.Mesh(geo, matOv));
           }
         } else if (p.overlay === 'waffle') {
-          const wafShape = createRoundedRectShape(outerW - 3, outerH - 3, Math.max(1, p.corner - 1.5));
+          const wafShape = createRoundedRectShape(outerW - 3, outerH - 3, Math.max(1, plateCornerR - 1.5));
           mergedCutouts.forEach(item => {
             wafShape.holes.push(makeItemHolePath(item, 1.8));
           });
@@ -2548,8 +2669,6 @@
         return group;
       }
 
-      // FIXED IN v19: Power Outlet Reference Hardware is aligned at `p.rimD + 5.2mm` (clicked switch rocker plane),
-      // so a flush faceplate at `zFaceBack + p.face = p.rimD + 5.63mm` sits +0.43mm proud of the outlet bezel!
       function buildLegrandReferenceHardware(p, activeItems) {
         clearAndDisposeGroup(legrandRefGroup);
         const darkFrameMat = new THREE.MeshStandardMaterial({ color: 0x26292e, roughness: 0.65 });
@@ -2570,7 +2689,6 @@
         frameGeo.translate(0, 0, p.rimD - 3.2);
         legrandRefGroup.add(new THREE.Mesh(frameGeo, darkFrameMat));
 
-        // The clicked side of a Legrand switch rocker and the front face of a Legrand power outlet sit at Z = p.rimD + 5.2mm!
         const outletFrontZ = p.rimD + 5.2;
 
         activeItems.forEach((item, idx) => {
@@ -2657,11 +2775,6 @@
         const uncoveredSwCount = activeItems.filter(it => it.kind === 'switch_open').length;
         const outCount = activeItems.filter(it => it.kind !== 'switch' && it.kind !== 'switch_open').length;
 
-        // Auto-Calibrate Cavity Z based on your exact 0.43mm Legrand Arteor measurement:
-        // - If Covered Switches are present: Cavity Z = 11.0 mm (clears glue foot + stem + rocker tilt).
-        // - If No Covered Switches AND Outlet Cutout = 'cover_holes' (plate sits ON TOP of outlet bezel): Cavity Z = 5.6 mm.
-        // - If No Covered Switches AND Square Bezel Window (+0.43mm Flush Step): Outlet bezel is at 5.20mm above frame,
-        //   so total front face should be at 5.20 + 0.43 = 5.63mm -> Cavity Z = max(2.2, 5.63 - Face Z) = ~3.03 mm!
         const isOnTopOutlet = (outCount > 0 && p.outletStyle === 'cover_holes');
         const curModeState = `${coveredSwCount > 0 ? 'cov11' : (isOnTopOutlet ? 'top56' : 'flush043')}`;
         if (curModeState !== lastAutoModeState && !lockedCats.chassis) {
@@ -2674,10 +2787,11 @@
           p.swClear = targetClear;
         }
 
-        // Toggle Fixation Sub-panels
+        // Toggle Sub-panels
         document.getElementById('sub-hpins').classList.toggle('hidden', p.fixMode !== 'hpins');
         document.getElementById('sub-slipover').classList.toggle('hidden', p.fixMode !== 'slipover');
         document.getElementById('sub-screwtabs').classList.toggle('hidden', p.fixMode !== 'screwtabs');
+        document.getElementById('sub-bubbles').classList.toggle('hidden', p.silhouette !== 'bubble_rim');
         document.getElementById('sub-custom-knob-transform').classList.toggle('hidden', p.tipStyle !== 'custom_knob_mesh');
 
         // Sync Editable Number Badges
@@ -2709,6 +2823,9 @@
         setBadgeVal('val-slotw', p.slotW.toFixed(1));
         setBadgeVal('val-sloth', p.slotH.toFixed(1));
         setBadgeVal('val-stripes', p.stripes);
+        setBadgeVal('val-bubbledia', p.bubbleDia.toFixed(1));
+        setBadgeVal('val-bubblecols', p.bubbleCols);
+        setBadgeVal('val-bubblerows', p.bubbleRows);
 
         setBadgeVal('val-ovheight', p.ovHeight.toFixed(1));
         setBadgeVal('val-ovwidth', p.ovWidth.toFixed(1));
@@ -2738,7 +2855,12 @@
         const isFullTopSwap = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets') && p.silhouette !== 'open_frame';
         const isTwoPart = isInlaySwap || isFullTopSwap;
 
-        const cornerExtra = isSlipOver ? 0 : Math.max(0, (p.corner - 1.2) * 0.293);
+        // FIXED IN v20: The inner wall-facing hardware pocket ALWAYS maintains a clean rectangular corner (`innerWallCornerR = 1.2mm`)
+        // to match the Legrand wall hardware reference (113.0 × 78.5mm, r = 1.2mm).
+        // Meanwhile, when `Corner R` is large (e.g. 18mm on Dome-Flat), `outerW` and `outerH` automatically expand along the 45° diagonal
+        // so the outer rounded corners never cut into the rectangular inner hardware pocket!
+        const innerWallCornerR = isSlipOver ? 0.4 : 1.2;
+        const cornerExtra = isSlipOver ? 0 : Math.max(0, (p.corner - innerWallCornerR) * 0.415);
         const outerW = p.inW + (p.wall + cornerExtra) * 2;
         const outerH = p.inH + (p.wall + cornerExtra) * 2;
 
@@ -2789,19 +2911,17 @@
           currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 24);
         }
 
-        // Determine Base Outline vs Faceplate Outline:
-        // - In `1-Piece Monolithic`: both use `currentOutlinePts`.
-        // - In `2-Part Inlay`: Outer Collar uses `currentOutlinePts` up to `totalDepth`. Center Inlay Plate sits inside the collar opening
-        //   (for Rosetta 3D Bubbles, inset by an extra 4.0mm so it clears the inner tangent of the 3D perimeter bubbles!).
-        // - In `2-Part Full-Top`: Part 1 Sub-Frame is a clean rectangular base (`outerW × outerH` up to `zFaceBack`),
-        //   and Part 2 Swappable Cover is the ENTIRE `currentOutlinePts` silhouette from edge to edge!
-        const bubbleInlayInset = (isInlaySwap && p.silhouette === 'bubble_rim') ? 4.2 : 0.35;
+        // FIXED IN v20: Clean Rectangular Inlay & Wall Hardware Cavity!
+        // Both the wall-facing cavity (`innerWallCornerR = 1.2mm`) and the 2-part center inlay pocket (`inlayCornerR = 1.8mm`)
+        // use clean rectangular corners that respect the rectangular Legrand wall frame!
+        const bRad = p.bubbleDia / 2;
+        const bubbleInlayInset = (isInlaySwap && p.silhouette === 'bubble_rim') ? Math.max(3.5, bRad * 0.36) : 0.35;
         const inlayW = p.inW - bubbleInlayInset * 2;
         const inlayH = p.inH - bubbleInlayInset * 2;
-        const inlayCornerR = isSlipOver ? 0.4 : Math.max(1.0, p.corner - p.wall - bubbleInlayInset);
+        const inlayCornerR = isSlipOver ? 0.4 : 1.8;
 
         const baseOutlinePts = isFullTopSwap
-          ? getRoundedRectPoints(outerW, outerH, p.corner, 24)
+          ? getRoundedRectPoints(p.inW + p.wall * 2, p.inH + p.wall * 2, 2.2, 20)
           : currentOutlinePts;
 
         const faceOutlinePts = isInlaySwap
@@ -2833,7 +2953,8 @@
         } else if (isScrewTabs) {
           if (p.rimD > 0.05) {
             const rimShape = new THREE.Shape(baseOutlinePts);
-            rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, Math.max(0.8, p.corner - p.wall)));
+            // Clean 1.2mm rectangular inner wall corners to fit Legrand hardware frame!
+            rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, innerWallCornerR));
             const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false });
             chassisGroup.add(new THREE.Mesh(rimGeo, matA));
           }
@@ -2879,7 +3000,8 @@
           // FACTORY 4-PIN SLOTTED H-BRIDGE
           if (p.rimD > 0.05) {
             const rimShape = new THREE.Shape(baseOutlinePts);
-            rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, Math.max(0.8, p.corner - p.wall)));
+            // Clean 1.2mm rectangular inner wall corners to fit Legrand hardware frame!
+            rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, innerWallCornerR));
             const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false });
             chassisGroup.add(new THREE.Mesh(rimGeo, matA));
           }
@@ -2908,14 +3030,14 @@
             } else {
               const deckRiserH = Math.max(0.1, (zFaceBack - effectiveDeckDrop) - zLugTop);
               const perimDeckShape = new THREE.Shape(baseOutlinePts);
-              perimDeckShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 2.2));
+              perimDeckShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 1.8));
               const perimDeckGeo = new THREE.ExtrudeGeometry(perimDeckShape, { depth: deckRiserH, bevelEnabled: false });
               perimDeckGeo.translate(0, 0, zLugTop);
               chassisGroup.add(new THREE.Mesh(perimDeckGeo, matA));
 
               if (effectiveDeckDrop > 0.05) {
                 const turretWallShape = createRoundedRectShape(turretOuterW, turretOuterH, 4.5);
-                turretWallShape.holes.push(createRoundedRectPath(rockerBoxW, turretOuterH, 2.2));
+                turretWallShape.holes.push(createRoundedRectPath(rockerBoxW, turretOuterH, 1.8));
                 const turretWallGeo = new THREE.ExtrudeGeometry(turretWallShape, { depth: effectiveDeckDrop, bevelEnabled: false });
                 turretWallGeo.translate(0, 0, zFaceBack - effectiveDeckDrop);
                 chassisGroup.add(new THREE.Mesh(turretWallGeo, matA));
@@ -2939,7 +3061,7 @@
             targetGroup.add(new THREE.Mesh(customPlateClone, matA));
 
           } else if (isAnyStripes) {
-            const span = isDiagStripes ? (outerW + outerH) * 0.78 : (outerW + 10);
+            const span = isDiagStripes ? (outerW + outerH) * 0.92 : (outerW + 16);
             const stripeW = span / p.stripes;
             const nx = isDiagStripes ? Math.SQRT1_2 : 1.0;
             const ny = isDiagStripes ? Math.SQRT1_2 : 0.0;
@@ -2957,7 +3079,7 @@
                 )
               ];
 
-              // Upgraded in v19: Subtracts Pill, Circle, OR Rectangle openings cleanly from stripes!
+              // Uses the new v20 exact curve boolean subtraction so Pill, Circle & Rect slots never break on Vertical or Diagonal stripes!
               mergedCutouts.forEach(item => {
                 bandPolys = subtractCutoutFromPolygons(bandPolys, item);
               });
@@ -2978,7 +3100,7 @@
           } else {
             if (!isTwoPart && !isSlipOver && effectiveDeckDrop > 0.05 && p.deckMode === 'compact_turret') {
               const lowFaceShape = new THREE.Shape(faceOutlinePts);
-              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 2.2));
+              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 1.8));
               const lowFaceGeo = new THREE.ExtrudeGeometry(lowFaceShape, { depth: p.face, bevelEnabled: false });
               lowFaceGeo.translate(0, 0, zFaceBack - effectiveDeckDrop);
               targetGroup.add(new THREE.Mesh(lowFaceGeo, matA));
@@ -3000,16 +3122,12 @@
               targetGroup.add(new THREE.Mesh(faceGeo, matA));
             }
 
-            // FIXED IN v19: Rosetta 3D Bubbles in 2-Part Mode!
-            // - In `2-Part Inlay` mode, the perimeter bubbles belong to the Outer Collar (`chassisGroup`), while the flat center plate (`faceplateGroup`)
-            //   is inset by `4.2mm` so it lifts out of the center with zero collision!
-            // - In `2-Part Full-Top` mode, the bubbles are flat-backed domes sitting on `zFaceBack` so the entire top plate prints flat and lifts off cleanly!
+            // FIXED IN v20: Rosetta 3D Full Bubble Volumes (No Surface Cut + Clamped Flush Back + Size & Count Controllers!)
             if (p.silhouette === 'bubble_rim') {
-              const bRad = 11.2;
-              const halfPerimX = outerW / 2 - bRad * 0.15;
-              const halfPerimY = outerH / 2 - bRad * 0.15;
-              const cols = Math.max(3, Math.round((halfPerimX * 2) / (bRad * 1.62)) + 1);
-              const rows = Math.max(2, Math.round((halfPerimY * 2) / (bRad * 1.62)) + 1);
+              const halfPerimX = outerW / 2 - bRad * 0.12;
+              const halfPerimY = outerH / 2 - bRad * 0.12;
+              const cols = Math.max(2, p.bubbleCols);
+              const rows = Math.max(2, p.bubbleRows);
               const bubbleCenters = [];
               for (let c = 0; c < cols; c++) {
                 const bx = -halfPerimX + (c / (cols - 1)) * (halfPerimX * 2);
@@ -3020,27 +3138,23 @@
                 bubbleCenters.push({ x: -halfPerimX, y: by }, { x: halfPerimX, y: by });
               }
 
-              if (isFullTopSwap) {
-                // Flat-backed upper hemisphere domes at zFaceBack so Part 2 Full-Top Cover prints flat and never collides with Part 1!
-                const domeHeight = p.face + 4.8;
-                bubbleCenters.forEach(bc => {
-                  const domeGeo = new THREE.SphereGeometry(bRad, 28, 18, 0, Math.PI * 2, 0, Math.PI / 2);
-                  domeGeo.rotateX(Math.PI / 2);
-                  domeGeo.scale(1.0, 1.0, domeHeight / bRad);
-                  domeGeo.translate(bc.x, bc.y, zFaceBack);
-                  bubblesGroup.add(new THREE.Mesh(domeGeo, matA));
-                });
-              } else {
-                const zMid = (zLugTop + zPerimDeckTop) * 0.5;
-                const zRadius = ((zPerimDeckTop - zLugTop) * 0.5) + 5.2;
-                const destBubbleGrp = isInlaySwap ? chassisGroup : bubblesGroup;
-                bubbleCenters.forEach(bc => {
-                  const fullSphereGeo = new THREE.SphereGeometry(bRad, 28, 22);
-                  fullSphereGeo.scale(1.0, 1.0, zRadius / bRad);
-                  fullSphereGeo.translate(bc.x, bc.y, zMid);
-                  destBubbleGrp.add(new THREE.Mesh(fullSphereGeo, matA));
-                });
-              }
+              // Full 3D pillowed sphere with its lower belly intact, intersecting naturally with the base,
+              // while clamping any vertex below the back plane (`z = 0` for 1-Pc/Inlay or `z = zFaceBack` for Full-Top Swap)
+              // so it NEVER protrudes behind the plate!
+              const zTop = zPerimDeckTop + Math.min(6.0, bRad * 0.48);
+              const zBottom = isFullTopSwap ? (zFaceBack - bRad * 0.35) : 0.0;
+              const zCenter = (zTop + zBottom) * 0.5;
+              const zRadius = (zTop - zBottom) * 0.5;
+              const zClampFloor = isFullTopSwap ? zFaceBack : 0.0;
+
+              const templateBubbleGeo = buildClampedFullBubbleGeometry(bRad, zCenter, zRadius, zClampFloor);
+              const destBubbleGrp = isInlaySwap ? chassisGroup : bubblesGroup;
+
+              bubbleCenters.forEach(bc => {
+                const bClone = templateBubbleGeo.clone();
+                bClone.translate(bc.x, bc.y, 0);
+                destBubbleGrp.add(new THREE.Mesh(bClone, matA));
+              });
             }
           }
 
@@ -3050,7 +3164,8 @@
         }
 
         // --- 4. 3D OVERLAYS & COLLARS ---
-        overlayGroup.add(buildAll3DOverlays(p, isInlaySwap ? inlayW : outerW, isInlaySwap ? inlayH : outerH, totalDepth, mergedCutouts, activeItems, zPerimDeckTop));
+        const ovCornerR = isInlaySwap ? inlayCornerR : p.corner;
+        overlayGroup.add(buildAll3DOverlays(p, isInlaySwap ? inlayW : outerW, isInlaySwap ? inlayH : outerH, totalDepth, mergedCutouts, activeItems, zPerimDeckTop, ovCornerR));
 
         // --- 5. THREADED KNOBS (PLACED ON COVERED SWITCH BAYS ONLY) ---
         const multiKnobPalette = ['#ef4444', '#facc15', '#2563eb', '#10b981'];
@@ -3151,7 +3266,6 @@
           const slotHalfPx = ((p.swMode === 'uncovered' ? p.modH : p.slotH) / 2) * scale * 0.75;
           const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
 
-          // Draw Part 1 Base / Collar Walls
           ctx.fillStyle = '#0ea5e933';
           ctx.strokeStyle = '#38bdf8';
           ctx.lineWidth = 1.3;
@@ -3161,7 +3275,6 @@
           ctx.fillRect(originX, originY + 52, baseSpanZ, 10);
           ctx.strokeRect(originX, originY + 52, baseSpanZ, 10);
 
-          // Draw Part 2 Faceplate (Inlay or Full-Top)
           const expPx = isExploded && isTwoPart ? 24 : 0;
           const topY = isInlay ? (originY - 55) : (originY - 66);
           const botY = isInlay ? (originY + 51) : (originY + 62);
@@ -3300,7 +3413,7 @@
 
           ctx.fillStyle = '#94a3b8';
           ctx.font = '10px monospace';
-          ctx.fillText(`Outer: ${outerW.toFixed(1)}×${outerH.toFixed(1)}mm | Inner: ${p.inW.toFixed(1)}×${p.inH.toFixed(1)}mm`, 12, 15);
+          ctx.fillText(`Outer: ${outerW.toFixed(1)}×${outerH.toFixed(1)}mm | Inner: ${p.inW.toFixed(1)}×${p.inH.toFixed(1)}mm (r=1.2mm)`, 12, 15);
         }
       }
 
@@ -3332,13 +3445,13 @@
       });
 
       // --- SAVED PROFILES MANAGER (LOCALSTORAGE + JSON) ---
-      const STORAGE_KEY = 'arteor_cad_v19_profiles';
+      const STORAGE_KEY = 'arteor_cad_v20_profiles';
       const PARAM_IDS = [
         'inp-fixmode', 'inp-coverbuild', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb',
         'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz',
         'inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop',
         'inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis',
-        'inp-silhouette', 'inp-stripes',
+        'inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows',
         'inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount',
         'inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz',
         'inp-tipdia', 'inp-tiplen', 'inp-pegdia', 'inp-threadtol', 'inp-foott', 'inp-footw', 'inp-footh', 'inp-tlen', 'inp-tbase', 'inp-vroof',
@@ -3349,7 +3462,7 @@
         fixation: ['inp-fixmode', 'inp-coverbuild', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb', 'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz'],
         chassis: ['inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop'],
         modules: ['inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis'],
-        plate: ['inp-silhouette', 'inp-stripes'],
+        plate: ['inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows'],
         overlay: ['inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount'],
         knob: ['inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz', 'inp-tipdia', 'inp-tiplen', 'inp-pegdia', 'inp-threadtol', 'inp-foott', 'inp-footw', 'inp-footh', 'inp-tlen', 'inp-tbase', 'inp-vroof'],
         colors: ['inp-cola', 'inp-colb', 'inp-colov', 'inp-cold2', 'inp-colt', 'inp-coltip']
@@ -3400,7 +3513,7 @@
       }
 
       document.getElementById('btn-prof-save').addEventListener('click', () => {
-        const name = prompt('Enter a name for this switch profile:', `Arteor v19 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+        const name = prompt('Enter a name for this switch profile:', `Arteor v20 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
         if (!name) return;
         const map = getStoredProfiles();
         map[name] = captureProfileData();
@@ -3427,7 +3540,7 @@
         const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(captureProfileData(), null, 2));
         const a = document.createElement('a');
         a.href = str;
-        a.download = 'arteor_v19_profile.json';
+        a.download = 'arteor_v20_profile.json';
         a.click();
       });
 
@@ -3480,6 +3593,9 @@
           setIfUnlocked('modules', 'inp-swcount', 3);
           setIfUnlocked('modules', 'inp-outlettype', 'none');
           setIfUnlocked('plate', 'inp-silhouette', 'bubble_rim');
+          setIfUnlocked('plate', 'inp-bubbledia', 22.4);
+          setIfUnlocked('plate', 'inp-bubblecols', 7);
+          setIfUnlocked('plate', 'inp-bubblerows', 5);
           setIfUnlocked('overlay', 'inp-overlay', 'donut_wells');
           setIfUnlocked('knob', 'inp-tipstyle', 'ball');
           setIfUnlocked('knob', 'inp-tipdia', 14.5);
@@ -3519,7 +3635,6 @@
           setIfUnlocked('colors', 'inp-coltip', '#4d7c5f');
 
         } else if (name === 'flower') {
-          // Uses 2-Part Full-Top mode so the diagonal stripes run across 100% of the 5-Petal Pop Flower!
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
           setIfUnlocked('modules', 'inp-swcount', 2);
           setIfUnlocked('modules', 'inp-outlettype', 'none');
@@ -3721,12 +3836,12 @@
         combined.add(faceplateGroup.clone(true));
         combined.add(bubblesGroup.clone(true));
         combined.add(overlayGroup.clone(true));
-        downloadPrintReadySTL(combined, `Arteor_v19_FullAssembly_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(combined, `Arteor_v20_FullAssembly_${p.coverBuild}.stl`);
       });
 
       document.getElementById('btn-exp-chassis').addEventListener('click', () => {
         const p = getParams();
-        downloadPrintReadySTL(chassisGroup, `Arteor_v19_Part1_WallBase_${p.fixMode}_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(chassisGroup, `Arteor_v20_Part1_WallBase_${p.fixMode}_${p.coverBuild}.stl`);
       });
 
       document.getElementById('btn-exp-faceplate').addEventListener('click', () => {
@@ -3735,7 +3850,7 @@
         faceCombined.add(faceplateGroup.clone(true));
         faceCombined.add(bubblesGroup.clone(true));
         faceCombined.add(overlayGroup.clone(true));
-        downloadPrintReadySTL(faceCombined, `Arteor_v19_Part2_SwappableCover_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceCombined, `Arteor_v20_Part2_SwappableCover_${p.coverBuild}.stl`);
       });
 
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
@@ -3746,17 +3861,17 @@
           tip.position.z = p.footT + p.tLen;
           stem.add(tip);
         }
-        downloadPrintReadySTL(stem, `Arteor_v19_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
+        downloadPrintReadySTL(stem, `Arteor_v20_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
       });
 
       document.getElementById('btn-exp-tip').addEventListener('click', () => {
         const p = getParams();
         const tip = buildKnobTipVolume(p, false);
         const boreID = (p.pegDia + p.threadTol).toFixed(2);
-        downloadPrintReadySTL(tip, `Arteor_v19_Tip_${p.tipStyle}_${boreID}mm_NegativeThread_READY.stl`);
+        downloadPrintReadySTL(tip, `Arteor_v20_Tip_${p.tipStyle}_${boreID}mm_NegativeThread_READY.stl`);
       });
 
-      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v19_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
+      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v20_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
