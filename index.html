@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v21 — Side-Wrap Skirt, Full 3D Rosetta Bubbles & Watertight Stripe Slot Booleans</title>
+  <title>ArteorCAD v23 — Alu-Blade, Buster+Punch Diamond Knurl & Dimwit Thumb-Pebble Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -45,9 +45,9 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v21.0 Studio</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v23.0 Studio</span></h1>
         </div>
-        <p class="text-[10px] text-slate-400">Side-Wrap Skirt • Uncut 3D Rosetta Bubbles • Watertight Stripe Slot Booleans</p>
+        <p class="text-[10px] text-slate-400">Alu-Blade Fin • Buster+Punch Diamond Knurl • Dimwit Concave Pebble • Skeleton Base</p>
       </div>
       <div class="flex gap-1.5">
         <button id="btn-collapse-all" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700 transition">↕ Fold All</button>
@@ -67,34 +67,37 @@
         <input id="file-prof-import" type="file" accept=".json" class="hidden" />
       </div>
 
-      <div class="grid grid-cols-5 gap-1">
+      <!-- NEW IN v23: 3 ARCHITECTURAL DESIGNER PRESETS + CLASSIC FAVORITES -->
+      <div class="grid grid-cols-6 gap-1">
+        <button id="pre-alublade" class="py-1 text-[10px] font-semibold rounded bg-slate-300/20 hover:bg-slate-300/35 text-slate-100 border border-slate-400/50 truncate" title="Sharp Brushed Alu Plate + Architectural Stadium Blade Toggle">💊 Alu-Blade</button>
+        <button id="pre-bpknurl" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-400/50 truncate" title="Buster + Punch Diamond-Knurled Cylinder + Beveled Escutcheon">🔩 B+P Knurl</button>
+        <button id="pre-dimwit" class="py-1 text-[10px] font-semibold rounded bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-200 border border-emerald-400/50 truncate" title="Dimwit Sage Plate + Glossy Concave Thumb-Dimple Pebble">🍩 Dimwit</button>
         <button id="pre-vstripes" class="py-1 text-[10px] font-semibold rounded bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 border border-rose-500/40 truncate">💈 V-Stripes</button>
         <button id="pre-rosetta-bubble" class="py-1 text-[10px] font-semibold rounded bg-red-600/25 hover:bg-red-600/40 text-red-200 border border-red-500/40 truncate">🫧 Rosetta 3D</button>
-        <button id="pre-buttons" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 truncate">🧵 Buttons</button>
-        <button id="pre-coindisc" class="py-1 text-[10px] font-semibold rounded bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 truncate">🌗 Dome-Flat</button>
         <button id="pre-flower" class="py-1 text-[10px] font-semibold rounded bg-violet-500/25 hover:bg-violet-500/40 text-violet-200 border border-violet-500/40 truncate">🌸 5-Petal</button>
       </div>
-      <div class="grid grid-cols-5 gap-1">
-        <button id="pre-waffle" class="py-1 text-[10px] font-semibold rounded bg-purple-600/20 hover:bg-purple-600/40 text-purple-200 border border-purple-500/30 truncate">🧇 Waffle+TBar</button>
-        <button id="pre-uncovered-sw" class="py-1 text-[10px] font-semibold rounded bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 truncate">🔲 Open Rockers</button>
-        <button id="pre-2sw-1out" class="py-1 text-[10px] font-semibold rounded bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/40 truncate">🔌 2Sw+1Plug</button>
-        <button id="pre-schuko-2m" class="py-1 text-[10px] font-semibold rounded bg-teal-600/25 hover:bg-teal-600/40 text-teal-200 border border-teal-500/40 truncate">⚡ 2M Schuko</button>
-        <button id="pre-twopart-swap" class="py-1 text-[10px] font-semibold rounded bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-500/40 truncate">📦 2-Part Swap</button>
+      <div class="grid grid-cols-6 gap-1">
+        <button id="pre-buttons" class="py-1 text-[10px] font-semibold rounded bg-amber-600/20 hover:bg-amber-600/35 text-amber-200 border border-amber-500/30 truncate">🧵 Buttons</button>
+        <button id="pre-coindisc" class="py-1 text-[10px] font-semibold rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/30 truncate">🌗 Dome-Flat</button>
+        <button id="pre-waffle" class="py-1 text-[10px] font-semibold rounded bg-purple-600/20 hover:bg-purple-600/40 text-purple-200 border border-purple-500/30 truncate">🧇 Waffle</button>
+        <button id="pre-uncovered-sw" class="py-1 text-[10px] font-semibold rounded bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 truncate">🔲 Open Sw</button>
+        <button id="pre-schuko-2m" class="py-1 text-[10px] font-semibold rounded bg-teal-600/25 hover:bg-teal-600/40 text-teal-200 border border-teal-500/40 truncate">⚡ Schuko</button>
+        <button id="pre-twopart-swap" class="py-1 text-[10px] font-semibold rounded bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-500/40 truncate">🦴 Skeleton</button>
       </div>
     </div>
 
     <!-- 6-STEP LOGICAL WORKFLOW -->
     <div id="categories-scroll" class="flex-1 overflow-y-auto p-3 space-y-2.5 text-xs">
 
-      <!-- STEP 1: FIXATION TYPE & 2-PART SWAP ARCHITECTURE -->
+      <!-- STEP 1: FIXATION TYPE & 2-PART SKELETON ARCHITECTURE -->
       <div class="cat-card bg-slate-800/40 border border-emerald-500/40 rounded-lg transition" data-cat="fixation">
         <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('fixation', event)">
           <div class="flex items-center gap-2">
             <span class="cat-chevron text-[10px] text-emerald-400 transition-transform">▼</span>
-            <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">1. Fixation, 2-Part Swap & Side Skirt</span>
+            <span class="font-semibold text-emerald-300 uppercase tracking-wider text-[11px]">1. Fixation, 2-Part Swap & Skeleton Base</span>
           </div>
           <div class="flex items-center gap-2">
-            <span id="badge-fixation" class="text-[10px] font-mono text-emerald-400">H-Pins • 2-Part</span>
+            <span id="badge-fixation" class="text-[10px] font-mono text-emerald-400">H-Pins • Skeleton</span>
             <button class="lock-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700" onclick="toggleLock('fixation', event)">🔓</button>
           </div>
         </div>
@@ -115,20 +118,20 @@
                 <option value="monolithic">1-Piece Monolithic Plate</option>
                 <option value="inlay_snaps">2-Part Inlay: Fixed Outer Rim + Snap Center</option>
                 <option value="inlay_magnets">2-Part Inlay: Fixed Outer Rim + Magnet Center</option>
-                <option value="fulltop_snaps" selected>2-Part Full-Top: Sub-Base + Snap-On Cover</option>
-                <option value="fulltop_magnets">2-Part Full-Top: Sub-Base + Magnetic Cover</option>
+                <option value="fulltop_snaps" selected>2-Part Full-Top: Skeleton Base + Snap Cover</option>
+                <option value="fulltop_magnets">2-Part Full-Top: Skeleton Base + Magnet Cover</option>
               </select>
             </div>
           </div>
 
-          <!-- NEW IN v21: SIDE SKIRT OVERHANG / SHROUD CONTROL -->
-          <div class="p-2 rounded bg-cyan-950/25 border border-cyan-500/30">
-            <label class="text-cyan-200 block mb-1 font-semibold text-[11px]" data-tip="Controls whether Part 2 Full-Top Cover (or wide silhouettes) floats on top of Part 1 Base OR drops an outer perimeter skirt down to Z=0 to completely hide the base sides!">
-              Full-Top Cover Side Skirt (Hide Base Sides vs Float on Base)
+          <div class="p-2 rounded bg-emerald-950/30 border border-emerald-500/40">
+            <label class="text-emerald-200 block mb-1 font-semibold text-[11px]" data-tip="Eliminates duplicate outer walls! 'Minimal Skeleton Sub-Frame' shrinks Part 1 down to a thin mounting bracket + central switch-bay collar (saves ~65% base filament), while Part 2's outer wall drops to Z=0 with zero overlap!">
+              Full-Top Base & Skirt Architecture (Filament & AMS Saver)
             </label>
-            <select id="inp-sideskirt" class="w-full bg-slate-950 border border-cyan-500/40 rounded px-2 py-1 text-cyan-100 text-[11px] font-medium">
-              <option value="wrap_sides" selected>🛡️ Wrap Sides to Wall Z=0 (Hides Base Sides Completely)</option>
-              <option value="float_top">🥞 Float on Top of Base (Flat Bottom at zFaceBack)</option>
+            <select id="inp-sideskirt" class="w-full bg-slate-950 border border-emerald-500/40 rounded px-2 py-1 text-emerald-100 text-[11px] font-medium">
+              <option value="skeleton_wrap" selected>🦴 Minimal Skeleton Base + Full-Skirt Cover (Zero Wall Overlap • Saves 65% Base)</option>
+              <option value="float_top">⚡ Minimal Rim Base + Flat-Top Cover (Lowest AMS Multi-Color Purge!)</option>
+              <option value="wrap_sides">📦 Full Outer Box Base + Wrap-Around Shroud (Double-Wall Overlap)</option>
             </select>
           </div>
 
@@ -162,8 +165,8 @@
                 <input id="inp-piny" type="range" min="45" max="70" step="0.1" value="53.3" class="w-full" />
               </div>
               <div>
-                <div class="flex justify-between mb-1"><span>Lug Z</span><span id="val-lugt" class="font-mono text-amber-300">1.2</span></div>
-                <input id="inp-lugt" type="range" min="0.8" max="3.5" step="0.1" value="1.2" class="w-full" />
+                <div class="flex justify-between mb-1"><span>Lug Z</span><span id="val-lugt" class="font-mono text-amber-300">1.4</span></div>
+                <input id="inp-lugt" type="range" min="0.8" max="3.5" step="0.1" value="1.4" class="w-full" />
               </div>
               <div>
                 <div class="flex justify-between mb-1"><span>H-Web</span><span id="val-hweb" class="font-mono text-emerald-400">0.9</span></div>
@@ -236,9 +239,7 @@
               </select>
             </div>
             <div>
-              <label class="text-slate-300 block mb-1 font-medium" data-tip="Controls the internal ceiling/deck of the base: Compact Box restricts the deep pocket strictly to the central 68.6×46.2mm switches; Stepped Flat Deck drops the outer rim by Deck Drop; Full-Width Open Collar opens the entire inner cavity.">
-                Internal Deck Architecture
-              </label>
+              <label class="text-slate-300 block mb-1 font-medium">Internal Deck Architecture</label>
               <select id="inp-deckmode" class="w-full bg-slate-900 border border-sky-500/40 rounded px-2 py-1 text-sky-100">
                 <option value="compact_flush" selected>Compact Box + Solid Ceiling Deck</option>
                 <option value="compact_turret">Compact Box + Stepped Turret Deck</option>
@@ -246,8 +247,8 @@
               </select>
             </div>
           </div>
-          <div id="deck-mode-note" class="text-[10px] font-mono text-sky-300/90 bg-sky-950/30 px-2 py-1 rounded border border-sky-500/20">
-            ✓ Active: Compact 68.6×46.2mm switch pocket with solid surrounding deck.
+          <div id="deck-mode-note" class="text-[10px] font-mono text-emerald-300/90 bg-emerald-950/30 px-2 py-1 rounded border border-emerald-500/20">
+            🦴 Minimalist Skeleton Base active: Zero outer wall duplication!
           </div>
 
           <div class="grid grid-cols-4 gap-2 pt-1">
@@ -399,7 +400,7 @@
             <div class="col-span-2">
               <label class="text-slate-400 block mb-1">Plate Silhouette</label>
               <select id="inp-silhouette" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
-                <option value="pillow_rect">Solid Rounded Plate</option>
+                <option value="pillow_rect">Solid Rounded / Sharp Architectural Plate</option>
                 <option value="vstripes" selected>Vertical Stripes (AMS Split)</option>
                 <option value="dstripes">Diagonal 45° Stripes (AMS Split)</option>
                 <option value="bubble_rim">🫧 Rosetta 3D Full Bubble Perimeter</option>
@@ -419,7 +420,7 @@
           <div id="sub-bubbles" class="hidden p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/40 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold uppercase tracking-wider text-rose-300">🫧 Rosetta 3D Full Bubble Controllers</span>
-              <span class="text-[10px] font-mono text-emerald-400">Full 3D Volume • Base Cutout Only</span>
+              <span class="text-[10px] font-mono text-emerald-400">Full 3D Volume • Skeleton Clear</span>
             </div>
             <div class="grid grid-cols-3 gap-2">
               <div>
@@ -444,7 +445,7 @@
         <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('overlay', event)">
           <div class="flex items-center gap-2">
             <span class="cat-chevron text-[10px] text-purple-400 transition-transform">▼</span>
-            <span class="font-semibold text-purple-300 uppercase tracking-wider text-[11px]">5. 3D Overlays, Collars & Frames</span>
+            <span class="font-semibold text-purple-300 uppercase tracking-wider text-[11px]">5. 3D Overlays, Escutcheon Bezel & Collars</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-mono text-purple-400">Flat Z=0 Ready</span>
@@ -457,7 +458,8 @@
             <div>
               <label class="text-slate-300 block mb-1 font-medium">3D Overlay Style</label>
               <select id="inp-overlay" class="w-full bg-slate-900 border border-purple-500/40 rounded px-2 py-1.5 text-purple-100 font-medium">
-                <option value="none">None (Clean Face)</option>
+                <option value="none">None (Clean Architectural Face)</option>
+                <option value="bp_bezel">🔩 Buster+Punch Beveled Escutcheon Ring</option>
                 <option value="donut_wells" selected>Rosetta Ceramic Donut Rings (Flat Back)</option>
                 <option value="stitched_leather">Stitched Leather Dash Border (Non-Overlapping)</option>
                 <option value="tray_recessed_wells">Tray Rim + Recessed Slot Wells (Coin Ref)</option>
@@ -489,12 +491,12 @@
         </div>
       </div>
 
-      <!-- STEP 6: KNOBS -->
+      <!-- STEP 6: KNOBS (WITH NEW ALU-BLADE, B+P KNURL & DIMWIT PEBBLE) -->
       <div class="cat-card bg-slate-800/40 border border-amber-500/40 rounded-lg transition" data-cat="knob">
         <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('knob', event)">
           <div class="flex items-center gap-2">
             <span class="cat-chevron text-[10px] text-amber-400 transition-transform">▼</span>
-            <span class="font-semibold text-amber-300 uppercase tracking-wider text-[11px]">6. Knobs (Spherical-Flat Dome & 6-DOF Custom)</span>
+            <span class="font-semibold text-amber-300 uppercase tracking-wider text-[11px]">6. Knobs (Alu-Blade, B+P Knurl, Dimwit Pebble)</span>
           </div>
           <div class="flex items-center gap-2">
             <button id="btn-load-knob-mesh" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 transition" onclick="event.stopPropagation()">📂 Load Knob OBJ/STL</button>
@@ -507,8 +509,11 @@
         <div class="cat-body p-3 space-y-2.5 border-t border-slate-800">
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-slate-300 block mb-1 font-medium">Tip Volume / Finial</label>
+              <label class="text-slate-300 block mb-1 font-medium" data-tip="Includes the 3 new designer references: Architectural Stadium Fin/Blade, Buster+Punch Diamond-Knurled Barrel, and Dimwit Concave Thumb-Dimple Pebble!">Tip Volume / Finial</label>
               <select id="inp-tipstyle" class="w-full bg-slate-900 border border-amber-500/40 rounded px-2 py-1 text-amber-100 font-semibold">
+                <option value="stadium_blade">💊 Architectural Stadium Fin / Blade (Alu Ref)</option>
+                <option value="knurled_cylinder">🔩 Buster+Punch Diamond-Knurled Cylinder</option>
+                <option value="dimple_pebble">🍩 Dimwit Concave Thumb-Dimple Pebble</option>
                 <option value="sphere_flat">🌗 Spherical-to-Flat Dome (Flat-Top Sphere)</option>
                 <option value="ball" selected>🔮 Full Sphere Ball (Flat Print Collar)</option>
                 <option value="coin_disc">🪙 Flat Coin Disc (Grooved Edge • Vertical)</option>
@@ -554,8 +559,8 @@
           </div>
 
           <div class="grid grid-cols-4 gap-2">
-            <div><div class="flex justify-between mb-1"><span>Tip Dia</span><span id="val-tipdia" class="font-mono text-amber-400">15.0</span></div><input id="inp-tipdia" type="range" min="6.0" max="28.0" step="0.5" value="15.0" class="w-full" /></div>
-            <div><div class="flex justify-between mb-1"><span>Tip Z/H</span><span id="val-tiplen" class="font-mono text-amber-400">11.5</span></div><input id="inp-tiplen" type="range" min="4.5" max="28.0" step="0.5" value="11.5" class="w-full" /></div>
+            <div><div class="flex justify-between mb-1"><span data-tip="Diameter of knob (or vertical length of Stadium Blade).">Tip Dia/L</span><span id="val-tipdia" class="font-mono text-amber-400">15.0</span></div><input id="inp-tipdia" type="range" min="6.0" max="28.0" step="0.5" value="15.0" class="w-full" /></div>
+            <div><div class="flex justify-between mb-1"><span data-tip="Height/Z-projection of the screw-on tip.">Tip Z/H</span><span id="val-tiplen" class="font-mono text-amber-400">11.5</span></div><input id="inp-tiplen" type="range" min="4.5" max="28.0" step="0.5" value="11.5" class="w-full" /></div>
             <div><div class="flex justify-between mb-1"><span class="text-emerald-300 font-semibold">Stud Ø</span><span id="val-pegdia" class="font-mono text-emerald-300 font-bold">4.0</span></div><input id="inp-pegdia" type="range" min="2.4" max="6.5" step="0.2" value="4.0" class="w-full" /></div>
             <div><div class="flex justify-between mb-1"><span>Tol</span><span id="val-threadtol" class="font-mono text-amber-400">0.35</span></div><input id="inp-threadtol" type="range" min="0.15" max="0.65" step="0.05" value="0.35" class="w-full" /></div>
           </div>
@@ -591,7 +596,7 @@
         <div class="cat-body p-3 border-t border-slate-800">
           <div class="grid grid-cols-6 gap-1.5">
             <div><label class="text-[9px] text-slate-400 block mb-0.5 truncate">Body A</label><input id="inp-cola" type="color" value="#dc2626" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" /></div>
-            <div><label class="text-[9px] text-slate-400 block mb-0.5 truncate">Stripe B</label><input id="inp-colb" type="color" value="#f4a2c8" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" /></div>
+            <div><label class="text-[9px] text-slate-400 block mb-0.5 truncate">Stripe/Base B</label><input id="inp-colb" type="color" value="#f4a2c8" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" /></div>
             <div><label class="text-[9px] text-purple-300 block mb-0.5 truncate">3D Overlay</label><input id="inp-colov" type="color" value="#f8fafc" class="w-full h-6 rounded cursor-pointer bg-transparent border border-purple-500/50" /></div>
             <div><label class="text-[9px] text-slate-400 block mb-0.5 truncate">Well/Accent</label><input id="inp-cold2" type="color" value="#e8c39e" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" /></div>
             <div><label class="text-[9px] text-slate-400 block mb-0.5 truncate">Knob Stem</label><input id="inp-colt" type="color" value="#5da9c4" class="w-full h-6 rounded cursor-pointer bg-transparent border border-slate-700" /></div>
@@ -651,7 +656,7 @@
           <button id="hud-tab-thread" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">2. Thread Fit</button>
           <button id="hud-tab-pin" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">3. Back & Bays Blueprint</button>
         </div>
-        <span id="hud-throw-status" class="text-[10px] font-mono text-emerald-400">3M • Quick-Swap</span>
+        <span id="hud-throw-status" class="text-[10px] font-mono text-emerald-400">3M • Skeleton Swap</span>
       </div>
       <canvas id="hud-canvas" width="396" height="165" class="w-full rounded-lg bg-slate-950 border border-slate-800"></canvas>
     </div>
@@ -978,9 +983,6 @@
         return pts;
       }
 
-      // FIXED IN v21: Full 3D Rosetta Bubble Geometry that preserves 100% of its spherical side/bottom belly,
-      // only clamping at Wall Z=0 AND subtracting/carving out the inner Part 1 Base sub-frame pocket (`carveW × carveH × carveTopZ`)
-      // so in 2-Part Full-Top mode the bubbles wrap around the sides of the base without being sliced flat!
       function buildRosettaFullBubbleMesh(bc, bRad, zCenter, zRadius, zWallFloor, carveBox) {
         const geo = new THREE.SphereGeometry(bRad, 36, 28);
         geo.scale(1.0, 1.0, zRadius / bRad);
@@ -992,10 +994,8 @@
           let vy = pos.getY(i);
           let vz = pos.getZ(i);
 
-          // 1. Never protrude deeper than the wall plane Z=0
           if (vz < zWallFloor) vz = zWallFloor;
 
-          // 2. If a Part 1 sub-frame base exists (e.g. in 2-Part Full-Top mode), only carve out the intersection with the base!
           if (carveBox && vz < carveBox.topZ) {
             const insideX = Math.abs(vx) < carveBox.halfW;
             const insideY = Math.abs(vy) < carveBox.halfH;
@@ -1129,6 +1129,7 @@
         return geo;
       }
 
+      // --- UPGRADED IN v23: SUPPORTS BUSTER+PUNCH DIAMOND KNURL & DIMWIT CONCAVE THUMB-DIMPLE PEBBLE ---
       function buildPrintReadyThreadedTipGeometry(p, sliceCutaway = false) {
         const rTip = p.tipDia / 2, lenTip = p.tipLen;
         const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat');
@@ -1137,10 +1138,87 @@
         const pegLen = Math.min(5.5, lenTip * 0.65);
         const boreDepth = isThreaded ? (pegLen + 0.5) : 0;
 
+        // 1. Special Case: DIMWIT CONCAVE THUMB-DIMPLE PEBBLE (`dimple_pebble`)
+        if (p.tipStyle === 'dimple_pebble') {
+          const radialSegs = 64;
+          const outerWallSteps = 36;
+          const topBowlSteps = 28;
+          const innerSteps = isThreaded ? 40 : 2;
+          const pitch = 1.25;
+          const collarR = Math.max(boreMajorDia / 2 + 1.25, rTip * 0.52);
+
+          const ringProfile = [];
+          if (isThreaded) {
+            ringProfile.push({ r: 0.0, z: boreDepth, isBore: false });
+            for (let i = 0; i <= innerSteps; i++) {
+              ringProfile.push({ r: boreMeanR, z: boreDepth * (1 - i / innerSteps), isBore: true });
+            }
+          } else {
+            ringProfile.push({ r: 0.0, z: 0.0, isBore: false });
+          }
+
+          // Outer pebble belly from z=0 up to rim peak (t = 0..1)
+          for (let i = 0; i <= outerWallSteps; i++) {
+            const t = i / outerWallSteps;
+            const z = t * lenTip;
+            const belly = Math.sin(t * Math.PI * 0.82);
+            const r = collarR * Math.pow(1 - t, 1.8) + rTip * belly;
+            ringProfile.push({ r, z, isBore: false });
+          }
+
+          // Concave thumb-dimple bowl sweeping inward from the top rim (r = rTip * 0.62 -> 0) dipping down into the center!
+          const rimPeakR = rTip * Math.sin(0.82 * Math.PI);
+          const dimpleDepth = Math.min(lenTip * 0.36, 3.8);
+          for (let i = 1; i <= topBowlSteps; i++) {
+            const u = i / topBowlSteps; // 0 at rim peak, 1 at center (r=0)
+            const r = rimPeakR * (1 - u);
+            // Smooth cosine dip from lenTip down to lenTip - dimpleDepth
+            const z = lenTip - dimpleDepth * (0.5 - 0.5 * Math.cos(u * Math.PI));
+            ringProfile.push({ r, z, isBore: false });
+          }
+
+          const maxPhi = sliceCutaway ? Math.PI : Math.PI * 2;
+          const vertices = [], indices = [], stride = ringProfile.length;
+          for (let j = 0; j <= radialSegs; j++) {
+            const phi = (j / radialSegs) * maxPhi, cosP = Math.cos(phi), sinP = Math.sin(phi);
+            for (let i = 0; i < stride; i++) {
+              const pt = ringProfile[i];
+              let r = pt.r;
+              if (pt.isBore && pt.z > 0.15 && pt.z < boreDepth - 0.15) {
+                const fade = Math.min(1.0, pt.z / 0.6, (boreDepth - pt.z) / 0.6);
+                const phase = (pt.z / pitch) * (Math.PI * 2) - phi;
+                const wave = Math.max(-0.75, Math.min(0.75, Math.sin(phase) * 1.25)) / 0.75;
+                r = boreMeanR + wave * (threadDepth * 0.5) * fade;
+              }
+              vertices.push(r * cosP, r * sinP, pt.z);
+            }
+          }
+          for (let j = 0; j < radialSegs; j++) {
+            for (let i = 0; i < stride - 1; i++) {
+              const a = j * stride + i, b = (j + 1) * stride + i, c = (j + 1) * stride + (i + 1), d = j * stride + (i + 1);
+              indices.push(a, b, d, b, c, d);
+            }
+          }
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+          geo.setIndex(indices);
+          geo.computeVertexNormals();
+          return geo;
+        }
+
+        // 2. Standard & Buster+Punch Knurled Revolving Profiles
         function getOuterRadiusAtZ(z) {
           const t = Math.max(0, Math.min(1, z / lenTip));
           const collarR = Math.max(boreMajorDia / 2 + 1.25, rTip * 0.46);
-          if (p.tipStyle === 'sphere_flat') {
+          if (p.tipStyle === 'knurled_cylinder') {
+            // Buster + Punch Barrel profile: Base taper -> Knurled Barrel -> Neck Groove -> Chamfered Coin Cap!
+            const cylR = Math.max(boreMajorDia / 2 + 1.4, rTip);
+            if (t < 0.08) return cylR * (0.82 + 0.18 * (t / 0.08));
+            if (t >= 0.78 && t < 0.85) return cylR * 0.86; // Signature machined neck groove before end cap
+            if (t >= 0.85 && t < 0.94) return cylR * 0.98; // Coin cap cylinder
+            if (t >= 0.94) return cylR * (0.98 - 0.14 * ((t - 0.94) / 0.06)); // Top 45° chamfer
+            return cylR;
+          } else if (p.tipStyle === 'sphere_flat') {
             if (t < 0.10) return collarR;
             const u = (t - 0.10) / 0.90;
             const sphereU = Math.min(1.0, u / 0.78);
@@ -1172,7 +1250,12 @@
           return rTip * 0.85;
         }
 
-        const radialSegs = p.tipStyle === 'gem' ? 8 : 56, outerSteps = 48, innerSteps = isThreaded ? 44 : 2, pitch = 1.25;
+        const isKnurled = (p.tipStyle === 'knurled_cylinder');
+        const radialSegs = p.tipStyle === 'gem' ? 8 : (isKnurled ? 96 : 56);
+        const outerSteps = isKnurled ? 84 : 48;
+        const innerSteps = isThreaded ? 44 : 2;
+        const pitch = 1.25;
+
         const ringProfile = [];
         if (isThreaded) {
           ringProfile.push({ r: 0.0, z: boreDepth, isBore: false });
@@ -1183,6 +1266,7 @@
         for (let i = 0; i <= outerSteps; i++) {
           ringProfile.push({ r: (i === outerSteps) ? 0.0 : getOuterRadiusAtZ((i / outerSteps) * lenTip), z: (i / outerSteps) * lenTip, isBore: false });
         }
+
         const maxPhi = sliceCutaway ? Math.PI : Math.PI * 2, vertices = [], indices = [], stride = ringProfile.length;
         for (let j = 0; j <= radialSegs; j++) {
           const phi = (j / radialSegs) * maxPhi, cosP = Math.cos(phi), sinP = Math.sin(phi);
@@ -1194,6 +1278,18 @@
               const phase = (pt.z / pitch) * (Math.PI * 2) - phi;
               const wave = Math.max(-0.75, Math.min(0.75, Math.sin(phase) * 1.25)) / 0.75;
               r = boreMeanR + wave * (threadDepth * 0.5) * fade;
+            } else if (isKnurled && !pt.isBore && r > 0.1) {
+              // True 3D Cross-Hatched Diamond Knurling along the barrel band (t = 0.10 .. 0.76)
+              const t = pt.z / lenTip;
+              if (t >= 0.10 && t <= 0.76) {
+                const knurlCountAround = 22;
+                const knurlTwist = (pt.z / lenTip) * 14.0 * Math.PI;
+                const k1 = Math.abs(Math.sin(knurlCountAround * 0.5 * phi + knurlTwist));
+                const k2 = Math.abs(Math.sin(knurlCountAround * 0.5 * phi - knurlTwist));
+                const pyramid = (k1 * k2) - 0.35;
+                const bandFade = Math.min(1.0, (t - 0.10) / 0.04, (0.76 - t) / 0.04);
+                r += pyramid * 0.48 * bandFade;
+              }
             }
             vertices.push(r * cosP, r * sinP, pt.z);
           }
@@ -1443,11 +1539,6 @@
         return nextList;
       }
 
-      // --- FIXED IN v21: WATERTIGHT HALF-PLANE CONVEX SLAB DECOMPOSITION FOR PILL, CIRCLE & RECT SLOTS ON ANY STRIPE ANGLE ---
-      // Instead of sorting boundary vertices (which breaks on 45° diagonal stripes) or leaving gaps between vertical strips,
-      // we slice the central band [x0, x1] into `N` vertical slabs and clip each slab against the exact tangent secant line
-      // `ny * y + nx * x >= c` of the Pill/Circle arc! Because every operation is a pure Sutherland-Hodgman half-plane clip,
-      // every resulting polygon is 100% mathematically convex, counter-clockwise, and zero-gap!
       function subtractCutoutFromPolygons(polyList, item) {
         if (!item.isRoundCut && item.slotShape === 'rect') {
           return subtractBoxFromPolygons(
@@ -1478,15 +1569,12 @@
         const nextList = [];
 
         polyList.forEach(poly => {
-          // 1. Left of hole (x <= x0)
           const leftP = clipPolygonHalfPlane(poly, -1, 0, -x0);
           if (leftP.length >= 3) nextList.push(leftP);
 
-          // 2. Right of hole (x >= x1)
           const rightP = clipPolygonHalfPlane(poly, 1, 0, x1);
           if (rightP.length >= 3) nextList.push(rightP);
 
-          // 3. Central band [x0, x1] decomposed into exact secant-clipped convex slabs
           const midBand = clipPolygonHalfPlane(clipPolygonHalfPlane(poly, 1, 0, x0), -1, 0, -x1);
           if (midBand.length >= 3) {
             for (let s = 0; s < slabs; s++) {
@@ -1495,25 +1583,15 @@
               const slabPoly = clipPolygonHalfPlane(clipPolygonHalfPlane(midBand, 1, 0, sx0), -1, 0, -sx1);
               if (slabPoly.length < 3) continue;
 
-              // Top secant line through (sx0, yt0) -> (sx1, yt1): keeps points ABOVE the top arc
-              const yt0 = getHoleTopY(sx0);
-              const yt1 = getHoleTopY(sx1);
-              const dxt = sx1 - sx0;
-              const dyt = yt1 - yt0;
-              const nTopX = -dyt;
-              const nTopY = dxt;
-              const cTop = nTopX * sx0 + nTopY * yt0;
+              const yt0 = getHoleTopY(sx0), yt1 = getHoleTopY(sx1);
+              const dxt = sx1 - sx0, dyt = yt1 - yt0;
+              const nTopX = -dyt, nTopY = dxt, cTop = nTopX * sx0 + nTopY * yt0;
               const topPiece = clipPolygonHalfPlane(slabPoly, nTopX, nTopY, cTop);
               if (topPiece.length >= 3) nextList.push(topPiece);
 
-              // Bottom secant line through (sx0, yb0) -> (sx1, yb1): keeps points BELOW the bottom arc
-              const yb0 = getHoleBotY(sx0);
-              const yb1 = getHoleBotY(sx1);
-              const dxb = sx1 - sx0;
-              const dyb = yb1 - yb0;
-              const nBotX = dyb;
-              const nBotY = -dxb;
-              const cBot = nBotX * sx0 + nBotY * yb0;
+              const yb0 = getHoleBotY(sx0), yb1 = getHoleBotY(sx1);
+              const dxb = sx1 - sx0, dyb = yb1 - yb0;
+              const nBotX = dyb, nBotY = -dxb, cBot = nBotX * sx0 + nBotY * yb0;
               const botPiece = clipPolygonHalfPlane(slabPoly, nBotX, nBotY, cBot);
               if (botPiece.length >= 3) nextList.push(botPiece);
             }
@@ -1733,9 +1811,9 @@
         };
       }
 
-      function createGlossMat(hex, wire, doubleSide = false, roughness = 0.48) {
+      function createGlossMat(hex, wire, doubleSide = false, roughness = 0.44, metalness = 0.06) {
         return new THREE.MeshStandardMaterial({
-          color: new THREE.Color(hex), roughness, metalness: 0.04, wireframe: wire,
+          color: new THREE.Color(hex), roughness, metalness, wireframe: wire,
           side: doubleSide ? THREE.DoubleSide : THREE.FrontSide
         });
       }
@@ -1743,7 +1821,8 @@
       function buildAll3DOverlays(p, outerW, outerH, zBase, mergedCutouts, activeItems, zPerimDeckTop, plateCornerR) {
         const group = new THREE.Group();
         if (p.overlay === 'none' || p.silhouette === 'open_frame') return group;
-        const matOv = createGlossMat(p.colOv, isWireframe);
+        const isMetallicOv = (p.overlay === 'bp_bezel');
+        const matOv = createGlossMat(p.colOv, isWireframe, false, isMetallicOv ? 0.28 : 0.44, isMetallicOv ? 0.55 : 0.06);
         const matAccent = createGlossMat(p.colD2, isWireframe);
         const discColors = [p.colOv, p.colD2, '#ef4444'];
         const h = p.ovHeight, fw = p.ovWidth;
@@ -1767,7 +1846,26 @@
           });
         }
 
-        if (p.overlay === 'collars') {
+        if (p.overlay === 'bp_bezel') {
+          // NEW IN v23: BUSTER + PUNCH MACHINED BEVELED ESCUTCHEON WASHER COLLAR (`bp_bezel`)
+          activeItems.forEach(item => {
+            if (item.kind !== 'switch') return;
+            const innerR = Math.max(item.cutW, item.cutH) * 0.5 + 0.15;
+            const outerR = innerR + fw;
+            const flatTopW = Math.max(0.8, fw * 0.35);
+            const pts = [
+              new THREE.Vector2(innerR, 0),
+              new THREE.Vector2(outerR, 0),
+              new THREE.Vector2(innerR + flatTopW, h),
+              new THREE.Vector2(innerR, h),
+              new THREE.Vector2(innerR, 0)
+            ];
+            const latheGeo = new THREE.LatheGeometry(pts, 48);
+            latheGeo.rotateX(Math.PI / 2);
+            latheGeo.translate(item.cx, item.cy, zBase);
+            group.add(new THREE.Mesh(latheGeo, matOv));
+          });
+        } else if (p.overlay === 'collars') {
           addFlatBackCollars();
         } else if (p.overlay === 'collars_frame') {
           addFlatBackCollars();
@@ -1932,6 +2030,18 @@
         } else {
           group.add(new THREE.Mesh(new THREE.ExtrudeGeometry(createRoundedRectShape(fW, fH, fRad), { depth: fT, bevelEnabled: false }), mat));
         }
+
+        // If Architectural Stadium Blade is in 1-Piece mode, the stadium blade itself rises straight from the glue foot!
+        if (p.tipStyle === 'stadium_blade' && p.tipJoint === 'onepiece') {
+          const bladeW = Math.max(3.6, p.slotW - 1.2);
+          const bladeH = Math.max(12.0, p.tipDia);
+          const bladeShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+          const bladeGeo = new THREE.ExtrudeGeometry(bladeShape, { depth: p.tLen, bevelEnabled: false });
+          bladeGeo.translate(0, 0, fT);
+          group.add(new THREE.Mesh(bladeGeo, mat));
+          return group;
+        }
+
         const rShaft = p.tBase / 2;
         const stemGeo = new THREE.CylinderGeometry(rShaft, rShaft, p.tLen, 36);
         stemGeo.rotateX(Math.PI / 2);
@@ -1948,7 +2058,15 @@
 
       function buildKnobTipVolume(p, sliceCutaway = false, customTipHex = null) {
         const group = new THREE.Group();
-        const mat = createGlossMat(customTipHex || p.colTip, isWireframe, true);
+        const isHighGlossPebble = (p.tipStyle === 'dimple_pebble');
+        const isAnodizedMetal = (p.tipStyle === 'stadium_blade' || p.tipStyle === 'knurled_cylinder');
+        const mat = createGlossMat(
+          customTipHex || p.colTip,
+          isWireframe,
+          true,
+          isHighGlossPebble ? 0.14 : (isAnodizedMetal ? 0.28 : 0.44),
+          isAnodizedMetal ? 0.55 : 0.06
+        );
         const matDark = createGlossMat('#1e293b', isWireframe, true);
         const rShaft = p.tBase / 2;
         const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat');
@@ -1958,6 +2076,52 @@
           group.add(new THREE.Mesh(new THREE.SphereGeometry(rShaft, 24, 16), mat));
           return group;
         }
+
+        // NEW IN v23: ARCHITECTURAL STADIUM FIN / BLADE (`stadium_blade` from `banner_rocker_alu_grey.jpg`)
+        if (p.tipStyle === 'stadium_blade') {
+          const bladeW = isThreaded ? Math.max(boreMajorDia + 1.8, p.slotW - 1.0) : Math.max(3.6, p.slotW - 1.2);
+          const bladeH = Math.max(12.0, p.tipDia);
+          const bladeLen = p.tipLen;
+
+          if (isThreaded) {
+            // 1. Internal Female Helical Thread Core Socket at the base of the blade
+            const socketR = bladeW / 2;
+            const socketH = Math.min(bladeLen - 1.2, 5.6);
+            const socketGeo = buildFemaleThreadedSocketCollar(socketR, socketH, boreMajorDia, true, sliceCutaway);
+            group.add(new THREE.Mesh(socketGeo, mat));
+
+            // 2. Outer Stadium Fin Body with negative bore hole in the lower section + solid chamfered top fin
+            const lowerShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+            const boreHole = new THREE.Path();
+            boreHole.absarc(0, 0, socketR - 0.05, 0, Math.PI * 2, true);
+            lowerShape.holes.push(boreHole);
+            const lowerGeo = new THREE.ExtrudeGeometry(lowerShape, { depth: socketH, bevelEnabled: false });
+            group.add(new THREE.Mesh(lowerGeo, mat));
+
+            const upperShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+            const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
+              depth: Math.max(0.8, bladeLen - socketH - 0.45),
+              bevelEnabled: true,
+              bevelSize: 0.35,
+              bevelThickness: 0.45,
+              bevelSegments: 3
+            });
+            upperGeo.translate(0, 0, socketH);
+            group.add(new THREE.Mesh(upperGeo, mat));
+          } else {
+            const fullShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+            const fullGeo = new THREE.ExtrudeGeometry(fullShape, {
+              depth: Math.max(1.0, bladeLen - 0.45),
+              bevelEnabled: true,
+              bevelSize: 0.35,
+              bevelThickness: 0.45,
+              bevelSegments: 3
+            });
+            group.add(new THREE.Mesh(fullGeo, mat));
+          }
+          return group;
+        }
+
         if (p.tipStyle === 'custom_knob_mesh') {
           const socketH = Math.min(5.8, p.tipLen * 0.55);
           const socketR = Math.max(boreMajorDia / 2 + 1.35, p.tipDia * 0.28);
@@ -2187,6 +2351,7 @@
         const isInlaySwap = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets') && p.silhouette !== 'open_frame';
         const isFullTopSwap = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets') && p.silhouette !== 'open_frame';
         const isTwoPart = isInlaySwap || isFullTopSwap;
+        const isSkeletonBase = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap') && !isSlipOver;
 
         const innerWallCornerR = isSlipOver ? 0.4 : 1.2;
         const cornerExtra = isSlipOver ? 0 : Math.max(0, (p.corner - innerWallCornerR) * 0.415);
@@ -2194,9 +2359,9 @@
         const outerH = p.inH + (p.wall + cornerExtra) * 2;
 
         document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(1)} × ${outerH.toFixed(1)} mm`;
-        document.getElementById('badge-fixation').textContent = `${isSlipOver ? 'Slip-Over' : (isScrewTabs ? '2-Screw' : 'H-Pins')} • ${isInlaySwap ? 'Inlay 2-Pc' : (isFullTopSwap ? 'Full-Top 2-Pc' : '1-Pc')}`;
+        document.getElementById('badge-fixation').textContent = `${isSlipOver ? 'Slip-Over' : (isScrewTabs ? '2-Screw' : 'H-Pins')} • ${isSkeletonBase ? 'Skeleton 2-Pc' : (isInlaySwap ? 'Inlay 2-Pc' : (isFullTopSwap ? 'Full-Top 2-Pc' : '1-Pc'))}`;
         document.getElementById('badge-modules').textContent = `${coveredSwCount + uncoveredSwCount}×Sw (${p.swMode === 'uncovered' ? 'Open' : p.slotShape}) | ${outCount}×Out`;
-        document.getElementById('hud-throw-status').textContent = `${p.chassisType}M • ${isInlaySwap ? 'Inlay Swap' : (isFullTopSwap ? 'Full-Top Swap' : '1-Piece')}`;
+        document.getElementById('hud-throw-status').textContent = `${p.chassisType}M • ${isSkeletonBase ? 'Skeleton Swap' : (isInlaySwap ? 'Inlay Swap' : 'Full-Top')}`;
 
         clearAndDisposeGroup(chassisGroup);
         clearAndDisposeGroup(faceplateGroup);
@@ -2207,8 +2372,14 @@
 
         buildLegrandReferenceHardware(p, activeItems);
 
+        const isVertStripes = (p.silhouette === 'vstripes' || p.silhouette === 'scallop_stamp');
+        const isDiagStripes = (p.silhouette === 'dstripes' || p.silhouette === 'flower_5petal');
+        const isAnyStripes = isVertStripes || isDiagStripes;
+
         const matA = createGlossMat(p.colA, isWireframe);
         const matB = createGlossMat(p.colB, isWireframe);
+        // In 2-Part Full-Top Float mode (like the Brushed Alu-Blade reference with a dark shadow-gap sub-base), Part 1 uses Stripe/Base B color if not striped!
+        const matBase = (!isAnyStripes && isFullTopSwap && p.sideSkirt === 'float_top') ? matB : matA;
 
         const rockerBoxW = (p.chassisType === 4 ? 91.1 : 68.6);
         const rockerBoxH = Math.max(46.2, p.modH + 0.8);
@@ -2218,13 +2389,10 @@
         const zFaceBack = p.rimD + Math.max(lugThickness, p.swClear);
         const totalDepth = p.silhouette === 'open_frame' ? (isSlipOver ? zFaceBack : zLugTop) : (zFaceBack + p.face);
 
-        const isVertStripes = (p.silhouette === 'vstripes' || p.silhouette === 'scallop_stamp');
-        const isDiagStripes = (p.silhouette === 'dstripes' || p.silhouette === 'flower_5petal');
-        const isAnyStripes = isVertStripes || isDiagStripes;
-
-        // Explain Internal Deck Architecture state clearly in UI
         const deckNoteEl = document.getElementById('deck-mode-note');
-        if (isInlaySwap) {
+        if (isSkeletonBase) {
+          deckNoteEl.textContent = `🦴 Minimalist Skeleton Base: 1.4mm flat plate + 1.8mm thin central snap turret (saves ~65% base filament, zero outer wall duplication!).`;
+        } else if (isInlaySwap) {
           deckNoteEl.textContent = 'ℹ️ In 2-Part Inlay mode, the outer collar is open so the inlay plate can drop in.';
         } else if (p.deckMode === 'full_hollow') {
           deckNoteEl.textContent = `✓ Full-Width Open Riser: Entire ${p.inW.toFixed(1)}×${p.inH.toFixed(1)}mm inner pocket is open up to Face Z.`;
@@ -2255,10 +2423,9 @@
         const inlayH = p.inH - bubbleInlayInset * 2;
         const inlayCornerR = isSlipOver ? 0.4 : 1.8;
 
-        // Sub-base dimensions for Part 1 in Full-Top Quick-Swap mode
         const subBaseOuterW = p.inW + p.wall * 2;
         const subBaseOuterH = p.inH + p.wall * 2;
-        const subBaseCornerR = 2.2;
+        const subBaseCornerR = Math.min(p.corner, 2.2);
 
         const baseOutlinePts = isFullTopSwap
           ? getRoundedRectPoints(subBaseOuterW, subBaseOuterH, subBaseCornerR, 20)
@@ -2276,32 +2443,83 @@
           : 0.0;
         const zPerimDeckTop = totalDepth - effectiveDeckDrop;
 
-        // --- PART 1: OUTER WALL COLLAR OR SUB-FRAME BASE ---
         const collarTopZ = isInlaySwap ? totalDepth : zFaceBack;
-
-        // FIXED IN v21: Internal Deck Architecture (`compact_flush`, `compact_turret`, `full_hollow`) now actively shapes Part 1 Base in BOTH 1-Piece and 2-Part Full-Top modes!
         const centralHoleW = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayW + 0.35) : rockerBoxW;
         const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : rockerBoxH;
 
-        if (isSlipOver) {
+        // --- PART 1: MINIMALIST SKELETON SUB-FRAME OR STANDARD BASE ---
+        if (isSkeletonBase) {
+          const skelClearW = p.inW - 0.8;
+          const skelClearH = p.inH - 0.8;
+          const skelTurretWall = 2.0;
+          const skelInnerW = rockerBoxW;
+          const skelInnerH = rockerBoxH;
+          const skelTurretOuterW = skelInnerW + skelTurretWall * 2;
+          const skelTurretOuterH = skelInnerH + skelTurretWall * 2;
+
+          if (isScrewTabs) {
+            const earSpanW = Math.min(skelClearW, Math.max(skelTurretOuterW, p.screwX + p.screwDia + 9.0));
+            const earWingH = Math.max(16.0, p.screwDia + 10.0);
+
+            const wingShape = createRoundedRectShape(earSpanW, earWingH, 3.0);
+            wingShape.holes.push(createRoundedRectPath(skelInnerW, Math.min(earWingH - 4.0, skelInnerH), 1.2));
+            const sx = p.screwX / 2;
+            wingShape.holes.push(createTranslatedRectHolePath(-sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
+            wingShape.holes.push(createTranslatedRectHolePath(sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
+            const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: lugThickness, bevelEnabled: false });
+            wingGeo.translate(0, 0, p.rimD);
+            chassisGroup.add(new THREE.Mesh(wingGeo, matBase));
+
+            const turretShape = createRoundedRectShape(skelTurretOuterW, skelTurretOuterH, 2.4);
+            turretShape.holes.push(createRoundedRectPath(skelInnerW, skelInnerH, 1.2));
+            const turretGeo = new THREE.ExtrudeGeometry(turretShape, { depth: zFaceBack, bevelEnabled: false });
+            chassisGroup.add(new THREE.Mesh(turretGeo, matBase));
+
+          } else {
+            const skelPlateShape = createRoundedRectShape(skelClearW, skelClearH, 1.5);
+            skelPlateShape.holes.push(createFreeCAD4LugCutoutHolePath(skelClearW - 5.0, skelClearH - 5.0, p.pinX, p.pinY, p.pinDia));
+            const skelPlateGeo = new THREE.ExtrudeGeometry(skelPlateShape, { depth: lugThickness, bevelEnabled: false });
+            skelPlateGeo.translate(0, 0, p.rimD);
+            chassisGroup.add(new THREE.Mesh(skelPlateGeo, matBase));
+
+            const hx = p.pinX / 2, hy = p.pinY / 2;
+            const templatePin = buildFactorySlottedHPinGroup(p, matBase);
+            [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
+              const pinClone = templatePin.clone(true);
+              pinClone.position.set(px, py, p.rimD);
+              chassisGroup.add(pinClone);
+            });
+
+            if (zFaceBack > zLugTop) {
+              const turretShape = createRoundedRectShape(skelTurretOuterW, skelTurretOuterH, 2.4);
+              turretShape.holes.push(createRoundedRectPath(skelInnerW, skelInnerH, 1.2));
+              const turretGeo = new THREE.ExtrudeGeometry(turretShape, { depth: zFaceBack - zLugTop, bevelEnabled: false });
+              turretGeo.translate(0, 0, zLugTop);
+              chassisGroup.add(new THREE.Mesh(turretGeo, matBase));
+            }
+          }
+
+          chassisGroup.add(buildOuterCollarRetentionFeatures(p, skelInnerW, skelInnerH, 1.2, zFaceBack, matBase));
+
+        } else if (isSlipOver) {
           const cavShape = new THREE.Shape(baseOutlinePts);
           cavShape.holes.push(createSharpRectHolePath(inlayW + 0.35, inlayH + 0.35));
           const cavGeo = new THREE.ExtrudeGeometry(cavShape, { depth: collarTopZ, bevelEnabled: false });
-          chassisGroup.add(new THREE.Mesh(cavGeo, matA));
-          chassisGroup.add(buildSlipOverSnapLipGroup(p, matA));
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, matA));
+          chassisGroup.add(new THREE.Mesh(cavGeo, matBase));
+          chassisGroup.add(buildSlipOverSnapLipGroup(p, matBase));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, matBase));
 
         } else if (isScrewTabs) {
           if (p.rimD > 0.05) {
             const rimShape = new THREE.Shape(baseOutlinePts);
             rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, innerWallCornerR));
-            chassisGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false }), matA));
+            chassisGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false }), matBase));
           }
           const tabFrameShape = new THREE.Shape(baseOutlinePts);
           create2ScrewSideTabCutoutHolePaths(p.inW, p.inH, p.screwX, p.screwDia).forEach(h => tabFrameShape.holes.push(h));
           const tabFrameGeo = new THREE.ExtrudeGeometry(tabFrameShape, { depth: lugThickness, bevelEnabled: false });
           tabFrameGeo.translate(0, 0, p.rimD);
-          chassisGroup.add(new THREE.Mesh(tabFrameGeo, matA));
+          chassisGroup.add(new THREE.Mesh(tabFrameGeo, matBase));
 
           if (p.silhouette !== 'open_frame' && collarTopZ > zLugTop) {
             const riserShape = new THREE.Shape(baseOutlinePts);
@@ -2309,25 +2527,24 @@
             riserShape.holes.push(createRoundedRectPath(openW, centralHoleH, inlayCornerR));
             const riserGeo = new THREE.ExtrudeGeometry(riserShape, { depth: collarTopZ - zLugTop, bevelEnabled: false });
             riserGeo.translate(0, 0, zLugTop);
-            chassisGroup.add(new THREE.Mesh(riserGeo, matA));
+            chassisGroup.add(new THREE.Mesh(riserGeo, matBase));
           }
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matA));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matBase));
 
         } else {
-          // FACTORY 4-PIN SLOTTED H-BRIDGE
           if (p.rimD > 0.05) {
             const rimShape = new THREE.Shape(baseOutlinePts);
             rimShape.holes.push(createRoundedRectPath(p.inW, p.inH, innerWallCornerR));
-            chassisGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false }), matA));
+            chassisGroup.add(new THREE.Mesh(new THREE.ExtrudeGeometry(rimShape, { depth: p.rimD, bevelEnabled: false }), matBase));
           }
           const lugFrameShape = new THREE.Shape(baseOutlinePts);
           lugFrameShape.holes.push(createFreeCAD4LugCutoutHolePath(p.inW, p.inH, p.pinX, p.pinY, p.pinDia));
           const lugFrameGeo = new THREE.ExtrudeGeometry(lugFrameShape, { depth: lugThickness, bevelEnabled: false });
           lugFrameGeo.translate(0, 0, p.rimD);
-          chassisGroup.add(new THREE.Mesh(lugFrameGeo, matA));
+          chassisGroup.add(new THREE.Mesh(lugFrameGeo, matBase));
 
           const hx = p.pinX / 2, hy = p.pinY / 2;
-          const templatePin = buildFactorySlottedHPinGroup(p, matA);
+          const templatePin = buildFactorySlottedHPinGroup(p, matBase);
           [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
             const pinClone = templatePin.clone(true);
             pinClone.position.set(px, py, p.rimD);
@@ -2340,28 +2557,27 @@
             perimDeckShape.holes.push(createRoundedRectPath(centralHoleW, centralHoleH, 1.8));
             const perimDeckGeo = new THREE.ExtrudeGeometry(perimDeckShape, { depth: deckRiserH, bevelEnabled: false });
             perimDeckGeo.translate(0, 0, zLugTop);
-            chassisGroup.add(new THREE.Mesh(perimDeckGeo, matA));
+            chassisGroup.add(new THREE.Mesh(perimDeckGeo, matBase));
 
             if (effectiveDeckDrop > 0.05) {
               const turretWallShape = createRoundedRectShape(turretOuterW, turretOuterH, 4.5);
               turretWallShape.holes.push(createRoundedRectPath(rockerBoxW, turretOuterH, 1.8));
               const turretWallGeo = new THREE.ExtrudeGeometry(turretWallShape, { depth: effectiveDeckDrop, bevelEnabled: false });
               turretWallGeo.translate(0, 0, zFaceBack - effectiveDeckDrop);
-              chassisGroup.add(new THREE.Mesh(turretWallGeo, matA));
+              chassisGroup.add(new THREE.Mesh(turretWallGeo, matBase));
             }
           }
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matA));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matBase));
         }
 
         // --- PART 2: SWAPPABLE FACEPLATE (INLAY OR FULL-TOP) OR MONOLITHIC FRONT ---
         const targetGroup = isTwoPart ? faceplateGroup : chassisGroup;
         const mergedCutouts = getExpandedCutouts(activeItems);
 
-        // NEW IN v21: If Full-Top Swap + `wrap_sides` is enabled (and not Rosetta Bubbles which wrap with 3D spheres),
-        // Part 2 drops an outer side-shroud skirt from `zFaceBack` down to `Z = 0` around the outside of Part 1 Base so the base sides are 100% hidden!
-        const hasSideWrapSkirt = isFullTopSwap && (p.sideSkirt === 'wrap_sides') && p.silhouette !== 'bubble_rim' && p.silhouette !== 'custom_plate_mesh';
-        const subBaseClearanceW = subBaseOuterW + 0.5;
-        const subBaseClearanceH = subBaseOuterH + 0.5;
+        const hasSideWrapSkirt = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap' || p.sideSkirt === 'wrap_sides') && p.silhouette !== 'bubble_rim' && p.silhouette !== 'custom_plate_mesh';
+        const skirtPocketW = isSkeletonBase ? p.inW : (subBaseOuterW + 0.5);
+        const skirtPocketH = isSkeletonBase ? p.inH : (subBaseOuterH + 0.5);
+        const skirtPocketCornerR = isSkeletonBase ? innerWallCornerR : subBaseCornerR;
 
         if (p.silhouette !== 'open_frame' && p.face > 0.1) {
           if (p.silhouette === 'custom_plate_mesh' && userPlateGeometry) {
@@ -2386,7 +2602,6 @@
                 -nx, -ny, -uMax
               );
 
-              // 1. Top Faceplate Layer [zFaceBack .. totalDepth] with switch/outlet holes subtracted
               let bandPolys = [rawStripePoly];
               mergedCutouts.forEach(item => {
                 bandPolys = subtractCutoutFromPolygons(bandPolys, item);
@@ -2404,14 +2619,13 @@
                 }
               });
 
-              // 2. Optional Side-Wrap Skirt [0 .. zFaceBack] for Striped Full-Top covers (hides the Part 1 base from the sides!)
               if (hasSideWrapSkirt && rawStripePoly.length >= 3) {
                 const skirtPolys = subtractBoxFromPolygons(
                   [rawStripePoly],
-                  -subBaseClearanceW / 2,
-                  subBaseClearanceW / 2,
-                  -subBaseClearanceH / 2,
-                  subBaseClearanceH / 2
+                  -skirtPocketW / 2,
+                  skirtPocketW / 2,
+                  -skirtPocketH / 2,
+                  skirtPocketH / 2
                 );
                 skirtPolys.forEach(sPoly => {
                   const cleanSkirt = deduplicatePolygonPoints(sPoly);
@@ -2439,10 +2653,9 @@
               highFaceGeo.translate(0, 0, zFaceBack);
               targetGroup.add(new THREE.Mesh(highFaceGeo, matA));
             } else {
-              // If Side-Wrap Skirt is enabled on a solid Full-Top cover, make the outer contour slightly wider (+2.2mm per side) if needed so the skirt wall has solid thickness around the sub-base!
-              const needExtraSkirtWall = hasSideWrapSkirt && (outerW < subBaseClearanceW + 3.2 || outerH < subBaseClearanceH + 3.2);
+              const needExtraSkirtWall = hasSideWrapSkirt && !isSkeletonBase && (outerW < skirtPocketW + 3.2 || outerH < skirtPocketH + 3.2);
               const effFaceOutlinePts = needExtraSkirtWall
-                ? getRoundedRectPoints( Math.max(outerW, subBaseClearanceW + 3.6), Math.max(outerH, subBaseClearanceH + 3.6), p.corner, 24)
+                ? getRoundedRectPoints(Math.max(outerW, skirtPocketW + 3.6), Math.max(outerH, skirtPocketH + 3.6), p.corner, 24)
                 : faceOutlinePts;
 
               const faceShape = new THREE.Shape(effFaceOutlinePts);
@@ -2453,15 +2666,12 @@
 
               if (hasSideWrapSkirt) {
                 const skirtShape = new THREE.Shape(effFaceOutlinePts);
-                skirtShape.holes.push(createRoundedRectPath(subBaseClearanceW, subBaseClearanceH, subBaseCornerR));
+                skirtShape.holes.push(createRoundedRectPath(skirtPocketW, skirtPocketH, skirtPocketCornerR));
                 const skirtGeo = new THREE.ExtrudeGeometry(skirtShape, { depth: zFaceBack, bevelEnabled: false });
                 targetGroup.add(new THREE.Mesh(skirtGeo, matA));
               }
             }
 
-            // FIXED IN v21: Rosetta 3D Full Bubbles in 1-Piece, 2-Part Inlay, AND 2-Part Full-Top!
-            // In 2-Part Full-Top mode, the bubbles NEVER get sliced flat at `zFaceBack`—they keep their full 3D spherical volume
-            // wrapping down around the base to Z=0, with only the inner Part 1 sub-base box carved out of their back!
             if (p.silhouette === 'bubble_rim') {
               const halfPerimX = outerW / 2 - bRad * 0.12;
               const halfPerimY = outerH / 2 - bRad * 0.12;
@@ -2482,10 +2692,7 @@
               const zCenter = (zTop + zBottom) * 0.5;
               const zRadius = (zTop - zBottom) * 0.5;
 
-              const carveBox = isFullTopSwap
-                ? { halfW: subBaseClearanceW / 2, halfH: subBaseClearanceH / 2, topZ: zFaceBack }
-                : { halfW: p.inW / 2, halfH: p.inH / 2, topZ: zFaceBack };
-
+              const carveBox = { halfW: skirtPocketW / 2, halfH: skirtPocketH / 2, topZ: zFaceBack };
               const destBubbleGrp = isInlaySwap ? chassisGroup : bubblesGroup;
 
               bubbleCenters.forEach(bc => {
@@ -2496,7 +2703,9 @@
           }
 
           if (isTwoPart) {
-            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matA));
+            const snapPocketW = isSkeletonBase ? rockerBoxW : centralHoleW;
+            const snapPocketH = isSkeletonBase ? rockerBoxH : centralHoleH;
+            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, snapPocketW, snapPocketH, inlayCornerR, zFaceBack, matA));
           }
         }
 
@@ -2532,11 +2741,9 @@
 
         updateTransforms(totalDepth);
         rebuildEdgesOverlay();
-        drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount);
+        drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount, isSkeletonBase);
       }
 
-      // FIXED IN v21: When `isExploded` is active, `legrandRefGroup` (Wall Hardware Reference) is also distanced backward (-24mm)
-      // in both Front and Back views so all layers separate cleanly!
       function updateTransforms(totalDepth = 16) {
         chassisGroup.visible = !isKnobOnly;
         faceplateGroup.visible = !isKnobOnly;
@@ -2559,7 +2766,6 @@
           [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup].forEach(g => {
             g.rotation.y = Math.PI;
           });
-          // In Back View, Z+ points toward the camera (which is looking at the back of the plate)
           legrandRefGroup.position.z = totalDepth - wallBackShift;
           chassisGroup.position.z = totalDepth;
           faceplateGroup.position.z = totalDepth - faceFrontLift;
@@ -2581,7 +2787,7 @@
         }
       }
 
-      function drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount) {
+      function drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount, isSkeletonBase) {
         const canvas = document.getElementById('hud-canvas');
         const ctx = canvas.getContext('2d');
         const cw = canvas.width, ch = canvas.height;
@@ -2599,9 +2805,16 @@
           const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
 
           ctx.fillStyle = '#0ea5e933'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.3;
-          const baseSpanZ = (isInlay ? totalDepth : zFaceBack) * scale;
-          ctx.fillRect(originX, originY - 60, baseSpanZ, 10); ctx.strokeRect(originX, originY - 60, baseSpanZ, 10);
-          ctx.fillRect(originX, originY + 46, baseSpanZ, 10); ctx.strokeRect(originX, originY + 46, baseSpanZ, 10);
+          if (isSkeletonBase) {
+            const lugZPx = originX + p.rimD * scale;
+            const turretSpan = (zFaceBack - p.rimD) * scale;
+            ctx.fillRect(lugZPx, originY - 38, turretSpan, 6); ctx.strokeRect(lugZPx, originY - 38, turretSpan, 6);
+            ctx.fillRect(lugZPx, originY + 28, turretSpan, 6); ctx.strokeRect(lugZPx, originY + 28, turretSpan, 6);
+          } else {
+            const baseSpanZ = (isInlay ? totalDepth : zFaceBack) * scale;
+            ctx.fillRect(originX, originY - 60, baseSpanZ, 10); ctx.strokeRect(originX, originY - 60, baseSpanZ, 10);
+            ctx.fillRect(originX, originY + 46, baseSpanZ, 10); ctx.strokeRect(originX, originY + 46, baseSpanZ, 10);
+          }
 
           const expPx = isExploded && isTwoPart ? 24 : 0;
           const topY = isInlay ? (originY - 49) : (originY - 66);
@@ -2612,16 +2825,15 @@
           ctx.fillRect(zBackPx + expPx, originY + slotHalfPx, p.face * scale, botY - (originY + slotHalfPx));
           ctx.strokeRect(zBackPx + expPx, originY + slotHalfPx, p.face * scale, botY - (originY + slotHalfPx));
 
-          // Draw Side-Wrap Skirt in HUD if active
-          if (!isInlay && isTwoPart && p.sideSkirt === 'wrap_sides') {
-            ctx.fillRect(originX + expPx, originY - 66, zFaceBack * scale, 5);
-            ctx.strokeRect(originX + expPx, originY - 66, zFaceBack * scale, 5);
-            ctx.fillRect(originX + expPx, originY + 57, zFaceBack * scale, 5);
-            ctx.strokeRect(originX + expPx, originY + 57, zFaceBack * scale, 5);
+          if (!isInlay && isTwoPart && (p.sideSkirt === 'skeleton_wrap' || p.sideSkirt === 'wrap_sides')) {
+            ctx.fillRect(originX + expPx, originY - 66, zFaceBack * scale, 6);
+            ctx.strokeRect(originX + expPx, originY - 66, zFaceBack * scale, 6);
+            ctx.fillRect(originX + expPx, originY + 56, zFaceBack * scale, 6);
+            ctx.strokeRect(originX + expPx, originY + 56, zFaceBack * scale, 6);
           }
 
           ctx.fillStyle = '#94a3b8';
-          ctx.fillText(`Build: ${p.coverBuild} | Skirt: ${p.sideSkirt} | Total Z: ${totalDepth.toFixed(2)}mm`, 10, ch - 8);
+          ctx.fillText(`Tip: ${p.tipStyle} | Mode: ${isSkeletonBase ? 'Skeleton (-65%)' : p.sideSkirt} | Total Z: ${totalDepth.toFixed(2)}mm`, 10, ch - 8);
         } else if (hudTabMode === 'thread') {
           const cx = cw / 2, cy = ch / 2 + 12, sc = 7.2;
           ctx.fillStyle = '#94a3b8'; ctx.font = '10px monospace';
@@ -2680,7 +2892,7 @@
         rebuildModel();
       });
 
-      const STORAGE_KEY = 'arteor_cad_v21_profiles';
+      const STORAGE_KEY = 'arteor_cad_v23_profiles';
       const PARAM_IDS = [
         'inp-fixmode', 'inp-coverbuild', 'inp-sideskirt', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb',
         'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz',
@@ -2740,7 +2952,7 @@
       }
 
       document.getElementById('btn-prof-save').addEventListener('click', () => {
-        const name = prompt('Enter a name for this switch profile:', `Arteor v21 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+        const name = prompt('Enter a name for this switch profile:', `Arteor v23 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
         if (!name) return;
         const map = getStoredProfiles();
         map[name] = captureProfileData();
@@ -2762,7 +2974,7 @@
       });
       document.getElementById('btn-prof-export').addEventListener('click', () => {
         const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(captureProfileData(), null, 2));
-        const a = document.createElement('a'); a.href = str; a.download = 'arteor_v21_profile.json'; a.click();
+        const a = document.createElement('a'); a.href = str; a.download = 'arteor_v23_profile.json'; a.click();
       });
       document.getElementById('btn-prof-import').addEventListener('click', () => document.getElementById('file-prof-import').click());
       document.getElementById('file-prof-import').addEventListener('change', (e) => {
@@ -2783,10 +2995,80 @@
         setIfUnlocked('modules', 'inp-slotshape', 'pill');
         if (!lockedCats.colors) document.getElementById('inp-multicolorknobs').checked = false;
 
-        if (name === 'vstripes') {
+        if (name === 'alublade') {
+          // 1. ARCHITECTURAL BRUSHED ALU + STADIUM BLADE (`banner_rocker_alu_grey.jpg`)
+          setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_magnets');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'float_top');
+          setIfUnlocked('chassis', 'inp-corner', 0.8);
+          setIfUnlocked('chassis', 'inp-face', 3.4);
+          setIfUnlocked('modules', 'inp-swcount', 1);
+          setIfUnlocked('modules', 'inp-slotshape', 'pill');
+          setIfUnlocked('modules', 'inp-slotw', 6.4);
+          setIfUnlocked('modules', 'inp-sloth', 22.0);
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('overlay', 'inp-overlay', 'none');
+          setIfUnlocked('knob', 'inp-tipstyle', 'stadium_blade');
+          setIfUnlocked('knob', 'inp-tipjoint', 'onepiece');
+          setIfUnlocked('knob', 'inp-tipdia', 19.5);
+          setIfUnlocked('knob', 'inp-tiplen', 8.5);
+          setIfUnlocked('colors', 'inp-cola', '#d8dee6');
+          setIfUnlocked('colors', 'inp-colb', '#18181b');
+          setIfUnlocked('colors', 'inp-colt', '#b8c2cc');
+          setIfUnlocked('colors', 'inp-coltip', '#b8c2cc');
+          showStatusBanner('💊 Architectural Alu-Blade Active: Sharp 0.8mm Plate + Stadium Fin Toggle + Dark Shadow Sub-Base');
+
+        } else if (name === 'bpknurl') {
+          // 2. BUSTER + PUNCH DIAMOND KNURLED BARREL + BEVELED ESCUTCHEON (`IMG_7838.jpg`)
           setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
-          setIfUnlocked('fixation', 'inp-sideskirt', 'wrap_sides');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
+          setIfUnlocked('chassis', 'inp-corner', 2.0);
+          setIfUnlocked('modules', 'inp-swcount', 1);
+          setIfUnlocked('modules', 'inp-slotshape', 'circle');
+          setIfUnlocked('modules', 'inp-slotw', 10.5);
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('overlay', 'inp-overlay', 'bp_bezel');
+          setIfUnlocked('overlay', 'inp-ovheight', 2.2);
+          setIfUnlocked('overlay', 'inp-ovwidth', 4.8);
+          setIfUnlocked('knob', 'inp-tipstyle', 'knurled_cylinder');
+          setIfUnlocked('knob', 'inp-tipjoint', 'screw');
+          setIfUnlocked('knob', 'inp-tipdia', 9.2);
+          setIfUnlocked('knob', 'inp-tiplen', 16.5);
+          setIfUnlocked('colors', 'inp-cola', '#94a3b8');
+          setIfUnlocked('colors', 'inp-colov', '#cbd5e1');
+          setIfUnlocked('colors', 'inp-colt', '#475569');
+          setIfUnlocked('colors', 'inp-coltip', '#cbd5e1');
+          showStatusBanner('🔩 Buster + Punch Style Active: 3D Diamond-Knurled Barrel + Beveled Escutcheon Washer');
+
+        } else if (name === 'dimwit') {
+          // 3. DIMWIT CONCAVE THUMB-DIMPLE PEBBLE (`IMG_7839.jpg`)
+          setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_magnets');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
+          setIfUnlocked('chassis', 'inp-corner', 0.8);
+          setIfUnlocked('modules', 'inp-swcount', 1);
+          setIfUnlocked('modules', 'inp-slotshape', 'pill');
+          setIfUnlocked('modules', 'inp-slotw', 6.4);
+          setIfUnlocked('modules', 'inp-sloth', 15.0);
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('overlay', 'inp-overlay', 'none');
+          setIfUnlocked('knob', 'inp-tipstyle', 'dimple_pebble');
+          setIfUnlocked('knob', 'inp-tipjoint', 'screw');
+          setIfUnlocked('knob', 'inp-tipdia', 24.0);
+          setIfUnlocked('knob', 'inp-tiplen', 11.0);
+          setIfUnlocked('colors', 'inp-cola', '#b7c4b1');
+          setIfUnlocked('colors', 'inp-colt', '#26171e');
+          setIfUnlocked('colors', 'inp-coltip', '#23131b');
+          showStatusBanner('🍩 Dimwit Style Active: Sharp Sage Plate + Glossy Espresso Concave Thumb-Dimple Pebble');
+
+        } else if (name === 'vstripes') {
+          setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
           setIfUnlocked('modules', 'inp-swcount', 3);
           setIfUnlocked('modules', 'inp-outlettype', 'none');
           setIfUnlocked('plate', 'inp-silhouette', 'vstripes');
@@ -2802,6 +3084,7 @@
         } else if (name === 'rosetta_bubble') {
           setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
           setIfUnlocked('modules', 'inp-swcount', 3);
           setIfUnlocked('modules', 'inp-outlettype', 'none');
           setIfUnlocked('plate', 'inp-silhouette', 'bubble_rim');
@@ -2848,7 +3131,7 @@
 
         } else if (name === 'flower') {
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
-          setIfUnlocked('fixation', 'inp-sideskirt', 'wrap_sides');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
           setIfUnlocked('modules', 'inp-swcount', 2);
           setIfUnlocked('modules', 'inp-outlettype', 'none');
           setIfUnlocked('plate', 'inp-silhouette', 'flower_5petal');
@@ -2885,16 +3168,6 @@
           document.getElementById('btn-wall').classList.add('bg-sky-500/25');
           showStatusBanner('🔲 Uncovered Original Switches Active (+0.43mm Flush Arteor Step)');
 
-        } else if (name === '2sw_1out') {
-          setIfUnlocked('modules', 'inp-swcount', 2);
-          setIfUnlocked('modules', 'inp-outlettype', 'outlet1m');
-          setIfUnlocked('modules', 'inp-outletpos', 'right');
-          setIfUnlocked('modules', 'inp-outletstyle', 'frame_rect');
-          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
-          setIfUnlocked('overlay', 'inp-overlay', 'collars_frame');
-          showWall = true;
-          document.getElementById('btn-wall').classList.add('bg-sky-500/25');
-
         } else if (name === 'schuko_2m') {
           setIfUnlocked('modules', 'inp-swcount', 0);
           setIfUnlocked('modules', 'inp-outlettype', 'schuko2m');
@@ -2910,21 +3183,22 @@
 
         } else if (name === 'twopart_swap') {
           setIfUnlocked('fixation', 'inp-fixmode', 'screwtabs');
-          setIfUnlocked('fixation', 'inp-coverbuild', 'inlay_snaps');
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
           setIfUnlocked('modules', 'inp-swcount', 3);
-          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
-          setIfUnlocked('overlay', 'inp-overlay', 'collars');
+          setIfUnlocked('plate', 'inp-silhouette', 'vstripes');
+          setIfUnlocked('overlay', 'inp-overlay', 'none');
           setIfUnlocked('knob', 'inp-tipstyle', 'sphere_flat');
-          setIfUnlocked('colors', 'inp-cola', '#ea580c');
-          setIfUnlocked('colors', 'inp-colov', '#ea580c');
-          setIfUnlocked('colors', 'inp-coltip', '#ea580c');
           isExploded = true;
           document.getElementById('btn-explode').classList.add('bg-rose-500/25');
-          showStatusBanner('📦 2-Part Quick-Swap Active (All Layers Exploded)');
+          showStatusBanner('🦴 Minimalist 2-Part Skeleton Active (-65% Base Filament, Zero Outer Wall Overlap!)');
         }
         rebuildModel();
       }
 
+      document.getElementById('pre-alublade').addEventListener('click', () => applyPreset('alublade'));
+      document.getElementById('pre-bpknurl').addEventListener('click', () => applyPreset('bpknurl'));
+      document.getElementById('pre-dimwit').addEventListener('click', () => applyPreset('dimwit'));
       document.getElementById('pre-vstripes').addEventListener('click', () => applyPreset('vstripes'));
       document.getElementById('pre-rosetta-bubble').addEventListener('click', () => applyPreset('rosetta_bubble'));
       document.getElementById('pre-buttons').addEventListener('click', () => applyPreset('buttons'));
@@ -2932,7 +3206,6 @@
       document.getElementById('pre-flower').addEventListener('click', () => applyPreset('flower'));
       document.getElementById('pre-waffle').addEventListener('click', () => applyPreset('waffle'));
       document.getElementById('pre-uncovered-sw').addEventListener('click', () => applyPreset('uncovered_sw'));
-      document.getElementById('pre-2sw-1out').addEventListener('click', () => applyPreset('2sw_1out'));
       document.getElementById('pre-schuko-2m').addEventListener('click', () => applyPreset('schuko_2m'));
       document.getElementById('pre-twopart-swap').addEventListener('click', () => applyPreset('twopart_swap'));
 
@@ -3009,29 +3282,29 @@
       document.getElementById('btn-exp-cover').addEventListener('click', () => {
         const p = getParams(), combined = new THREE.Group();
         combined.add(chassisGroup.clone(true), faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(combined, `Arteor_v21_FullAssembly_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(combined, `Arteor_v23_FullAssembly_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-chassis').addEventListener('click', () => {
         const p = getParams();
-        downloadPrintReadySTL(chassisGroup, `Arteor_v21_Part1_WallBase_${p.fixMode}_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(chassisGroup, `Arteor_v23_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-faceplate').addEventListener('click', () => {
         const p = getParams(), faceCombined = new THREE.Group();
         faceCombined.add(faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(faceCombined, `Arteor_v21_Part2_SwappableCover_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceCombined, `Arteor_v23_Part2_SwappableCover_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
         const p = getParams(), stem = buildKnobBaseAndStem(p);
         if (p.tipJoint === 'onepiece' || p.tipStyle === 'bat') {
           const tip = buildKnobTipVolume(p, false); tip.position.z = p.footT + p.tLen; stem.add(tip);
         }
-        downloadPrintReadySTL(stem, `Arteor_v21_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
+        downloadPrintReadySTL(stem, `Arteor_v23_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
       });
       document.getElementById('btn-exp-tip').addEventListener('click', () => {
         const p = getParams(), tip = buildKnobTipVolume(p, false);
-        downloadPrintReadySTL(tip, `Arteor_v21_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
+        downloadPrintReadySTL(tip, `Arteor_v23_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
       });
-      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v21_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
+      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v23_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
@@ -3063,7 +3336,7 @@
       resizeObserver.observe(container);
 
       updateProfileSelect('');
-      applyPreset('vstripes');
+      applyPreset('alublade');
 
       function animate() {
         requestAnimationFrame(animate);
