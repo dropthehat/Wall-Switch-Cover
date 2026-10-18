@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v23 — Alu-Blade, Buster+Punch Diamond Knurl & Dimwit Thumb-Pebble Edition</title>
+  <title>ArteorCAD v24 — 1-Piece Skeleton Web, Open 2-Screw Base & Safe Magnets</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -45,9 +45,9 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v23.0 Studio</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v24.0 Studio</span></h1>
         </div>
-        <p class="text-[10px] text-slate-400">Alu-Blade Fin • Buster+Punch Diamond Knurl • Dimwit Concave Pebble • Skeleton Base</p>
+        <p class="text-[10px] text-slate-400">1-Piece Skeleton Web • Open 2-Screw Base • Safe Magnets & Snaps</p>
       </div>
       <div class="flex gap-1.5">
         <button id="btn-collapse-all" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700 transition">↕ Fold All</button>
@@ -67,7 +67,6 @@
         <input id="file-prof-import" type="file" accept=".json" class="hidden" />
       </div>
 
-      <!-- NEW IN v23: 3 ARCHITECTURAL DESIGNER PRESETS + CLASSIC FAVORITES -->
       <div class="grid grid-cols-6 gap-1">
         <button id="pre-alublade" class="py-1 text-[10px] font-semibold rounded bg-slate-300/20 hover:bg-slate-300/35 text-slate-100 border border-slate-400/50 truncate" title="Sharp Brushed Alu Plate + Architectural Stadium Blade Toggle">💊 Alu-Blade</button>
         <button id="pre-bpknurl" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-400/50 truncate" title="Buster + Punch Diamond-Knurled Cylinder + Beveled Escutcheon">🔩 B+P Knurl</button>
@@ -1129,7 +1128,6 @@
         return geo;
       }
 
-      // --- UPGRADED IN v23: SUPPORTS BUSTER+PUNCH DIAMOND KNURL & DIMWIT CONCAVE THUMB-DIMPLE PEBBLE ---
       function buildPrintReadyThreadedTipGeometry(p, sliceCutaway = false) {
         const rTip = p.tipDia / 2, lenTip = p.tipLen;
         const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat');
@@ -1138,7 +1136,6 @@
         const pegLen = Math.min(5.5, lenTip * 0.65);
         const boreDepth = isThreaded ? (pegLen + 0.5) : 0;
 
-        // 1. Special Case: DIMWIT CONCAVE THUMB-DIMPLE PEBBLE (`dimple_pebble`)
         if (p.tipStyle === 'dimple_pebble') {
           const radialSegs = 64;
           const outerWallSteps = 36;
@@ -1157,7 +1154,6 @@
             ringProfile.push({ r: 0.0, z: 0.0, isBore: false });
           }
 
-          // Outer pebble belly from z=0 up to rim peak (t = 0..1)
           for (let i = 0; i <= outerWallSteps; i++) {
             const t = i / outerWallSteps;
             const z = t * lenTip;
@@ -1166,13 +1162,11 @@
             ringProfile.push({ r, z, isBore: false });
           }
 
-          // Concave thumb-dimple bowl sweeping inward from the top rim (r = rTip * 0.62 -> 0) dipping down into the center!
           const rimPeakR = rTip * Math.sin(0.82 * Math.PI);
           const dimpleDepth = Math.min(lenTip * 0.36, 3.8);
           for (let i = 1; i <= topBowlSteps; i++) {
-            const u = i / topBowlSteps; // 0 at rim peak, 1 at center (r=0)
+            const u = i / topBowlSteps;
             const r = rimPeakR * (1 - u);
-            // Smooth cosine dip from lenTip down to lenTip - dimpleDepth
             const z = lenTip - dimpleDepth * (0.5 - 0.5 * Math.cos(u * Math.PI));
             ringProfile.push({ r, z, isBore: false });
           }
@@ -1206,17 +1200,15 @@
           return geo;
         }
 
-        // 2. Standard & Buster+Punch Knurled Revolving Profiles
         function getOuterRadiusAtZ(z) {
           const t = Math.max(0, Math.min(1, z / lenTip));
           const collarR = Math.max(boreMajorDia / 2 + 1.25, rTip * 0.46);
           if (p.tipStyle === 'knurled_cylinder') {
-            // Buster + Punch Barrel profile: Base taper -> Knurled Barrel -> Neck Groove -> Chamfered Coin Cap!
             const cylR = Math.max(boreMajorDia / 2 + 1.4, rTip);
             if (t < 0.08) return cylR * (0.82 + 0.18 * (t / 0.08));
-            if (t >= 0.78 && t < 0.85) return cylR * 0.86; // Signature machined neck groove before end cap
-            if (t >= 0.85 && t < 0.94) return cylR * 0.98; // Coin cap cylinder
-            if (t >= 0.94) return cylR * (0.98 - 0.14 * ((t - 0.94) / 0.06)); // Top 45° chamfer
+            if (t >= 0.78 && t < 0.85) return cylR * 0.86;
+            if (t >= 0.85 && t < 0.94) return cylR * 0.98;
+            if (t >= 0.94) return cylR * (0.98 - 0.14 * ((t - 0.94) / 0.06));
             return cylR;
           } else if (p.tipStyle === 'sphere_flat') {
             if (t < 0.10) return collarR;
@@ -1279,7 +1271,6 @@
               const wave = Math.max(-0.75, Math.min(0.75, Math.sin(phase) * 1.25)) / 0.75;
               r = boreMeanR + wave * (threadDepth * 0.5) * fade;
             } else if (isKnurled && !pt.isBore && r > 0.1) {
-              // True 3D Cross-Hatched Diamond Knurling along the barrel band (t = 0.10 .. 0.76)
               const t = pt.z / lenTip;
               if (t >= 0.10 && t <= 0.76) {
                 const knurlCountAround = 22;
@@ -1391,28 +1382,37 @@
         return group;
       }
 
-      function getSafeCornerMagnetCenters(inlayW, inlayH, inlayCornerR, bossOuterR = 4.5) {
-        const hw = inlayW / 2, hh = inlayH / 2;
-        const rCorner = Math.max(1.0, inlayCornerR);
-        const diagPullIn = Math.max(0, (rCorner - bossOuterR) * 0.293);
-        const safeMargin = bossOuterR + 1.0 + diagPullIn;
-        const cx = Math.max(20.0, hw - safeMargin), cy = Math.max(14.0, hh - safeMargin);
+      // --- FIXED IN v24: MAGNETS & SNAPS SIT OUTSIDE THE CENTRAL SWITCH WINDOW ON THE SOLID SURROUND ---
+      function getSafeCornerMagnetCenters(clearWinW, clearWinH, inW, inH, bossOuterR = 4.5) {
+        // Places the 4 magnet bosses on the solid left/right surround outside the switch window (clearWinW),
+        // and at Y = ±15.5mm so they NEVER touch the central switch rockers AND never collide with the 4 corner H-pins (Y = ±26.65mm) or 2-screw slots (Y = 0)!
+        const minSafeX = clearWinW / 2 + bossOuterR + 1.2;
+        const maxSafeX = inW / 2 - bossOuterR - 1.5;
+        const cx = Math.min(maxSafeX, Math.max(minSafeX, (minSafeX + maxSafeX) * 0.5));
+        const cy = Math.min(inH / 2 - bossOuterR - 2.0, 15.5);
         return [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]];
       }
 
-      function buildOuterCollarRetentionFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, mat) {
+      function buildOuterCollarRetentionFeatures(p, clearWinW, clearWinH, turretWallT, zFaceBack, mat) {
         const group = new THREE.Group();
-        const hh = inlayH / 2;
         const isSnaps = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'fulltop_snaps');
         const isMagnets = (p.coverBuild === 'inlay_magnets' || p.coverBuild === 'fulltop_magnets');
+        const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
+
         if (isSnaps) {
-          const ribLen = 14.0, ribProtrude = 1.35, ribZ = 2.4;
-          [-inlayW * 0.25, inlayW * 0.25].forEach(x => {
+          const ribLen = 14.0, ribProtrude = 1.25, ribZ = 2.4;
+          // In Full-Top mode, snap catches sit on the OUTER top/bottom walls of the central switch turret so the switch window stays 100% clear!
+          // In Inlay mode, they sit on the outer inlay perimeter wall (inlayH / 2), far outside the switch rockers.
+          const yCatch = isInlay
+            ? (clearWinH / 2 - ribProtrude / 2 + 0.2)
+            : (clearWinH / 2 + turretWallT + ribProtrude / 2 - 0.15);
+
+          [-clearWinW * 0.26, clearWinW * 0.26].forEach(x => {
             const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
-            topRib.position.set(x, hh - ribProtrude / 2 + 0.2, zFaceBack - ribZ / 2);
+            topRib.position.set(x, yCatch, zFaceBack - ribZ / 2 - 1.2);
             group.add(topRib);
             const botRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
-            botRib.position.set(x, -hh + ribProtrude / 2 - 0.2, zFaceBack - ribZ / 2);
+            botRib.position.set(x, -yCatch, zFaceBack - ribZ / 2 - 1.2);
             group.add(botRib);
           });
         } else if (isMagnets) {
@@ -1422,42 +1422,59 @@
           const magPath = new THREE.Path();
           magPath.absarc(0, 0, magHoleR, 0, Math.PI * 2, true);
           bossShape.holes.push(magPath);
+
+          const totalBossH = Math.max(pocketDepth + floorThick, zFaceBack - p.rimD);
           const ringGeo = new THREE.ExtrudeGeometry(bossShape, { depth: pocketDepth, bevelEnabled: false });
-          const floorGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, floorThick, 28);
-          floorGeo.rotateX(Math.PI / 2);
-          getSafeCornerMagnetCenters(inlayW, inlayH, inlayCornerR, bossOuterR).forEach(([bx, by]) => {
-            const rClone = ringGeo.clone(); rClone.translate(bx, by, zFaceBack - pocketDepth);
+          const pillarGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, totalBossH - pocketDepth, 28);
+          pillarGeo.rotateX(Math.PI / 2);
+
+          getSafeCornerMagnetCenters(clearWinW, clearWinH, p.inW, p.inH, bossOuterR).forEach(([bx, by]) => {
+            const rClone = ringGeo.clone();
+            rClone.translate(bx, by, zFaceBack - pocketDepth);
             group.add(new THREE.Mesh(rClone, mat));
-            const fClone = floorGeo.clone(); fClone.translate(bx, by, zFaceBack - pocketDepth - floorThick / 2);
+
+            const fClone = pillarGeo.clone();
+            fClone.translate(bx, by, zFaceBack - pocketDepth - (totalBossH - pocketDepth) / 2);
             group.add(new THREE.Mesh(fClone, mat));
           });
         }
         return group;
       }
 
-      function buildDropInFaceplateBackFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, mat) {
+      function buildDropInFaceplateBackFeatures(p, clearWinW, clearWinH, turretWallT, zFaceBack, mat) {
         const group = new THREE.Group();
-        const hh = inlayH / 2;
         const isSnaps = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'fulltop_snaps');
         const isMagnets = (p.coverBuild === 'inlay_magnets' || p.coverBuild === 'fulltop_magnets');
+        const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
+
         if (isSnaps) {
-          const tabW = 13.0, wallT = 1.6, tabDepth = 5.2, barbOut = 1.1;
+          const tabW = 13.0, wallT = 1.6, tabDepth = 4.8, barbOut = 1.1;
           function makeCantileverSnapTab(isTop) {
-            const dir = isTop ? 1 : -1, shape = new THREE.Shape();
-            shape.moveTo(0, 0); shape.lineTo(0, -tabDepth);
-            shape.lineTo(dir * (wallT + barbOut), -tabDepth + 1.1);
-            shape.lineTo(dir * wallT, -tabDepth + 2.2);
-            shape.lineTo(dir * wallT, 0); shape.closePath();
+            // In Full-Top mode, the tab sits OUTSIDE the central turret wall (at Y = ±(clearWinH/2 + turretWallT)) and hooks INWARD toward the turret wall!
+            // In Inlay mode, the tab sits inside the outer inlay collar and hooks OUTWARD.
+            const hookDir = isInlay ? (isTop ? 1 : -1) : (isTop ? -1 : 1);
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.lineTo(0, -tabDepth);
+            shape.lineTo(hookDir * (wallT + barbOut), -tabDepth + 1.1);
+            shape.lineTo(hookDir * wallT, -tabDepth + 2.2);
+            shape.lineTo(hookDir * wallT, 0);
+            shape.closePath();
+
             const geo = new THREE.ExtrudeGeometry(shape, { depth: tabW, bevelEnabled: false });
             const pos = geo.attributes.position;
-            const yBase = isTop ? (hh - wallT - 0.5) : (-hh + wallT + 0.5);
+            const outerTurretHalfH = clearWinH / 2 + turretWallT + wallT + 0.25;
+            const yBase = isInlay
+              ? (isTop ? (clearWinH / 2 - wallT - 0.4) : (-clearWinH / 2 + wallT + 0.4))
+              : (isTop ? outerTurretHalfH : -outerTurretHalfH);
+
             for (let i = 0; i < pos.count; i++) {
               pos.setXYZ(i, pos.getZ(i) - tabW / 2, yBase + pos.getX(i), zFaceBack + pos.getY(i));
             }
             geo.computeVertexNormals();
             return new THREE.Mesh(geo, mat);
           }
-          [-inlayW * 0.25, inlayW * 0.25].forEach(x => {
+          [-clearWinW * 0.26, clearWinW * 0.26].forEach(x => {
             const tTab = makeCantileverSnapTab(true); tTab.position.x = x; group.add(tTab);
             const bTab = makeCantileverSnapTab(false); bTab.position.x = x; group.add(bTab);
           });
@@ -1471,7 +1488,7 @@
           const ringGeo = new THREE.ExtrudeGeometry(bossShape, { depth: pocketDepth, bevelEnabled: false });
           const capGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, capThick, 28);
           capGeo.rotateX(Math.PI / 2);
-          getSafeCornerMagnetCenters(inlayW, inlayH, inlayCornerR, bossOuterR).forEach(([bx, by]) => {
+          getSafeCornerMagnetCenters(clearWinW, clearWinH, p.inW, p.inH, bossOuterR).forEach(([bx, by]) => {
             const rClone = ringGeo.clone(); rClone.translate(bx, by, zFaceBack - pocketDepth);
             group.add(new THREE.Mesh(rClone, mat));
             const cClone = capGeo.clone(); cClone.translate(bx, by, zFaceBack + capThick / 2);
@@ -1732,546 +1749,6 @@
         return createTranslatedRectHolePath(item.cx, item.cy, w, h, Math.min(w, h) / 2);
       }
 
-      function getParams() {
-        return {
-          fixMode: document.getElementById('inp-fixmode').value,
-          coverBuild: document.getElementById('inp-coverbuild').value,
-          sideSkirt: document.getElementById('inp-sideskirt').value,
-          pinDia: parseFloat(document.getElementById('inp-pindia').value),
-          pinL: parseFloat(document.getElementById('inp-pinl').value),
-          pinRibs: parseInt(document.getElementById('inp-pinribs').value),
-          ribDepth: parseFloat(document.getElementById('inp-ribdepth').value),
-          pinX: parseFloat(document.getElementById('inp-pinx').value),
-          pinY: parseFloat(document.getElementById('inp-piny').value),
-          lugT: parseFloat(document.getElementById('inp-lugt').value),
-          hWeb: parseFloat(document.getElementById('inp-hweb').value),
-          lipBite: parseFloat(document.getElementById('inp-lipbite').value),
-          lipH: parseFloat(document.getElementById('inp-liph').value),
-          lipEdges: document.getElementById('inp-lipedges').value,
-          screwX: parseFloat(document.getElementById('inp-screwx').value),
-          screwDia: parseFloat(document.getElementById('inp-screwdia').value),
-          screwTabZ: parseFloat(document.getElementById('inp-screwtabz').value),
-          chassisType: parseInt(document.getElementById('inp-chassistype').value),
-          deckMode: document.getElementById('inp-deckmode').value,
-          inW: parseFloat(document.getElementById('inp-inw').value),
-          inH: parseFloat(document.getElementById('inp-inh').value),
-          rimD: parseFloat(document.getElementById('inp-rimd').value),
-          swClear: parseFloat(document.getElementById('inp-swclear').value),
-          corner: parseFloat(document.getElementById('inp-corner').value),
-          wall: parseFloat(document.getElementById('inp-wall').value),
-          face: parseFloat(document.getElementById('inp-face').value),
-          deckDrop: parseFloat(document.getElementById('inp-deckdrop').value),
-          swCount: parseInt(document.getElementById('inp-swcount').value),
-          swMode: document.getElementById('inp-swmode').value,
-          slotShape: document.getElementById('inp-slotshape').value,
-          outletType: document.getElementById('inp-outlettype').value,
-          outletPos: document.getElementById('inp-outletpos').value,
-          outletStyle: document.getElementById('inp-outletstyle').value,
-          pitch: parseFloat(document.getElementById('inp-pitch').value),
-          modH: parseFloat(document.getElementById('inp-modh').value),
-          slotW: parseFloat(document.getElementById('inp-slotw').value),
-          slotH: parseFloat(document.getElementById('inp-sloth').value),
-          slotAxis: document.getElementById('inp-slotaxis').value,
-          silhouette: document.getElementById('inp-silhouette').value,
-          stripes: parseInt(document.getElementById('inp-stripes').value),
-          bubbleDia: parseFloat(document.getElementById('inp-bubbledia').value),
-          bubbleCols: parseInt(document.getElementById('inp-bubblecols').value),
-          bubbleRows: parseInt(document.getElementById('inp-bubblerows').value),
-          overlay: document.getElementById('inp-overlay').value,
-          ovHeight: parseFloat(document.getElementById('inp-ovheight').value),
-          ovWidth: parseFloat(document.getElementById('inp-ovwidth').value),
-          ovCount: parseInt(document.getElementById('inp-ovcount').value),
-          tipStyle: document.getElementById('inp-tipstyle').value,
-          tipJoint: document.getElementById('inp-tipjoint').value,
-          cuRotX: parseFloat(document.getElementById('inp-curotx').value),
-          cuRotY: parseFloat(document.getElementById('inp-curoty').value),
-          cuRotZ: parseFloat(document.getElementById('inp-curotz').value),
-          cuOffX: parseFloat(document.getElementById('inp-cuoffx').value),
-          cuOffY: parseFloat(document.getElementById('inp-cuoffy').value),
-          cuOffZ: parseFloat(document.getElementById('inp-cuoffz').value),
-          tipDia: parseFloat(document.getElementById('inp-tipdia').value),
-          tipLen: parseFloat(document.getElementById('inp-tiplen').value),
-          pegDia: parseFloat(document.getElementById('inp-pegdia').value),
-          threadTol: parseFloat(document.getElementById('inp-threadtol').value),
-          footT: parseFloat(document.getElementById('inp-foott').value),
-          footW: parseFloat(document.getElementById('inp-footw').value),
-          footH: parseFloat(document.getElementById('inp-footh').value),
-          tLen: parseFloat(document.getElementById('inp-tlen').value),
-          tBase: parseFloat(document.getElementById('inp-tbase').value),
-          vRoof: parseFloat(document.getElementById('inp-vroof').value),
-          showToggles: document.getElementById('inp-showtoggles').checked,
-          colA: document.getElementById('inp-cola').value,
-          colB: document.getElementById('inp-colb').value,
-          colOv: document.getElementById('inp-colov').value,
-          colD2: document.getElementById('inp-cold2').value,
-          colT: document.getElementById('inp-colt').value,
-          colTip: document.getElementById('inp-coltip').value,
-          multiColorKnobs: document.getElementById('inp-multicolorknobs').checked,
-          tAng: 11 * rockPolarity
-        };
-      }
-
-      function createGlossMat(hex, wire, doubleSide = false, roughness = 0.44, metalness = 0.06) {
-        return new THREE.MeshStandardMaterial({
-          color: new THREE.Color(hex), roughness, metalness, wireframe: wire,
-          side: doubleSide ? THREE.DoubleSide : THREE.FrontSide
-        });
-      }
-
-      function buildAll3DOverlays(p, outerW, outerH, zBase, mergedCutouts, activeItems, zPerimDeckTop, plateCornerR) {
-        const group = new THREE.Group();
-        if (p.overlay === 'none' || p.silhouette === 'open_frame') return group;
-        const isMetallicOv = (p.overlay === 'bp_bezel');
-        const matOv = createGlossMat(p.colOv, isWireframe, false, isMetallicOv ? 0.28 : 0.44, isMetallicOv ? 0.55 : 0.06);
-        const matAccent = createGlossMat(p.colD2, isWireframe);
-        const discColors = [p.colOv, p.colD2, '#ef4444'];
-        const h = p.ovHeight, fw = p.ovWidth;
-
-        function addFlatBackCollars() {
-          mergedCutouts.forEach(item => {
-            const colW = Math.min(fw, 4.2), cOutW = item.cutW + colW * 2, cOutH = item.cutH + colW * 2;
-            let shape;
-            if (item.isRoundCut || item.slotShape === 'circle') {
-              shape = new THREE.Shape(); shape.absarc(item.cx, item.cy, cOutW / 2, 0, Math.PI * 2, false);
-            } else {
-              const rad = item.slotShape === 'rect' ? 1.5 : (Math.min(cOutW, cOutH) / 2);
-              const pts = getRoundedRectPoints(cOutW, cOutH, rad, 16);
-              pts.forEach(pt => { pt.x += item.cx; pt.y += item.cy; });
-              shape = new THREE.Shape(pts);
-            }
-            shape.holes.push(makeItemHolePath(item, 0.08));
-            const geo = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false });
-            geo.translate(0, 0, zBase);
-            group.add(new THREE.Mesh(geo, matOv));
-          });
-        }
-
-        if (p.overlay === 'bp_bezel') {
-          // NEW IN v23: BUSTER + PUNCH MACHINED BEVELED ESCUTCHEON WASHER COLLAR (`bp_bezel`)
-          activeItems.forEach(item => {
-            if (item.kind !== 'switch') return;
-            const innerR = Math.max(item.cutW, item.cutH) * 0.5 + 0.15;
-            const outerR = innerR + fw;
-            const flatTopW = Math.max(0.8, fw * 0.35);
-            const pts = [
-              new THREE.Vector2(innerR, 0),
-              new THREE.Vector2(outerR, 0),
-              new THREE.Vector2(innerR + flatTopW, h),
-              new THREE.Vector2(innerR, h),
-              new THREE.Vector2(innerR, 0)
-            ];
-            const latheGeo = new THREE.LatheGeometry(pts, 48);
-            latheGeo.rotateX(Math.PI / 2);
-            latheGeo.translate(item.cx, item.cy, zBase);
-            group.add(new THREE.Mesh(latheGeo, matOv));
-          });
-        } else if (p.overlay === 'collars') {
-          addFlatBackCollars();
-        } else if (p.overlay === 'collars_frame') {
-          addFlatBackCollars();
-          const rimShape = createRoundedRectShape(outerW - 1.5, outerH - 1.5, Math.max(1, plateCornerR - 0.75));
-          rimShape.holes.push(createRoundedRectPath(outerW - 1.5 - fw * 2, outerH - 1.5 - fw * 2, Math.max(0.5, plateCornerR - fw)));
-          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
-          rimGeo.translate(0, 0, zPerimDeckTop);
-          group.add(new THREE.Mesh(rimGeo, matOv));
-        } else if (p.overlay === 'stitched_leather') {
-          const rimW = 2.8;
-          const rimShape = createRoundedRectShape(outerW - 1.0, outerH - 1.0, Math.max(1.5, plateCornerR - 0.5));
-          rimShape.holes.push(createRoundedRectPath(outerW - 1.0 - rimW * 2, outerH - 1.0 - rimW * 2, Math.max(1.0, plateCornerR - rimW)));
-          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h * 0.55, bevelEnabled: false });
-          rimGeo.translate(0, 0, zPerimDeckTop);
-          group.add(new THREE.Mesh(rimGeo, createGlossMat(p.colA, isWireframe)));
-
-          const stitchInset = 6.2;
-          const stitchCornerR = Math.max(3.0, plateCornerR - stitchInset * 0.5);
-          const stitchPts = getRoundedRectPoints(outerW - stitchInset * 2, outerH - stitchInset * 2, stitchCornerR, 24);
-          let perimLen = 0;
-          for (let i = 0; i < stitchPts.length; i++) perimLen += stitchPts[i].distanceTo(stitchPts[(i + 1) % stitchPts.length]);
-          const targetPitch = Math.max(4.4, 6.2 - p.ovCount * 0.5);
-          const numStitches = Math.max(16, Math.floor(perimLen / targetPitch));
-          const actualPitch = perimLen / numStitches;
-          const dashLen = actualPitch * 0.48, dashW = 0.95;
-          const dashGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(dashLen, dashW, dashW * 0.45), { depth: h * 0.65, bevelEnabled: false });
-          sampleClosedPolygonUniformly(stitchPts, numStitches).forEach(s => {
-            const sMesh = new THREE.Mesh(dashGeo, matOv);
-            sMesh.position.set(s.x, s.y, zPerimDeckTop);
-            sMesh.rotation.z = s.ang;
-            group.add(sMesh);
-          });
-        } else if (p.overlay === 'tray_recessed_wells') {
-          const lipW = 2.6;
-          const rimShape = createRoundedRectShape(outerW - 0.6, outerH - 0.6, Math.max(1.5, plateCornerR - 0.3));
-          rimShape.holes.push(createRoundedRectPath(outerW - 0.6 - lipW * 2, outerH - 0.6 - lipW * 2, Math.max(1.0, plateCornerR - lipW)));
-          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
-          rimGeo.translate(0, 0, zPerimDeckTop);
-          group.add(new THREE.Mesh(rimGeo, matOv));
-          activeItems.forEach(item => {
-            if (item.kind !== 'switch') return;
-            const cupW = item.cutW + 6.5, cupH = item.cutH + 6.5;
-            const rad = item.slotShape === 'rect' ? 2.0 : (Math.min(cupW, cupH) / 2);
-            const pts = getRoundedRectPoints(cupW, cupH, rad, 16);
-            pts.forEach(pt => { pt.x += item.cx; pt.y += item.cy; });
-            const cupShape = new THREE.Shape(pts);
-            cupShape.holes.push(makeItemHolePath(item, 0.05));
-            const cupGeo = new THREE.ExtrudeGeometry(cupShape, { depth: h * 0.85, bevelEnabled: false });
-            cupGeo.translate(0, 0, zBase);
-            group.add(new THREE.Mesh(cupGeo, matAccent));
-          });
-        } else if (p.overlay === 'deco') {
-          const steps = p.ovCount;
-          for (let s = 0; s < steps; s++) {
-            const inset = s * (fw * 0.85), tierW = outerW - inset * 2, tierH = outerH - inset * 2;
-            const innerW = tierW - fw * 1.5, innerH = tierH - fw * 1.5;
-            if (innerW <= 20 || innerH <= 20) break;
-            const tierShape = createRoundedRectShape(tierW, tierH, Math.max(1, plateCornerR - inset));
-            tierShape.holes.push(createRoundedRectPath(innerW, innerH, Math.max(0.5, plateCornerR - inset - fw * 0.75)));
-            const tierGeo = new THREE.ExtrudeGeometry(tierShape, { depth: h * ((steps - s) / steps), bevelEnabled: false });
-            tierGeo.translate(0, 0, zPerimDeckTop);
-            group.add(new THREE.Mesh(tierGeo, matOv));
-          }
-        } else if (p.overlay === 'fluted') {
-          const outerPts = getRoundedRectPoints(outerW - 2, outerH - 2, Math.max(1, plateCornerR - 1), 16);
-          const pitch = fw * 1.45, ribW = fw * 0.85, numRibs = Math.floor((outerW - 4) / pitch);
-          const firstX = -((numRibs - 1) * pitch) / 2;
-          for (let r = 0; r < numRibs; r++) {
-            const rx = firstX + r * pitch;
-            let polys = [clipPolygonHalfPlane(clipPolygonHalfPlane(outerPts, 1, 0, rx - ribW / 2), -1, 0, -(rx + ribW / 2))];
-            mergedCutouts.forEach(item => {
-              polys = subtractBoxFromPolygons(polys, item.cx - item.cutW / 2 - 1.5, item.cx + item.cutW / 2 + 1.5, item.cy - item.cutH / 2 - 1.5, item.cy + item.cutH / 2 + 1.5);
-            });
-            polys.forEach(clipped => {
-              const clean = deduplicatePolygonPoints(clipped);
-              if (clean.length >= 3) {
-                const geo = new THREE.ExtrudeGeometry(new THREE.Shape(clean), { depth: h, bevelEnabled: false });
-                geo.translate(0, 0, zBase);
-                group.add(new THREE.Mesh(geo, matOv));
-              }
-            });
-          }
-        } else if (p.overlay === 'stadion') {
-          const rings = p.ovCount + 1;
-          for (let r = 0; r < rings; r++) {
-            const inset = 3 + r * (fw * 2.0), rw = outerW - inset * 2, rh = outerH - inset * 2;
-            if (rw <= 30 || rh <= 30) break;
-            const rad = Math.min(rw, rh) * 0.42;
-            const ringShape = createRoundedRectShape(rw, rh, rad);
-            ringShape.holes.push(createRoundedRectPath(rw - fw * 1.2, rh - fw * 1.2, Math.max(1, rad - fw * 0.6)));
-            const geo = new THREE.ExtrudeGeometry(ringShape, { depth: h, bevelEnabled: false });
-            geo.translate(0, 0, zPerimDeckTop);
-            group.add(new THREE.Mesh(geo, matOv));
-          }
-        } else if (p.overlay === 'waffle') {
-          const wafShape = createRoundedRectShape(outerW - 3, outerH - 3, Math.max(1, plateCornerR - 1.5));
-          mergedCutouts.forEach(item => wafShape.holes.push(makeItemHolePath(item, 1.8)));
-          const cellPitch = Math.max(5.5, fw * 2.2), cellSize = cellPitch * 0.64;
-          const cols = Math.floor((outerW - 12) / cellPitch), rows = Math.floor((outerH - 12) / cellPitch);
-          for (let c = 0; c < cols; c++) {
-            for (let r = 0; r < rows; r++) {
-              const cx = -((cols - 1) * cellPitch) / 2 + c * cellPitch, cy = -((rows - 1) * cellPitch) / 2 + r * cellPitch;
-              let nearCutout = false;
-              mergedCutouts.forEach(item => {
-                if (Math.abs(cx - item.cx) < item.cutW / 2 + cellSize * 0.85 && Math.abs(cy - item.cy) < item.cutH / 2 + cellSize * 0.85) nearCutout = true;
-              });
-              if (!nearCutout) {
-                const holePts = getRoundedRectPoints(cellSize, cellSize, 1.0, 6).reverse();
-                holePts.forEach(pt => { pt.x += cx; pt.y += cy; });
-                wafShape.holes.push(new THREE.Path(holePts));
-              }
-            }
-          }
-          const geo = new THREE.ExtrudeGeometry(wafShape, { depth: h, bevelEnabled: false });
-          geo.translate(0, 0, zBase);
-          group.add(new THREE.Mesh(geo, matOv));
-        } else if (p.overlay === 'rosetta_discs') {
-          const maxDiscR = p.pitch * 0.46;
-          activeItems.forEach((item, idx) => {
-            if (item.kind !== 'switch') return;
-            const discShape = new THREE.Shape();
-            discShape.absarc(item.cx, item.cy, maxDiscR, 0, Math.PI * 2, false);
-            discShape.holes.push(makeItemHolePath(item, 0));
-            const discGeo = new THREE.ExtrudeGeometry(discShape, { depth: h, bevelEnabled: false });
-            discGeo.translate(0, 0, zBase);
-            group.add(new THREE.Mesh(discGeo, createGlossMat(discColors[idx % discColors.length], isWireframe)));
-          });
-        } else if (p.overlay === 'donut_wells') {
-          const maxDiscR = p.pitch * 0.46, tubeR = Math.max(2.0, maxDiscR * 0.24), majorR = maxDiscR - tubeR * 0.4;
-          const pts = [], segs = 32;
-          for (let s = 0; s <= segs; s++) {
-            const theta = (s / segs) * Math.PI;
-            pts.push(new THREE.Vector2(majorR + tubeR * Math.cos(theta), h * Math.sin(theta)));
-          }
-          pts.push(new THREE.Vector2(majorR - tubeR, 0), new THREE.Vector2(majorR + tubeR, 0));
-          const ringLatchGeo = new THREE.LatheGeometry(pts, 48);
-          ringLatchGeo.rotateX(Math.PI / 2);
-          activeItems.forEach(item => {
-            if (item.kind !== 'switch') return;
-            const gClone = ringLatchGeo.clone();
-            gClone.translate(item.cx, item.cy, zBase);
-            group.add(new THREE.Mesh(gClone, matOv));
-          });
-        }
-        return group;
-      }
-
-      function buildKnobBaseAndStem(p) {
-        const group = new THREE.Group();
-        const mat = createGlossMat(p.colT, isWireframe);
-        const fW = p.footW, fH = p.footH, fT = p.footT;
-        const fRad = Math.min(2.0, fW * 0.22, fH * 0.22);
-        if (p.vRoof > 0.05) {
-          const hh = fH / 2, vDrop = p.vRoof, vShape = new THREE.Shape();
-          vShape.moveTo(-hh, -vDrop); vShape.lineTo(0, 0); vShape.lineTo(hh, -vDrop);
-          vShape.lineTo(hh, fT); vShape.lineTo(-hh, fT); vShape.closePath();
-          const vGeo = new THREE.ExtrudeGeometry(vShape, { depth: fW, bevelEnabled: false });
-          const pos = vGeo.attributes.position;
-          for (let i = 0; i < pos.count; i++) pos.setXYZ(i, pos.getZ(i) - fW / 2, pos.getX(i), pos.getY(i));
-          vGeo.computeVertexNormals();
-          group.add(new THREE.Mesh(vGeo, mat));
-        } else {
-          group.add(new THREE.Mesh(new THREE.ExtrudeGeometry(createRoundedRectShape(fW, fH, fRad), { depth: fT, bevelEnabled: false }), mat));
-        }
-
-        // If Architectural Stadium Blade is in 1-Piece mode, the stadium blade itself rises straight from the glue foot!
-        if (p.tipStyle === 'stadium_blade' && p.tipJoint === 'onepiece') {
-          const bladeW = Math.max(3.6, p.slotW - 1.2);
-          const bladeH = Math.max(12.0, p.tipDia);
-          const bladeShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
-          const bladeGeo = new THREE.ExtrudeGeometry(bladeShape, { depth: p.tLen, bevelEnabled: false });
-          bladeGeo.translate(0, 0, fT);
-          group.add(new THREE.Mesh(bladeGeo, mat));
-          return group;
-        }
-
-        const rShaft = p.tBase / 2;
-        const stemGeo = new THREE.CylinderGeometry(rShaft, rShaft, p.tLen, 36);
-        stemGeo.rotateX(Math.PI / 2);
-        stemGeo.translate(0, 0, fT + p.tLen / 2);
-        group.add(new THREE.Mesh(stemGeo, mat));
-        if (p.tipJoint === 'screw' && p.tipStyle !== 'bat') {
-          const pegLen = Math.min(5.5, p.tipLen * 0.62);
-          const threadGeo = buildHelicalThreadedCylinder(p.pegDia, pegLen, 1.25, 0.42);
-          threadGeo.translate(0, 0, fT + p.tLen);
-          group.add(new THREE.Mesh(threadGeo, mat));
-        }
-        return group;
-      }
-
-      function buildKnobTipVolume(p, sliceCutaway = false, customTipHex = null) {
-        const group = new THREE.Group();
-        const isHighGlossPebble = (p.tipStyle === 'dimple_pebble');
-        const isAnodizedMetal = (p.tipStyle === 'stadium_blade' || p.tipStyle === 'knurled_cylinder');
-        const mat = createGlossMat(
-          customTipHex || p.colTip,
-          isWireframe,
-          true,
-          isHighGlossPebble ? 0.14 : (isAnodizedMetal ? 0.28 : 0.44),
-          isAnodizedMetal ? 0.55 : 0.06
-        );
-        const matDark = createGlossMat('#1e293b', isWireframe, true);
-        const rShaft = p.tBase / 2;
-        const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat');
-        const boreMajorDia = p.pegDia + p.threadTol;
-
-        if (p.tipStyle === 'bat') {
-          group.add(new THREE.Mesh(new THREE.SphereGeometry(rShaft, 24, 16), mat));
-          return group;
-        }
-
-        // NEW IN v23: ARCHITECTURAL STADIUM FIN / BLADE (`stadium_blade` from `banner_rocker_alu_grey.jpg`)
-        if (p.tipStyle === 'stadium_blade') {
-          const bladeW = isThreaded ? Math.max(boreMajorDia + 1.8, p.slotW - 1.0) : Math.max(3.6, p.slotW - 1.2);
-          const bladeH = Math.max(12.0, p.tipDia);
-          const bladeLen = p.tipLen;
-
-          if (isThreaded) {
-            // 1. Internal Female Helical Thread Core Socket at the base of the blade
-            const socketR = bladeW / 2;
-            const socketH = Math.min(bladeLen - 1.2, 5.6);
-            const socketGeo = buildFemaleThreadedSocketCollar(socketR, socketH, boreMajorDia, true, sliceCutaway);
-            group.add(new THREE.Mesh(socketGeo, mat));
-
-            // 2. Outer Stadium Fin Body with negative bore hole in the lower section + solid chamfered top fin
-            const lowerShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
-            const boreHole = new THREE.Path();
-            boreHole.absarc(0, 0, socketR - 0.05, 0, Math.PI * 2, true);
-            lowerShape.holes.push(boreHole);
-            const lowerGeo = new THREE.ExtrudeGeometry(lowerShape, { depth: socketH, bevelEnabled: false });
-            group.add(new THREE.Mesh(lowerGeo, mat));
-
-            const upperShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
-            const upperGeo = new THREE.ExtrudeGeometry(upperShape, {
-              depth: Math.max(0.8, bladeLen - socketH - 0.45),
-              bevelEnabled: true,
-              bevelSize: 0.35,
-              bevelThickness: 0.45,
-              bevelSegments: 3
-            });
-            upperGeo.translate(0, 0, socketH);
-            group.add(new THREE.Mesh(upperGeo, mat));
-          } else {
-            const fullShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
-            const fullGeo = new THREE.ExtrudeGeometry(fullShape, {
-              depth: Math.max(1.0, bladeLen - 0.45),
-              bevelEnabled: true,
-              bevelSize: 0.35,
-              bevelThickness: 0.45,
-              bevelSegments: 3
-            });
-            group.add(new THREE.Mesh(fullGeo, mat));
-          }
-          return group;
-        }
-
-        if (p.tipStyle === 'custom_knob_mesh') {
-          const socketH = Math.min(5.8, p.tipLen * 0.55);
-          const socketR = Math.max(boreMajorDia / 2 + 1.35, p.tipDia * 0.28);
-          group.add(new THREE.Mesh(buildFemaleThreadedSocketCollar(socketR, socketH, boreMajorDia, isThreaded, sliceCutaway), mat));
-          if (userKnobGeometry) {
-            const importedClone = userKnobGeometry.clone();
-            importedClone.scale(p.tipDia, p.tipDia, p.tipDia);
-            importedClone.rotateX(THREE.MathUtils.degToRad(p.cuRotX));
-            importedClone.rotateY(THREE.MathUtils.degToRad(p.cuRotY));
-            importedClone.rotateZ(THREE.MathUtils.degToRad(p.cuRotZ));
-            importedClone.computeBoundingBox();
-            const minZ = importedClone.boundingBox ? importedClone.boundingBox.min.z : 0;
-            importedClone.translate(p.cuOffX, p.cuOffY, -minZ + p.cuOffZ);
-            group.add(new THREE.Mesh(importedClone, mat));
-          } else {
-            const placeGeo = new THREE.OctahedronGeometry(p.tipDia * 0.45, 1);
-            placeGeo.translate(p.cuOffX, p.cuOffY, socketH + p.cuOffZ);
-            group.add(new THREE.Mesh(placeGeo, mat));
-          }
-          return group;
-        }
-        if (p.tipStyle === 'tbar') {
-          const barRadius = Math.max(boreMajorDia / 2 + 1.3, p.tipLen * 0.42);
-          const barWidth = Math.max(14.0, p.tipDia * 1.25);
-          group.add(new THREE.Mesh(buildFemaleThreadedSocketCollar(Math.max(boreMajorDia / 2 + 1.35, barRadius * 0.78), barRadius * 1.15, boreMajorDia, isThreaded, sliceCutaway), mat));
-          const tbarGeo = new THREE.CylinderGeometry(barRadius, barRadius, barWidth, 40, 1, false, 0, sliceCutaway ? Math.PI : Math.PI * 2);
-          tbarGeo.rotateZ(Math.PI / 2);
-          tbarGeo.translate(0, 0, barRadius + 1.2);
-          group.add(new THREE.Mesh(tbarGeo, mat));
-          return group;
-        }
-        if (p.tipStyle === 'sewing_button') {
-          const btnR = p.tipDia / 2, btnThick = Math.max(5.5, p.tipLen * 0.55);
-          const collarR = Math.max(boreMajorDia / 2 + 1.4, btnR * 0.48), collarH = 2.4;
-          group.add(new THREE.Mesh(buildFemaleThreadedSocketCollar(collarR, collarH + btnThick * 0.65, boreMajorDia, isThreaded, sliceCutaway), mat));
-          const discShape = new THREE.Shape();
-          discShape.absarc(0, 0, btnR, 0, sliceCutaway ? Math.PI : Math.PI * 2, false);
-          if (sliceCutaway) discShape.lineTo(0, 0);
-          const holeOffset = Math.max(boreMajorDia / 2 + 0.6, btnR * 0.32), holeR = Math.max(0.85, btnR * 0.10);
-          if (!sliceCutaway) {
-            [[holeOffset, holeOffset], [-holeOffset, holeOffset], [-holeOffset, -holeOffset], [holeOffset, -holeOffset]].forEach(([hx, hy]) => {
-              const hp = new THREE.Path(); hp.absarc(hx, hy, holeR, 0, Math.PI * 2, true); discShape.holes.push(hp);
-            });
-          }
-          const discGeo = new THREE.ExtrudeGeometry(discShape, { depth: btnThick * 0.65, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6, bevelSegments: 4 });
-          discGeo.translate(0, 0, collarH);
-          group.add(new THREE.Mesh(discGeo, mat));
-          const rimShape = new THREE.Shape();
-          rimShape.absarc(0, 0, btnR, 0, sliceCutaway ? Math.PI : Math.PI * 2, false);
-          if (!sliceCutaway) {
-            const innerRimPath = new THREE.Path(); innerRimPath.absarc(0, 0, btnR * 0.74, 0, Math.PI * 2, true); rimShape.holes.push(innerRimPath);
-          }
-          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: 1.6, bevelEnabled: true, bevelSize: 0.4, bevelThickness: 0.4, bevelSegments: 3 });
-          rimGeo.translate(0, 0, collarH + btnThick * 0.65);
-          group.add(new THREE.Mesh(rimGeo, mat));
-          const threadStickGeo = new THREE.CylinderGeometry(holeR * 0.78, holeR * 0.78, holeOffset * 2.85, 12);
-          [Math.PI / 4, -Math.PI / 4].forEach(ang => {
-            const stick = new THREE.Mesh(threadStickGeo.clone(), matDark);
-            stick.rotation.z = ang; stick.position.set(0, 0, collarH + btnThick * 0.65 + 0.55);
-            group.add(stick);
-          });
-          return group;
-        }
-        group.add(new THREE.Mesh(buildPrintReadyThreadedTipGeometry(p, sliceCutaway), mat));
-        return group;
-      }
-
-      function buildLegrandReferenceHardware(p, activeItems) {
-        clearAndDisposeGroup(legrandRefGroup);
-        const darkFrameMat = new THREE.MeshStandardMaterial({ color: 0x26292e, roughness: 0.65 });
-        const rockerMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.42, metalness: 0.04 });
-        const holeDarkMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
-
-        const frameW = p.chassisType === 4 ? 135.5 : 113.0;
-        const winW = p.chassisType === 4 ? 90.7 : 68.2;
-        const frameShape = createRoundedRectShape(frameW, 78.5, 1.2);
-        frameShape.holes.push(createRoundedRectPath(winW, 45.6, 0.5));
-        const hx = p.pinX / 2, hy = p.pinY / 2;
-        [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
-          const hPath = new THREE.Path();
-          hPath.absarc(px, py, p.pinDia / 2 + 0.1, 0, Math.PI * 2, true);
-          frameShape.holes.push(hPath);
-        });
-        const frameGeo = new THREE.ExtrudeGeometry(frameShape, { depth: 3.2, bevelEnabled: false });
-        frameGeo.translate(0, 0, p.rimD - 3.2);
-        legrandRefGroup.add(new THREE.Mesh(frameGeo, darkFrameMat));
-
-        const outletFrontZ = p.rimD + 5.2;
-        activeItems.forEach((item, idx) => {
-          if (item.kind === 'switch' || item.kind === 'switch_open') {
-            const gangTiltDeg = (idx % 2 === 1) ? -p.tAng : p.tAng;
-            const rockerPivot = new THREE.Group();
-            rockerPivot.position.set(item.cx, 0, p.rimD + 5.8);
-            rockerPivot.rotation.x = THREE.MathUtils.degToRad(gangTiltDeg);
-            const paddleGeo = new THREE.BoxGeometry(21.8, 44.2, 5.2);
-            paddleGeo.translate(0, 0, -2.6);
-            rockerPivot.add(new THREE.Mesh(paddleGeo, rockerMat));
-            legrandRefGroup.add(rockerPivot);
-          } else if (item.kind === 'outlet1m') {
-            const outGrp = new THREE.Group();
-            outGrp.position.set(item.cx, 0, outletFrontZ);
-            const bodyGeo = new THREE.BoxGeometry(22.1, 44.6, 8.4);
-            bodyGeo.translate(0, 0, -4.2);
-            outGrp.add(new THREE.Mesh(bodyGeo, rockerMat));
-            [-9.5, 9.5].forEach(py => {
-              const pinHole = new THREE.CylinderGeometry(2.3, 2.3, 2.0, 16);
-              pinHole.rotateX(Math.PI / 2); pinHole.translate(0, py, -0.8);
-              outGrp.add(new THREE.Mesh(pinHole, holeDarkMat));
-            });
-            legrandRefGroup.add(outGrp);
-          } else if (item.kind === 'schuko2m') {
-            const schukoGrp = new THREE.Group();
-            schukoGrp.position.set(item.cx, 0, outletFrontZ);
-            const bezelShape = createRoundedRectShape(44.6, 44.6, 0.8);
-            const wellHole = new THREE.Path(); wellHole.absarc(0, 0, 19.2, 0, Math.PI * 2, true);
-            bezelShape.holes.push(wellHole);
-            const bezelGeo = new THREE.ExtrudeGeometry(bezelShape, { depth: 8.4, bevelEnabled: false });
-            bezelGeo.translate(0, 0, -8.4);
-            schukoGrp.add(new THREE.Mesh(bezelGeo, rockerMat));
-            const floorGeo = new THREE.CylinderGeometry(19.5, 19.5, 2.0, 32);
-            floorGeo.rotateX(Math.PI / 2); floorGeo.translate(0, 0, -7.8);
-            schukoGrp.add(new THREE.Mesh(floorGeo, rockerMat));
-            [-9.5, 9.5].forEach(px => {
-              const pinHole = new THREE.CylinderGeometry(2.3, 2.3, 2.0, 16);
-              pinHole.rotateX(Math.PI / 2); pinHole.translate(px, 0, -6.6);
-              schukoGrp.add(new THREE.Mesh(pinHole, holeDarkMat));
-            });
-            legrandRefGroup.add(schukoGrp);
-          }
-        });
-      }
-
-      function rebuildEdgesOverlay() {
-        clearAndDisposeGroup(edgesGroup);
-        if (!showCadEdges || isWireframe) return;
-        const edgeMat = new THREE.LineBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.30 });
-        const targets = isKnobOnly ? [toggleStemGroup, toggleTipGroup] : [chassisGroup, faceplateGroup, overlayGroup, toggleStemGroup, toggleTipGroup];
-        targets.forEach(grp => {
-          grp.traverse(child => {
-            if (child.isMesh && child.geometry) {
-              const eGeo = new THREE.EdgesGeometry(child.geometry, 28);
-              const line = new THREE.LineSegments(eGeo, edgeMat);
-              child.updateWorldMatrix(true, false);
-              line.applyMatrix4(child.matrixWorld);
-              edgesGroup.add(line);
-            }
-          });
-        });
-      }
-
       // --- MAIN REBUILD ---
       let lastAutoModeState = '';
       function rebuildModel() {
@@ -2378,7 +1855,6 @@
 
         const matA = createGlossMat(p.colA, isWireframe);
         const matB = createGlossMat(p.colB, isWireframe);
-        // In 2-Part Full-Top Float mode (like the Brushed Alu-Blade reference with a dark shadow-gap sub-base), Part 1 uses Stripe/Base B color if not striped!
         const matBase = (!isAnyStripes && isFullTopSwap && p.sideSkirt === 'float_top') ? matB : matA;
 
         const rockerBoxW = (p.chassisType === 4 ? 91.1 : 68.6);
@@ -2447,37 +1923,59 @@
         const centralHoleW = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayW + 0.35) : rockerBoxW;
         const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : rockerBoxH;
 
-        // --- PART 1: MINIMALIST SKELETON SUB-FRAME OR STANDARD BASE ---
+        // --- PART 1: CONNECTED 1-PIECE SKELETON SUB-FRAME OR STANDARD BASE ---
+        const skelTurretWall = 2.2;
         if (isSkeletonBase) {
           const skelClearW = p.inW - 0.8;
           const skelClearH = p.inH - 0.8;
-          const skelTurretWall = 2.0;
           const skelInnerW = rockerBoxW;
           const skelInnerH = rockerBoxH;
           const skelTurretOuterW = skelInnerW + skelTurretWall * 2;
           const skelTurretOuterH = skelInnerH + skelTurretWall * 2;
 
           if (isScrewTabs) {
-            const earSpanW = Math.min(skelClearW, Math.max(skelTurretOuterW, p.screwX + p.screwDia + 9.0));
-            const earWingH = Math.max(16.0, p.screwDia + 10.0);
-
-            const wingShape = createRoundedRectShape(earSpanW, earWingH, 3.0);
-            wingShape.holes.push(createRoundedRectPath(skelInnerW, Math.min(earWingH - 4.0, skelInnerH), 1.2));
+            // FIXED IN v24: Open-Center 2-Screw Skeleton!
+            const earSpanW = Math.min(skelClearW, Math.max(skelTurretOuterW + 16.0, p.screwX + p.screwDia + 9.5));
+            const earWingH = Math.max(18.0, p.screwDia + 11.0);
             const sx = p.screwX / 2;
-            wingShape.holes.push(createTranslatedRectHolePath(-sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
-            wingShape.holes.push(createTranslatedRectHolePath(sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
-            const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: lugThickness, bevelEnabled: false });
-            wingGeo.translate(0, 0, p.rimD);
-            chassisGroup.add(new THREE.Mesh(wingGeo, matBase));
+
+            [-1, 1].forEach(dir => {
+              const innerEdgeX = dir * (skelInnerW / 2);
+              const outerEdgeX = dir * (earSpanW / 2);
+              const xMin = Math.min(innerEdgeX, outerEdgeX);
+              const xMax = Math.max(innerEdgeX, outerEdgeX);
+              const wWing = xMax - xMin;
+              const cxWing = (xMin + xMax) * 0.5;
+
+              const wingPts = getRoundedRectPoints(wWing, earWingH, 2.5, 12);
+              wingPts.forEach(pt => { pt.x += cxWing; });
+              const wingShape = new THREE.Shape(wingPts);
+              wingShape.holes.push(createTranslatedRectHolePath(dir * sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
+
+              const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: lugThickness, bevelEnabled: false });
+              wingGeo.translate(0, 0, p.rimD);
+              chassisGroup.add(new THREE.Mesh(wingGeo, matBase));
+            });
 
             const turretShape = createRoundedRectShape(skelTurretOuterW, skelTurretOuterH, 2.4);
             turretShape.holes.push(createRoundedRectPath(skelInnerW, skelInnerH, 1.2));
-            const turretGeo = new THREE.ExtrudeGeometry(turretShape, { depth: zFaceBack, bevelEnabled: false });
+            const turretGeo = new THREE.ExtrudeGeometry(turretShape, { depth: zFaceBack - p.rimD, bevelEnabled: false });
+            turretGeo.translate(0, 0, p.rimD);
             chassisGroup.add(new THREE.Mesh(turretGeo, matBase));
 
           } else {
-            const skelPlateShape = createRoundedRectShape(skelClearW, skelClearH, 1.5);
-            skelPlateShape.holes.push(createFreeCAD4LugCutoutHolePath(skelClearW - 5.0, skelClearH - 5.0, p.pinX, p.pinY, p.pinDia));
+            // FIXED IN v24: 1-Piece Connected Factory H-Pin Skeleton Web!
+            const skelPlateShape = createRoundedRectShape(skelClearW, skelClearH, 2.0);
+            skelPlateShape.holes.push(createRoundedRectPath(skelInnerW, skelInnerH, 1.2));
+
+            const cutW = Math.max(16.0, skelInnerW - 22.0);
+            const cutH = Math.max(4.5, (skelClearH - skelTurretOuterH) * 0.5 - 5.5);
+            if (cutH > 2.5) {
+              const yCut = (skelTurretOuterH / 2) + 2.0 + cutH / 2;
+              skelPlateShape.holes.push(createTranslatedRectHolePath(0, yCut, cutW, cutH, 1.5));
+              skelPlateShape.holes.push(createTranslatedRectHolePath(0, -yCut, cutW, cutH, 1.5));
+            }
+
             const skelPlateGeo = new THREE.ExtrudeGeometry(skelPlateShape, { depth: lugThickness, bevelEnabled: false });
             skelPlateGeo.translate(0, 0, p.rimD);
             chassisGroup.add(new THREE.Mesh(skelPlateGeo, matBase));
@@ -2499,7 +1997,7 @@
             }
           }
 
-          chassisGroup.add(buildOuterCollarRetentionFeatures(p, skelInnerW, skelInnerH, 1.2, zFaceBack, matBase));
+          chassisGroup.add(buildOuterCollarRetentionFeatures(p, skelInnerW, skelInnerH, skelTurretWall, zFaceBack, matBase));
 
         } else if (isSlipOver) {
           const cavShape = new THREE.Shape(baseOutlinePts);
@@ -2507,7 +2005,7 @@
           const cavGeo = new THREE.ExtrudeGeometry(cavShape, { depth: collarTopZ, bevelEnabled: false });
           chassisGroup.add(new THREE.Mesh(cavGeo, matBase));
           chassisGroup.add(buildSlipOverSnapLipGroup(p, matBase));
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, inlayW, inlayH, inlayCornerR, zFaceBack, matBase));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, skelTurretWall, zFaceBack, matBase));
 
         } else if (isScrewTabs) {
           if (p.rimD > 0.05) {
@@ -2529,7 +2027,7 @@
             riserGeo.translate(0, 0, zLugTop);
             chassisGroup.add(new THREE.Mesh(riserGeo, matBase));
           }
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matBase));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, skelTurretWall, zFaceBack, matBase));
 
         } else {
           if (p.rimD > 0.05) {
@@ -2567,7 +2065,7 @@
               chassisGroup.add(new THREE.Mesh(turretWallGeo, matBase));
             }
           }
-          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, inlayCornerR, zFaceBack, matBase));
+          if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, skelTurretWall, zFaceBack, matBase));
         }
 
         // --- PART 2: SWAPPABLE FACEPLATE (INLAY OR FULL-TOP) OR MONOLITHIC FRONT ---
@@ -2705,7 +2203,7 @@
           if (isTwoPart) {
             const snapPocketW = isSkeletonBase ? rockerBoxW : centralHoleW;
             const snapPocketH = isSkeletonBase ? rockerBoxH : centralHoleH;
-            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, snapPocketW, snapPocketH, inlayCornerR, zFaceBack, matA));
+            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, snapPocketW, snapPocketH, skelTurretWall, zFaceBack, matA));
           }
         }
 
@@ -2892,7 +2390,7 @@
         rebuildModel();
       });
 
-      const STORAGE_KEY = 'arteor_cad_v23_profiles';
+      const STORAGE_KEY = 'arteor_cad_v24_profiles';
       const PARAM_IDS = [
         'inp-fixmode', 'inp-coverbuild', 'inp-sideskirt', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb',
         'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz',
@@ -2952,7 +2450,7 @@
       }
 
       document.getElementById('btn-prof-save').addEventListener('click', () => {
-        const name = prompt('Enter a name for this switch profile:', `Arteor v23 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+        const name = prompt('Enter a name for this switch profile:', `Arteor v24 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
         if (!name) return;
         const map = getStoredProfiles();
         map[name] = captureProfileData();
@@ -2974,7 +2472,7 @@
       });
       document.getElementById('btn-prof-export').addEventListener('click', () => {
         const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(captureProfileData(), null, 2));
-        const a = document.createElement('a'); a.href = str; a.download = 'arteor_v23_profile.json'; a.click();
+        const a = document.createElement('a'); a.href = str; a.download = 'arteor_v24_profile.json'; a.click();
       });
       document.getElementById('btn-prof-import').addEventListener('click', () => document.getElementById('file-prof-import').click());
       document.getElementById('file-prof-import').addEventListener('change', (e) => {
@@ -2996,7 +2494,6 @@
         if (!lockedCats.colors) document.getElementById('inp-multicolorknobs').checked = false;
 
         if (name === 'alublade') {
-          // 1. ARCHITECTURAL BRUSHED ALU + STADIUM BLADE (`banner_rocker_alu_grey.jpg`)
           setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_magnets');
           setIfUnlocked('fixation', 'inp-sideskirt', 'float_top');
@@ -3020,7 +2517,6 @@
           showStatusBanner('💊 Architectural Alu-Blade Active: Sharp 0.8mm Plate + Stadium Fin Toggle + Dark Shadow Sub-Base');
 
         } else if (name === 'bpknurl') {
-          // 2. BUSTER + PUNCH DIAMOND KNURLED BARREL + BEVELED ESCUTCHEON (`IMG_7838.jpg`)
           setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
           setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
@@ -3044,7 +2540,6 @@
           showStatusBanner('🔩 Buster + Punch Style Active: 3D Diamond-Knurled Barrel + Beveled Escutcheon Washer');
 
         } else if (name === 'dimwit') {
-          // 3. DIMWIT CONCAVE THUMB-DIMPLE PEBBLE (`IMG_7839.jpg`)
           setIfUnlocked('fixation', 'inp-fixmode', 'hpins');
           setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_magnets');
           setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
@@ -3282,29 +2777,29 @@
       document.getElementById('btn-exp-cover').addEventListener('click', () => {
         const p = getParams(), combined = new THREE.Group();
         combined.add(chassisGroup.clone(true), faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(combined, `Arteor_v23_FullAssembly_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(combined, `Arteor_v24_FullAssembly_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-chassis').addEventListener('click', () => {
         const p = getParams();
-        downloadPrintReadySTL(chassisGroup, `Arteor_v23_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(chassisGroup, `Arteor_v24_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-faceplate').addEventListener('click', () => {
         const p = getParams(), faceCombined = new THREE.Group();
         faceCombined.add(faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(faceCombined, `Arteor_v23_Part2_SwappableCover_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceCombined, `Arteor_v24_Part2_SwappableCover_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
         const p = getParams(), stem = buildKnobBaseAndStem(p);
         if (p.tipJoint === 'onepiece' || p.tipStyle === 'bat') {
           const tip = buildKnobTipVolume(p, false); tip.position.z = p.footT + p.tLen; stem.add(tip);
         }
-        downloadPrintReadySTL(stem, `Arteor_v23_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
+        downloadPrintReadySTL(stem, `Arteor_v24_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
       });
       document.getElementById('btn-exp-tip').addEventListener('click', () => {
         const p = getParams(), tip = buildKnobTipVolume(p, false);
-        downloadPrintReadySTL(tip, `Arteor_v23_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
+        downloadPrintReadySTL(tip, `Arteor_v24_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
       });
-      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v23_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
+      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v24_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
