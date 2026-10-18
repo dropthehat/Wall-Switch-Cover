@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v24 — 1-Piece Skeleton Web, Open 2-Screw Base & Safe Magnets</title>
+  <title>ArteorCAD v25 — 1-Piece Skeleton Web, Open 2-Screw Base & Safe Magnets</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -45,7 +45,7 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v24.0 Studio</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v25.0 Studio</span></h1>
         </div>
         <p class="text-[10px] text-slate-400">1-Piece Skeleton Web • Open 2-Screw Base • Safe Magnets & Snaps</p>
       </div>
@@ -610,15 +610,16 @@
 
     <!-- EXPORT FOOTER -->
     <div class="p-3 border-t border-slate-800 bg-slate-950 space-y-1.5">
-      <div class="grid grid-cols-3 gap-1.5">
-        <button id="btn-exp-cover" class="py-2 px-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-[11px] shadow-lg transition truncate">⬇ STL: Full Plate</button>
-        <button id="btn-exp-chassis" class="py-2 px-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-[11px] shadow-lg transition truncate">⬇ STL: Part 1 Base</button>
-        <button id="btn-exp-faceplate" class="py-2 px-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg text-[11px] shadow-lg transition truncate">⬇ STL: Part 2 Cover</button>
+      <div class="grid grid-cols-4 gap-1.5">
+        <button id="btn-exp-chassis" class="py-2 px-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-[10px] shadow-lg transition truncate" title="Export Part 1 Skeleton / Base">⬇ Part 1: Base</button>
+        <button id="btn-exp-faceplate-bare" class="py-2 px-1.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg text-[10px] shadow-lg transition truncate" title="Export Part 2 Cover WITHOUT Waffle/Overlay (for separate printing & gluing)">⬇ Part 2: Bare Cover</button>
+        <button id="btn-exp-ov" class="py-2 px-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-[10px] shadow-lg transition truncate" title="Export Waffle / 3D Overlay ONLY (flat on Z=0 for gluing)">⬇ Waffle / Overlay</button>
+        <button id="btn-exp-faceplate" class="py-2 px-1.5 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-[10px] shadow-lg transition truncate" title="Export Part 2 Cover + Overlay merged together">⬇ Cover + Overlay</button>
       </div>
       <div class="grid grid-cols-3 gap-1.5">
         <button id="btn-exp-stem" class="py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate">⬇ STL: Stem (+Thread)</button>
         <button id="btn-exp-tip" class="py-1 px-2 bg-amber-300 hover:bg-amber-200 text-slate-950 font-semibold rounded text-[10px] transition truncate">⬇ STL: Tip (-Thread)</button>
-        <button id="btn-exp-ov" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">AMS: Overlays</button>
+        <button id="btn-exp-cover" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">⬇ Full Assembly STL</button>
       </div>
     </div>
   </aside>
@@ -1106,8 +1107,8 @@
         pts.reverse();
         return [
           new THREE.Path(pts),
-          createTranslatedRectHolePath(-screwX, 0, screwHoleDia + 2.2, screwHoleDia, screwHoleDia / 2),
-          createTranslatedRectHolePath(screwX, 0, screwHoleDia + 2.2, screwHoleDia, screwHoleDia / 2)
+          createTranslatedRectHolePath(-screwX, 0, screwHoleDia, screwHoleDia + 3.2, screwHoleDia / 2),
+          createTranslatedRectHolePath(screwX, 0, screwHoleDia, screwHoleDia + 3.2, screwHoleDia / 2)
         ];
       }
 
@@ -1474,13 +1475,13 @@
         }
 
         if (isSnaps) {
-          const ribLen = 14.0, ribProtrude = 1.45, ribZ = 2.4;
-          const zCatchCenter = zFaceBack - 2.3;
+          const ribLen = 13.0, ribProtrude = 0.85, ribZ = 2.0;
+          const zCatchCenter = zFaceBack - 2.1;
 
           [-clearWinW * 0.26, clearWinW * 0.26].forEach(x => {
             if (isInlay) {
               // Inlay mode: catch ledges protrude INWARD from the top/bottom inlay walls
-              const yCatch = (clearWinH / 2) - ribProtrude / 2 + 0.15;
+              const yCatch = (clearWinH / 2) - ribProtrude / 2 + 0.1;
               const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
               topRib.position.set(x, yCatch, zCatchCenter);
               group.add(topRib);
@@ -1491,7 +1492,7 @@
             } else {
               // Full-Top / Skeleton mode: prominent locking catches protrude OUTWARD from the top/bottom walls of the central switch turret
               const yTurretOuter = (clearWinH / 2) + turretWallT;
-              const yCatch = yTurretOuter + ribProtrude / 2 - 0.1;
+              const yCatch = yTurretOuter + ribProtrude / 2 - 0.05;
 
               const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
               topRib.position.set(x, yCatch, zCatchCenter);
@@ -1557,27 +1558,27 @@
         const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
 
         if (isSnaps) {
-          const tabW = 13.6, wallT = 1.65, tabDepth = 4.6, barbOut = 1.35;
+          const tabW = 13.2, wallT = 1.6, tabDepth = 5.0, barbOut = 0.85, snapWallClearance = 0.50;
           function makeCantileverSnapTab(isTop) {
             const shape = new THREE.Shape();
             if (isInlay) {
               // Sits inside the inlay opening and hooks OUTWARD under the inlay catch ledge
               const dir = isTop ? 1 : -1;
-              const yInnerFace = isTop ? (clearWinH / 2 - 1.35) : (-clearWinH / 2 + 1.35);
+              const yInnerFace = isTop ? (clearWinH / 2 - 0.95) : (-clearWinH / 2 + 0.95);
               shape.moveTo(yInnerFace - dir * wallT, 0);
               shape.lineTo(yInnerFace - dir * wallT, -tabDepth);
-              shape.lineTo(yInnerFace + dir * barbOut, -tabDepth + 0.9);
-              shape.lineTo(yInnerFace, -tabDepth + 1.9);
+              shape.lineTo(yInnerFace + dir * barbOut, -tabDepth + 1.0);
+              shape.lineTo(yInnerFace, -tabDepth + 1.8);
               shape.lineTo(yInnerFace, 0);
               shape.closePath();
             } else {
               // Sits flush against the outer wall of the central turret and hooks INWARD under the turret catch ledge
               const dir = isTop ? 1 : -1;
-              const yTurretOuter = dir * (clearWinH / 2 + turretWallT + 0.15);
+              const yTurretOuter = dir * (clearWinH / 2 + turretWallT + snapWallClearance);
               shape.moveTo(yTurretOuter + dir * wallT, 0);
               shape.lineTo(yTurretOuter + dir * wallT, -tabDepth);
-              shape.lineTo(yTurretOuter - dir * barbOut, -tabDepth + 0.9);
-              shape.lineTo(yTurretOuter, -tabDepth + 1.9);
+              shape.lineTo(yTurretOuter - dir * barbOut, -tabDepth + 1.0);
+              shape.lineTo(yTurretOuter, -tabDepth + 1.8);
               shape.lineTo(yTurretOuter, 0);
               shape.closePath();
             }
@@ -2000,7 +2001,7 @@
         // 2 Universal wall-box screw keyhole slots
         const sx = p.screwX / 2;
         [-sx, sx].forEach(xPos => {
-          frameShape.holes.push(createTranslatedRectHolePath(xPos, 0, p.screwDia + 2.5, p.screwDia, p.screwDia / 2));
+          frameShape.holes.push(createTranslatedRectHolePath(xPos, 0, p.screwDia, p.screwDia + 3.2, p.screwDia / 2));
         });
 
         const frameGeo = new THREE.ExtrudeGeometry(frameShape, { depth: frameThick, bevelEnabled: false });
@@ -2558,8 +2559,8 @@
         const matB = createGlossMat(p.colB, isWireframe);
         const matBase = (!isAnyStripes && isFullTopSwap && p.sideSkirt === 'float_top') ? matB : matA;
 
-        const rockerBoxW = (p.chassisType === 4 ? 91.1 : 68.6);
-        const rockerBoxH = Math.max(46.2, p.modH + 0.8);
+        const rockerBoxW = (p.chassisType === 4 ? 92.3 : 69.8); // +1.2mm for free rocking
+        const rockerBoxH = Math.max(47.4, p.modH + 2.0);
 
         const lugThickness = isScrewTabs ? p.screwTabZ : p.lugT;
         const zLugTop = p.rimD + lugThickness;
@@ -2625,7 +2626,7 @@
         const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : rockerBoxH;
 
         // --- PART 1: CONNECTED 1-PIECE SKELETON SUB-FRAME OR STANDARD BASE ---
-        const skelTurretWall = 2.2;
+        const skelTurretWall = 2.8; // stiffened from 2.2mm
         if (isSkeletonBase) {
           const skelClearW = p.inW - 0.8;
           const skelClearH = p.inH - 0.8;
@@ -2637,7 +2638,7 @@
           if (isScrewTabs) {
             // FIXED IN v24: Open-Center 2-Screw Skeleton!
             const earSpanW = Math.min(skelClearW, Math.max(skelTurretOuterW + 16.0, p.screwX + p.screwDia + 9.5));
-            const earWingH = Math.max(18.0, p.screwDia + 11.0);
+            const earWingH = Math.max(20.0, p.screwDia + 13.0);
             const sx = p.screwX / 2;
 
             [-1, 1].forEach(dir => {
@@ -2651,7 +2652,7 @@
               const wingPts = getRoundedRectPoints(wWing, earWingH, 2.5, 12);
               wingPts.forEach(pt => { pt.x += cxWing; });
               const wingShape = new THREE.Shape(wingPts);
-              wingShape.holes.push(createTranslatedRectHolePath(dir * sx, 0, p.screwDia + 2.2, p.screwDia, p.screwDia / 2));
+              wingShape.holes.push(createTranslatedRectHolePath(dir * sx, 0, p.screwDia, p.screwDia + 3.2, p.screwDia / 2)); // vertical pill
 
               const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: lugThickness, bevelEnabled: false });
               wingGeo.translate(0, 0, p.rimD);
@@ -3484,10 +3485,18 @@
         const p = getParams();
         downloadPrintReadySTL(chassisGroup, `Arteor_v24_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
       });
+      // Part 2 Cover ONLY (no Waffle / overlay) so the top is flat for separate printing and gluing
+      document.getElementById('btn-exp-faceplate-bare').addEventListener('click', () => {
+        const p = getParams(), faceBare = new THREE.Group();
+        faceBare.add(faceplateGroup.clone(true), bubblesGroup.clone(true));
+        downloadPrintReadySTL(faceBare, `Arteor_v25_Part2_BareCover_NoOverlay_${p.coverBuild}.stl`);
+      });
+
+      // Part 2 Cover + Overlay merged (single-piece / AMS printing)
       document.getElementById('btn-exp-faceplate').addEventListener('click', () => {
         const p = getParams(), faceCombined = new THREE.Group();
         faceCombined.add(faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(faceCombined, `Arteor_v24_Part2_SwappableCover_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceCombined, `Arteor_v25_Part2_CoverWithOverlay_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
         const p = getParams(), stem = buildKnobBaseAndStem(p);
