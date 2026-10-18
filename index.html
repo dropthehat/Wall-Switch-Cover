@@ -97,6 +97,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span id="badge-fixation" class="text-[10px] font-mono text-emerald-400">H-Pins • Skeleton</span>
+            <button class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-300 border border-slate-700 transition" onclick="resetCat('fixation', event)" title="Reset Step 1 to defaults">↺ Reset</button>
             <button class="lock-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700" onclick="toggleLock('fixation', event)">🔓</button>
           </div>
         </div>
@@ -224,6 +225,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span id="hud-outer-dims" class="text-[10px] font-mono text-sky-300">119.5 × 84.5 mm</span>
+            <button class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-sky-300 border border-slate-700 transition" onclick="resetCat('chassis', event)" title="Reset Step 2 to defaults">↺ Reset</button>
             <button class="lock-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700" onclick="toggleLock('chassis', event)">🔓</button>
           </div>
         </div>
@@ -665,10 +667,57 @@
     const lockedCats = { fixation: false, chassis: false, modules: false, plate: false, overlay: false, knob: false, colors: false };
     let allCollapsed = false;
 
+    const DEFAULT_CAT_VALUES = {
+      fixation: {
+        'inp-fixmode': 'hpins',
+        'inp-coverbuild': 'fulltop_snaps',
+        'inp-sideskirt': 'skeleton_wrap',
+        'inp-pindia': 5.25,
+        'inp-pinl': 5.2,
+        'inp-pinribs': 4,
+        'inp-ribdepth': 0.35,
+        'inp-pinx': 94.2,
+        'inp-piny': 53.3,
+        'inp-lugt': 1.4,
+        'inp-hweb': 0.9,
+        'inp-lipbite': 0.65,
+        'inp-liph': 2.2,
+        'inp-lipedges': 'topbot',
+        'inp-screwx': 83.5,
+        'inp-screwdia': 4.2,
+        'inp-screwtabz': 2.4
+      },
+      chassis: {
+        'inp-chassistype': '3',
+        'inp-deckmode': 'compact_flush',
+        'inp-inw': 114.5,
+        'inp-inh': 79.5,
+        'inp-rimd': 3.2,
+        'inp-swclear': 11.0,
+        'inp-corner': 8.0,
+        'inp-wall': 2.5,
+        'inp-face': 2.6,
+        'inp-deckdrop': 5.0
+      }
+    };
+
     function toggleCat(cat, evt) {
-      if (evt && (evt.target.closest('.lock-btn') || evt.target.closest('#btn-load-plate-mesh') || evt.target.closest('#btn-load-knob-mesh'))) return;
+      if (evt && (evt.target.closest('.lock-btn') || evt.target.closest('button') || evt.target.closest('#btn-load-plate-mesh') || evt.target.closest('#btn-load-knob-mesh'))) return;
       const card = document.querySelector(`.cat-card[data-cat="${cat}"]`);
       if (card) card.classList.toggle('collapsed');
+    }
+
+    function resetCat(cat, evt) {
+      if (evt) evt.stopPropagation();
+      if (lockedCats[cat]) return;
+      const defs = DEFAULT_CAT_VALUES[cat];
+      if (!defs) return;
+      Object.entries(defs).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+      const firstEl = document.getElementById(Object.keys(defs)[0]);
+      if (firstEl) firstEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function toggleLock(cat, evt) {
@@ -1382,15 +1431,28 @@
         return group;
       }
 
-      // --- FIXED IN v24: MAGNETS & SNAPS SIT OUTSIDE THE CENTRAL SWITCH WINDOW ON THE SOLID SURROUND ---
-      function getSafeCornerMagnetCenters(clearWinW, clearWinH, inW, inH, bossOuterR = 4.5) {
-        // Places the 4 magnet bosses on the solid left/right surround outside the switch window (clearWinW),
-        // and at Y = ±15.5mm so they NEVER touch the central switch rockers AND never collide with the 4 corner H-pins (Y = ±26.65mm) or 2-screw slots (Y = 0)!
-        const minSafeX = clearWinW / 2 + bossOuterR + 1.2;
-        const maxSafeX = inW / 2 - bossOuterR - 1.5;
-        const cx = Math.min(maxSafeX, Math.max(minSafeX, (minSafeX + maxSafeX) * 0.5));
-        const cy = Math.min(inH / 2 - bossOuterR - 2.0, 15.5);
-        return [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]];
+      // --- UNIFIED SNAP & MAGNET RETENTION SYSTEM (ZERO FLOATING PARTS, POSITIVE LOCKING) ---
+      function getRetentionMagnetCenters(p, clearWinW, clearWinH, turretWallT, bossOuterR = 4.5) {
+        const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
+        const isFullTop = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets');
+        const isSkeleton = isFullTop && (p.sideSkirt === 'skeleton_wrap') && (p.fixMode !== 'slipover');
+
+        if (isSkeleton) {
+          // Mount directly onto the left/right outer walls of the central switch turret so both H-Pin and 2-Screw Skeletons have 100% solid backing!
+          const cx = (clearWinW / 2) + turretWallT + bossOuterR - 0.9;
+          const cy = Math.min(clearWinH / 2 - bossOuterR + 1.0, 15.0);
+          return { mode: 'turret_sides', centers: [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]] };
+        } else if (isInlay) {
+          // Mount inside the 4 inner corners of the fixed outer rim (fused into the outer perimeter walls)
+          const cx = (clearWinW / 2) - bossOuterR - 0.6;
+          const cy = (clearWinH / 2) - bossOuterR - 0.6;
+          return { mode: 'inlay_corners', centers: [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]] };
+        } else {
+          // Full-Top with Minimal Rim (float_top) or Wrap Sides: mount on the central turret outer sides
+          const cx = (clearWinW / 2) + turretWallT + bossOuterR - 0.9;
+          const cy = 15.0;
+          return { mode: 'turret_sides', centers: [[-cx, cy], [cx, cy], [-cx, -cy], [cx, -cy]] };
+        }
       }
 
       function buildOuterCollarRetentionFeatures(p, clearWinW, clearWinH, turretWallT, zFaceBack, mat) {
@@ -1398,44 +1460,91 @@
         const isSnaps = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'fulltop_snaps');
         const isMagnets = (p.coverBuild === 'inlay_magnets' || p.coverBuild === 'fulltop_magnets');
         const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
+        const isFullTop = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets');
+        const isSkeleton = isFullTop && (p.sideSkirt === 'skeleton_wrap') && (p.fixMode !== 'slipover');
+
+        // Ensure non-skeleton Full-Top modes (like float_top or full_hollow) always have the central turret wall for snaps/magnets to anchor onto
+        if (isFullTop && !isSkeleton) {
+          const collarH = Math.max(4.8, zFaceBack - p.rimD);
+          const turretShape = createRoundedRectShape(clearWinW + turretWallT * 2, clearWinH + turretWallT * 2, 2.4);
+          turretShape.holes.push(createRoundedRectPath(clearWinW, clearWinH, 1.2));
+          const turretGeo = new THREE.ExtrudeGeometry(turretShape, { depth: collarH, bevelEnabled: false });
+          turretGeo.translate(0, 0, zFaceBack - collarH);
+          group.add(new THREE.Mesh(turretGeo, mat));
+        }
 
         if (isSnaps) {
-          const ribLen = 14.0, ribProtrude = 1.25, ribZ = 2.4;
-          // In Full-Top mode, snap catches sit on the OUTER top/bottom walls of the central switch turret so the switch window stays 100% clear!
-          // In Inlay mode, they sit on the outer inlay perimeter wall (inlayH / 2), far outside the switch rockers.
-          const yCatch = isInlay
-            ? (clearWinH / 2 - ribProtrude / 2 + 0.2)
-            : (clearWinH / 2 + turretWallT + ribProtrude / 2 - 0.15);
+          const ribLen = 14.0, ribProtrude = 1.45, ribZ = 2.4;
+          const zCatchCenter = zFaceBack - 2.3;
 
           [-clearWinW * 0.26, clearWinW * 0.26].forEach(x => {
-            const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
-            topRib.position.set(x, yCatch, zFaceBack - ribZ / 2 - 1.2);
-            group.add(topRib);
-            const botRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
-            botRib.position.set(x, -yCatch, zFaceBack - ribZ / 2 - 1.2);
-            group.add(botRib);
+            if (isInlay) {
+              // Inlay mode: catch ledges protrude INWARD from the top/bottom inlay walls
+              const yCatch = (clearWinH / 2) - ribProtrude / 2 + 0.15;
+              const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
+              topRib.position.set(x, yCatch, zCatchCenter);
+              group.add(topRib);
+
+              const botRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
+              botRib.position.set(x, -yCatch, zCatchCenter);
+              group.add(botRib);
+            } else {
+              // Full-Top / Skeleton mode: prominent locking catches protrude OUTWARD from the top/bottom walls of the central switch turret
+              const yTurretOuter = (clearWinH / 2) + turretWallT;
+              const yCatch = yTurretOuter + ribProtrude / 2 - 0.1;
+
+              const topRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
+              topRib.position.set(x, yCatch, zCatchCenter);
+              group.add(topRib);
+
+              const botRib = new THREE.Mesh(new THREE.BoxGeometry(ribLen, ribProtrude, ribZ), mat);
+              botRib.position.set(x, -yCatch, zCatchCenter);
+              group.add(botRib);
+            }
           });
         } else if (isMagnets) {
-          const bossOuterR = 4.5, magHoleR = 3.1, pocketDepth = 2.1, floorThick = 1.2;
+          const bossOuterR = 4.5, magHoleR = 3.1, pocketDepth = 2.2;
+          const totalBossH = Math.max(pocketDepth + 1.4, zFaceBack - p.rimD);
+          const zBottom = zFaceBack - totalBossH;
+
           const bossShape = new THREE.Shape();
           bossShape.absarc(0, 0, bossOuterR, 0, Math.PI * 2, false);
           const magPath = new THREE.Path();
           magPath.absarc(0, 0, magHoleR, 0, Math.PI * 2, true);
           bossShape.holes.push(magPath);
 
-          const totalBossH = Math.max(pocketDepth + floorThick, zFaceBack - p.rimD);
           const ringGeo = new THREE.ExtrudeGeometry(bossShape, { depth: pocketDepth, bevelEnabled: false });
-          const pillarGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, totalBossH - pocketDepth, 28);
+          const pillarH = Math.max(0.8, totalBossH - pocketDepth);
+          const pillarGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, pillarH, 28);
           pillarGeo.rotateX(Math.PI / 2);
 
-          getSafeCornerMagnetCenters(clearWinW, clearWinH, p.inW, p.inH, bossOuterR).forEach(([bx, by]) => {
+          const magInfo = getRetentionMagnetCenters(p, clearWinW, clearWinH, turretWallT, bossOuterR);
+          magInfo.centers.forEach(([bx, by]) => {
             const rClone = ringGeo.clone();
             rClone.translate(bx, by, zFaceBack - pocketDepth);
             group.add(new THREE.Mesh(rClone, mat));
 
             const fClone = pillarGeo.clone();
-            fClone.translate(bx, by, zFaceBack - pocketDepth - (totalBossH - pocketDepth) / 2);
+            fClone.translate(bx, by, zBottom + pillarH / 2);
             group.add(new THREE.Mesh(fClone, mat));
+
+            // Structural bridge web so magnet holders NEVER float in 2-Screw Skeleton or Inlay modes
+            if (magInfo.mode === 'turret_sides') {
+              const xTurretEdge = (bx >= 0 ? 1 : -1) * (clearWinW / 2 + turretWallT * 0.5);
+              const webW = Math.abs(bx - xTurretEdge) + bossOuterR * 0.6;
+              const webX = (bx + xTurretEdge) * 0.5;
+              const webGeo = new THREE.BoxGeometry(webW, bossOuterR * 1.75, totalBossH);
+              webGeo.translate(webX, by, zBottom + totalBossH / 2);
+              group.add(new THREE.Mesh(webGeo, mat));
+            } else if (magInfo.mode === 'inlay_corners') {
+              const xWall = (bx >= 0 ? 1 : -1) * (clearWinW / 2 + 0.8);
+              const yWall = (by >= 0 ? 1 : -1) * (clearWinH / 2 + 0.8);
+              const webW = Math.abs(xWall - bx) + bossOuterR * 0.8;
+              const webH = Math.abs(yWall - by) + bossOuterR * 0.8;
+              const webGeo = new THREE.BoxGeometry(webW, webH, totalBossH);
+              webGeo.translate((bx + xWall) * 0.5, (by + yWall) * 0.5, zBottom + totalBossH / 2);
+              group.add(new THREE.Mesh(webGeo, mat));
+            }
           });
         }
         return group;
@@ -1448,28 +1557,35 @@
         const isInlay = (p.coverBuild === 'inlay_snaps' || p.coverBuild === 'inlay_magnets');
 
         if (isSnaps) {
-          const tabW = 13.0, wallT = 1.6, tabDepth = 4.8, barbOut = 1.1;
+          const tabW = 13.6, wallT = 1.65, tabDepth = 4.6, barbOut = 1.35;
           function makeCantileverSnapTab(isTop) {
-            // In Full-Top mode, the tab sits OUTSIDE the central turret wall (at Y = ±(clearWinH/2 + turretWallT)) and hooks INWARD toward the turret wall!
-            // In Inlay mode, the tab sits inside the outer inlay collar and hooks OUTWARD.
-            const hookDir = isInlay ? (isTop ? 1 : -1) : (isTop ? -1 : 1);
             const shape = new THREE.Shape();
-            shape.moveTo(0, 0);
-            shape.lineTo(0, -tabDepth);
-            shape.lineTo(hookDir * (wallT + barbOut), -tabDepth + 1.1);
-            shape.lineTo(hookDir * wallT, -tabDepth + 2.2);
-            shape.lineTo(hookDir * wallT, 0);
-            shape.closePath();
+            if (isInlay) {
+              // Sits inside the inlay opening and hooks OUTWARD under the inlay catch ledge
+              const dir = isTop ? 1 : -1;
+              const yInnerFace = isTop ? (clearWinH / 2 - 1.35) : (-clearWinH / 2 + 1.35);
+              shape.moveTo(yInnerFace - dir * wallT, 0);
+              shape.lineTo(yInnerFace - dir * wallT, -tabDepth);
+              shape.lineTo(yInnerFace + dir * barbOut, -tabDepth + 0.9);
+              shape.lineTo(yInnerFace, -tabDepth + 1.9);
+              shape.lineTo(yInnerFace, 0);
+              shape.closePath();
+            } else {
+              // Sits flush against the outer wall of the central turret and hooks INWARD under the turret catch ledge
+              const dir = isTop ? 1 : -1;
+              const yTurretOuter = dir * (clearWinH / 2 + turretWallT + 0.15);
+              shape.moveTo(yTurretOuter + dir * wallT, 0);
+              shape.lineTo(yTurretOuter + dir * wallT, -tabDepth);
+              shape.lineTo(yTurretOuter - dir * barbOut, -tabDepth + 0.9);
+              shape.lineTo(yTurretOuter, -tabDepth + 1.9);
+              shape.lineTo(yTurretOuter, 0);
+              shape.closePath();
+            }
 
             const geo = new THREE.ExtrudeGeometry(shape, { depth: tabW, bevelEnabled: false });
             const pos = geo.attributes.position;
-            const outerTurretHalfH = clearWinH / 2 + turretWallT + wallT + 0.25;
-            const yBase = isInlay
-              ? (isTop ? (clearWinH / 2 - wallT - 0.4) : (-clearWinH / 2 + wallT + 0.4))
-              : (isTop ? outerTurretHalfH : -outerTurretHalfH);
-
             for (let i = 0; i < pos.count; i++) {
-              pos.setXYZ(i, pos.getZ(i) - tabW / 2, yBase + pos.getX(i), zFaceBack + pos.getY(i));
+              pos.setXYZ(i, pos.getZ(i) - tabW / 2, pos.getX(i), zFaceBack + pos.getY(i));
             }
             geo.computeVertexNormals();
             return new THREE.Mesh(geo, mat);
@@ -1488,7 +1604,9 @@
           const ringGeo = new THREE.ExtrudeGeometry(bossShape, { depth: pocketDepth, bevelEnabled: false });
           const capGeo = new THREE.CylinderGeometry(bossOuterR, bossOuterR, capThick, 28);
           capGeo.rotateX(Math.PI / 2);
-          getSafeCornerMagnetCenters(clearWinW, clearWinH, p.inW, p.inH, bossOuterR).forEach(([bx, by]) => {
+
+          const magInfo = getRetentionMagnetCenters(p, clearWinW, clearWinH, turretWallT, bossOuterR);
+          magInfo.centers.forEach(([bx, by]) => {
             const rClone = ringGeo.clone(); rClone.translate(bx, by, zFaceBack - pocketDepth);
             group.add(new THREE.Mesh(rClone, mat));
             const cClone = capGeo.clone(); cClone.translate(bx, by, zFaceBack + capThick / 2);
@@ -1747,6 +1865,589 @@
         }
         if (item.slotShape === 'rect') return createTranslatedRectHolePath(item.cx, item.cy, w, h, item.kind === 'switch' ? 0.35 : 0.6);
         return createTranslatedRectHolePath(item.cx, item.cy, w, h, Math.min(w, h) / 2);
+      }
+
+      function getParams() {
+        const num = (id, def) => {
+          const el = document.getElementById(id);
+          if (!el) return def;
+          const v = parseFloat(el.value);
+          return isNaN(v) ? def : v;
+        };
+        const str = (id, def) => {
+          const el = document.getElementById(id);
+          return el ? el.value : def;
+        };
+        const bool = (id, def) => {
+          const el = document.getElementById(id);
+          return el ? !!el.checked : def;
+        };
+        return {
+          fixMode: str('inp-fixmode', 'hpins'),
+          coverBuild: str('inp-coverbuild', 'fulltop_snaps'),
+          sideSkirt: str('inp-sideskirt', 'skeleton_wrap'),
+          pinDia: num('inp-pindia', 5.25),
+          pinL: num('inp-pinl', 5.2),
+          pinRibs: Math.round(num('inp-pinribs', 4)),
+          ribDepth: num('inp-ribdepth', 0.35),
+          pinX: num('inp-pinx', 94.2),
+          pinY: num('inp-piny', 53.3),
+          lugT: num('inp-lugt', 1.4),
+          hWeb: num('inp-hweb', 0.9),
+          lipBite: num('inp-lipbite', 0.65),
+          lipH: num('inp-liph', 2.2),
+          lipEdges: str('inp-lipedges', 'topbot'),
+          screwX: num('inp-screwx', 83.5),
+          screwDia: num('inp-screwdia', 4.2),
+          screwTabZ: num('inp-screwtabz', 2.4),
+          chassisType: Math.round(num('inp-chassistype', 3)),
+          deckMode: str('inp-deckmode', 'compact_flush'),
+          inW: num('inp-inw', 114.5),
+          inH: num('inp-inh', 79.5),
+          rimD: num('inp-rimd', 3.2),
+          swClear: num('inp-swclear', 11.0),
+          corner: num('inp-corner', 8.0),
+          wall: num('inp-wall', 2.5),
+          face: num('inp-face', 2.6),
+          deckDrop: num('inp-deckdrop', 5.0),
+          swCount: Math.round(num('inp-swcount', 3)),
+          swMode: str('inp-swmode', 'covered'),
+          slotShape: str('inp-slotshape', 'pill'),
+          outletType: str('inp-outlettype', 'none'),
+          outletPos: str('inp-outletpos', 'right'),
+          outletStyle: str('inp-outletstyle', 'frame_rect'),
+          pitch: num('inp-pitch', 22.5),
+          modH: num('inp-modh', 45.2),
+          slotW: num('inp-slotw', 6.4),
+          slotH: num('inp-sloth', 16.5),
+          slotAxis: str('inp-slotaxis', 'vert'),
+          silhouette: str('inp-silhouette', 'vstripes'),
+          stripes: Math.round(num('inp-stripes', 5)),
+          bubbleDia: num('inp-bubbledia', 22.4),
+          bubbleCols: Math.round(num('inp-bubblecols', 7)),
+          bubbleRows: Math.round(num('inp-bubblerows', 5)),
+          overlay: str('inp-overlay', 'donut_wells'),
+          ovHeight: num('inp-ovheight', 2.0),
+          ovWidth: num('inp-ovwidth', 4.5),
+          ovCount: Math.round(num('inp-ovcount', 2)),
+          showToggles: bool('inp-showtoggles', true),
+          tipStyle: str('inp-tipstyle', 'ball'),
+          tipJoint: str('inp-tipjoint', 'screw'),
+          cuRotX: num('inp-curotx', 0),
+          cuRotY: num('inp-curoty', 0),
+          cuRotZ: num('inp-curotz', 0),
+          cuOffX: num('inp-cuoffx', 0),
+          cuOffY: num('inp-cuoffy', 0),
+          cuOffZ: num('inp-cuoffz', 1.5),
+          tipDia: num('inp-tipdia', 15.0),
+          tipLen: num('inp-tiplen', 11.5),
+          pegDia: num('inp-pegdia', 4.0),
+          threadTol: num('inp-threadtol', 0.35),
+          footT: num('inp-foott', 2.0),
+          footW: num('inp-footw', 14.0),
+          footH: num('inp-footh', 18.0),
+          tLen: num('inp-tlen', 11.5),
+          tBase: num('inp-tbase', 5.0),
+          vRoof: num('inp-vroof', 0.0),
+          tAng: 7.5 * rockPolarity,
+          multiColorKnobs: bool('inp-multicolorknobs', false),
+          colA: str('inp-cola', '#dc2626'),
+          colB: str('inp-colb', '#f4a2c8'),
+          colOv: str('inp-colov', '#f8fafc'),
+          colD2: str('inp-cold2', '#e8c39e'),
+          colT: str('inp-colt', '#5da9c4'),
+          colTip: str('inp-coltip', '#eab308')
+        };
+      }
+
+      function createGlossMat(hex, wireframe = false, roughness = 0.28, metalness = 0.08) {
+        return new THREE.MeshStandardMaterial({
+          color: new THREE.Color(hex),
+          roughness,
+          metalness,
+          wireframe,
+          side: THREE.DoubleSide
+        });
+      }
+
+      function buildLegrandReferenceHardware(p, activeItems) {
+        clearAndDisposeGroup(legrandRefGroup);
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.45, metalness: 0.45, wireframe: isWireframe });
+        const bossMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5, metalness: 0.3, wireframe: isWireframe });
+        const mechMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55, metalness: 0.2, wireframe: isWireframe });
+        const rockerMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.25, metalness: 0.05, wireframe: isWireframe });
+        const screwMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3, metalness: 0.75, wireframe: isWireframe });
+
+        // Support frame sits at Z = p.rimD - 2.2 to p.rimD so H-pins & 2-screw ears seat directly against it!
+        const zSupportFront = p.rimD;
+        const frameThick = 2.2;
+        const frameW = p.inW - 0.8;
+        const frameH = p.inH - 0.8;
+        const innerCutW = p.chassisType === 4 ? 90.5 : 68.0;
+        const innerCutH = 45.4;
+
+        const frameShape = createRoundedRectShape(frameW, frameH, 2.5);
+        frameShape.holes.push(createRoundedRectPath(innerCutW, innerCutH, 1.0));
+
+        // 4 Corner H-Pin sockets
+        const hx = p.pinX / 2, hy = p.pinY / 2;
+        [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
+          const hp = new THREE.Path();
+          hp.absarc(px, py, p.pinDia / 2 + 0.15, 0, Math.PI * 2, true);
+          frameShape.holes.push(hp);
+        });
+
+        // 2 Universal wall-box screw keyhole slots
+        const sx = p.screwX / 2;
+        [-sx, sx].forEach(xPos => {
+          frameShape.holes.push(createTranslatedRectHolePath(xPos, 0, p.screwDia + 2.5, p.screwDia, p.screwDia / 2));
+        });
+
+        const frameGeo = new THREE.ExtrudeGeometry(frameShape, { depth: frameThick, bevelEnabled: false });
+        frameGeo.translate(0, 0, zSupportFront - frameThick);
+        legrandRefGroup.add(new THREE.Mesh(frameGeo, frameMat));
+
+        // Deep H-Pin receiver sleeves behind the 4 corner holes so you can see the H-pins engaging inside them
+        const sleeveDepth = Math.max(5.5, p.pinL + 0.6);
+        const sleeveShape = new THREE.Shape();
+        sleeveShape.absarc(0, 0, p.pinDia / 2 + 1.6, 0, Math.PI * 2, false);
+        const sleeveHole = new THREE.Path();
+        sleeveHole.absarc(0, 0, p.pinDia / 2 + 0.12, 0, Math.PI * 2, true);
+        sleeveShape.holes.push(sleeveHole);
+        const sleeveGeo = new THREE.ExtrudeGeometry(sleeveShape, { depth: sleeveDepth, bevelEnabled: false });
+
+        [[-hx, hy], [hx, hy], [-hx, -hy], [hx, -hy]].forEach(([px, py]) => {
+          const sClone = sleeveGeo.clone();
+          sClone.translate(px, py, zSupportFront - sleeveDepth);
+          legrandRefGroup.add(new THREE.Mesh(sClone, bossMat));
+        });
+
+        // 2 brass wall-box mounting screws at +/- screwX/2
+        const screwStandGeo = new THREE.CylinderGeometry(2.0, 2.0, 10.0, 20);
+        screwStandGeo.rotateX(Math.PI / 2);
+        const screwHeadGeo = new THREE.CylinderGeometry(3.4, 3.4, 1.4, 24);
+        screwHeadGeo.rotateX(Math.PI / 2);
+        [-sx, sx].forEach(xPos => {
+          const st = screwStandGeo.clone();
+          st.translate(xPos, 0, zSupportFront - 5.0);
+          legrandRefGroup.add(new THREE.Mesh(st, screwMat));
+          const sh = screwHeadGeo.clone();
+          sh.translate(xPos, 0, zSupportFront + p.screwTabZ + 0.7);
+          legrandRefGroup.add(new THREE.Mesh(sh, screwMat));
+        });
+
+        // Arteor Switch & Outlet Mechanisms
+        activeItems.forEach((it, idx) => {
+          const modW = (it.kind === 'schuko2m' ? p.pitch * 2 : p.pitch) - 0.6;
+          const modH = 44.8;
+
+          const bodyGeo = new THREE.BoxGeometry(modW, modH, 14.0);
+          bodyGeo.translate(it.cx, it.cy, zSupportFront - 7.0);
+          legrandRefGroup.add(new THREE.Mesh(bodyGeo, mechMat));
+
+          const collarGeo = new THREE.BoxGeometry(modW + 0.4, modH + 0.4, 2.8);
+          collarGeo.translate(it.cx, it.cy, zSupportFront + 1.4);
+          legrandRefGroup.add(new THREE.Mesh(collarGeo, bossMat));
+
+          if (it.kind === 'switch' || it.kind === 'switch_open') {
+            const rockerW = modW - 1.0;
+            const rockerH = 43.8;
+            const rShape = createRoundedRectShape(rockerW, rockerH, 1.2);
+            const rGeo = new THREE.ExtrudeGeometry(rShape, { depth: 3.2, bevelEnabled: true, bevelSize: 0.35, bevelThickness: 0.35, bevelSegments: 2 });
+            const rMesh = new THREE.Mesh(rGeo, rockerMat);
+            rMesh.position.set(it.cx, it.cy, zSupportFront + 2.2);
+            const tiltDeg = (idx % 2 === 1) ? -4.5 * rockPolarity : 4.5 * rockPolarity;
+            rMesh.rotation.x = THREE.MathUtils.degToRad(tiltDeg);
+            legrandRefGroup.add(rMesh);
+          } else {
+            const bezelShape = createRoundedRectShape(modW - 0.4, 44.4, 1.2);
+            if (it.kind === 'schuko2m') {
+              const wellHole = new THREE.Path();
+              wellHole.absarc(0, 0, 18.8, 0, Math.PI * 2, true);
+              bezelShape.holes.push(wellHole);
+            } else {
+              [-9.5, 9.5].forEach(dy => {
+                const pinHole = new THREE.Path();
+                pinHole.absarc(0, dy, 2.4, 0, Math.PI * 2, true);
+                bezelShape.holes.push(pinHole);
+              });
+            }
+            const bezelGeo = new THREE.ExtrudeGeometry(bezelShape, { depth: 5.2, bevelEnabled: false });
+            bezelGeo.translate(it.cx, it.cy, zSupportFront);
+            legrandRefGroup.add(new THREE.Mesh(bezelGeo, rockerMat));
+          }
+        });
+      }
+
+      function buildAll3DOverlays(p, plateW, plateH, zTopSurface, mergedCutouts, activeItems, zPerimDeckTop, cornerR) {
+        const group = new THREE.Group();
+        if (p.overlay === 'none' || p.silhouette === 'open_frame' || p.ovHeight <= 0.05) return group;
+
+        const matOv = createGlossMat(p.colOv, isWireframe);
+        const matD2 = createGlossMat(p.colD2, isWireframe);
+        const h = p.ovHeight;
+        const w = p.ovWidth;
+
+        if (p.overlay === 'bp_bezel') {
+          activeItems.filter(it => it.kind === 'switch').forEach(it => {
+            const rIn = Math.max(it.cutW, it.cutH) / 2 + 0.25;
+            const rOut = rIn + w;
+            const bShape = new THREE.Shape();
+            bShape.absarc(it.cx, it.cy, rOut, 0, Math.PI * 2, false);
+            const hole = new THREE.Path();
+            hole.absarc(it.cx, it.cy, rIn, 0, Math.PI * 2, true);
+            bShape.holes.push(hole);
+            const bGeo = new THREE.ExtrudeGeometry(bShape, {
+              depth: Math.max(0.4, h - 0.5),
+              bevelEnabled: true,
+              bevelSize: 0.45,
+              bevelThickness: 0.45,
+              bevelSegments: 3
+            });
+            bGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(bGeo, matOv));
+          });
+
+        } else if (p.overlay === 'donut_wells') {
+          activeItems.filter(it => it.kind === 'switch').forEach(it => {
+            const rOut = Math.max(it.cutW, it.cutH) / 2 + w;
+            const dShape = new THREE.Shape();
+            dShape.absarc(it.cx, it.cy, rOut, 0, Math.PI * 2, false);
+            dShape.holes.push(makeItemHolePath(it, 0.15));
+            const dGeo = new THREE.ExtrudeGeometry(dShape, {
+              depth: Math.max(0.3, h - 0.4),
+              bevelEnabled: true,
+              bevelSize: 0.35,
+              bevelThickness: 0.35,
+              bevelSegments: 4
+            });
+            dGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(dGeo, matOv));
+          });
+
+        } else if (p.overlay === 'stitched_leather') {
+          const inset = Math.max(4.0, w);
+          const pts = getRoundedRectPoints(plateW - inset * 2, plateH - inset * 2, Math.max(1.0, cornerR - inset * 0.6), 16);
+          const samples = sampleClosedPolygonUniformly(pts, 48);
+          samples.forEach(s => {
+            const dashGeo = new THREE.BoxGeometry(3.2, 1.3, h);
+            dashGeo.rotateZ(s.ang);
+            dashGeo.translate(s.x, s.y, zTopSurface + h / 2);
+            group.add(new THREE.Mesh(dashGeo, matOv));
+          });
+
+        } else if (p.overlay === 'tray_recessed_wells') {
+          const rimShape = createRoundedRectShape(plateW, plateH, cornerR);
+          rimShape.holes.push(createRoundedRectPath(plateW - w * 2, plateH - w * 2, Math.max(1.0, cornerR - w)));
+          const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
+          rimGeo.translate(0, 0, zTopSurface);
+          group.add(new THREE.Mesh(rimGeo, matOv));
+
+          activeItems.filter(it => it.kind === 'switch').forEach(it => {
+            const wShape = new THREE.Shape();
+            const rWell = Math.max(it.cutW, it.cutH) / 2 + w * 0.9;
+            wShape.absarc(it.cx, it.cy, rWell, 0, Math.PI * 2, false);
+            wShape.holes.push(makeItemHolePath(it, 0.1));
+            const wGeo = new THREE.ExtrudeGeometry(wShape, { depth: h * 0.65, bevelEnabled: false });
+            wGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(wGeo, matD2));
+          });
+
+        } else if (p.overlay === 'collars_frame' || p.overlay === 'collars') {
+          if (p.overlay === 'collars_frame') {
+            const rimShape = createRoundedRectShape(plateW, plateH, cornerR);
+            rimShape.holes.push(createRoundedRectPath(plateW - w * 2, plateH - w * 2, Math.max(1.0, cornerR - w)));
+            const rimGeo = new THREE.ExtrudeGeometry(rimShape, { depth: h, bevelEnabled: false });
+            rimGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(rimGeo, matOv));
+          }
+          mergedCutouts.forEach(it => {
+            const colW = it.cutW + w * 1.8, colH = it.cutH + w * 1.8;
+            let cShape;
+            if (it.isRoundCut || it.slotShape === 'circle') {
+              cShape = new THREE.Shape();
+              cShape.absarc(it.cx, it.cy, colW / 2, 0, Math.PI * 2, false);
+            } else {
+              const r = it.slotShape === 'rect' ? 1.5 : Math.min(colW, colH) / 2;
+              const pts = getRoundedRectPoints(colW, colH, r, 12);
+              pts.forEach(pt => { pt.x += it.cx; pt.y += it.cy; });
+              cShape = new THREE.Shape(pts);
+            }
+            cShape.holes.push(makeItemHolePath(it, 0.1));
+            const cGeo = new THREE.ExtrudeGeometry(cShape, { depth: h, bevelEnabled: false });
+            cGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(cGeo, matOv));
+          });
+
+        } else if (p.overlay === 'waffle') {
+          const rimInset = 3.2;
+          const wafW = plateW - rimInset * 2;
+          const wafH = plateH - rimInset * 2;
+          const wafCornerR = Math.max(1.5, cornerR - rimInset * 0.75);
+          const wafShape = createRoundedRectShape(wafW, wafH, wafCornerR);
+
+          // Punch switch/outlet cutouts first
+          mergedCutouts.forEach(it => wafShape.holes.push(makeItemHolePath(it, 0.15)));
+
+          // Punch the perforated Bauhaus Waffle matrix of rounded-square pockets
+          const cols = Math.max(6, p.ovCount * 3 + 5);
+          const rows = Math.max(4, p.ovCount * 2 + 3);
+          const borderMargin = Math.max(5.5, w * 1.35);
+          const gridSpanW = wafW - borderMargin * 2;
+          const gridSpanH = wafH - borderMargin * 2;
+          const stepX = gridSpanW / cols;
+          const stepY = gridSpanH / rows;
+          const ribThick = Math.max(2.0, w * 0.52);
+          const cellW = Math.max(2.4, stepX - ribThick);
+          const cellH = Math.max(2.4, stepY - ribThick);
+          const cellR = Math.min(1.3, cellW * 0.25, cellH * 0.25);
+
+          for (let c = 0; c < cols; c++) {
+            const cx = -gridSpanW / 2 + (c + 0.5) * stepX;
+            for (let r = 0; r < rows; r++) {
+              const cy = -gridSpanH / 2 + (r + 0.5) * stepY;
+
+              // Skip any waffle pocket that encroaches on the solid collar around a switch/outlet slot
+              let hitsSlotCollar = false;
+              for (let k = 0; k < mergedCutouts.length; k++) {
+                const it = mergedCutouts[k];
+                const safeHalfW = (it.cutW / 2) + ribThick + (cellW / 2) + 0.6;
+                const safeHalfH = (it.cutH / 2) + ribThick + (cellH / 2) + 0.6;
+                if (Math.abs(cx - it.cx) < safeHalfW && Math.abs(cy - it.cy) < safeHalfH) {
+                  hitsSlotCollar = true;
+                  break;
+                }
+              }
+              if (!hitsSlotCollar) {
+                wafShape.holes.push(createTranslatedRectHolePath(cx, cy, cellW, cellH, cellR));
+              }
+            }
+          }
+
+          const wafGeo = new THREE.ExtrudeGeometry(wafShape, {
+            depth: Math.max(0.3, h - 0.25),
+            bevelEnabled: true,
+            bevelSize: 0.2,
+            bevelThickness: 0.2,
+            bevelSegments: 2
+          });
+          wafGeo.translate(0, 0, zTopSurface);
+          group.add(new THREE.Mesh(wafGeo, matOv));
+
+        } else if (p.overlay === 'fluted') {
+          const basePoly = getRoundedRectPoints(plateW - 2.0, plateH - 2.0, Math.max(1.0, cornerR - 1.0), 16);
+          const count = p.ovCount * 6 + 5;
+          const step = (plateW - 8) / count;
+          const ribW = step * 0.48;
+          let polys = [];
+          for (let i = 0; i <= count; i++) {
+            const x = -(plateW - 8) / 2 + i * step;
+            const band = clipPolygonHalfPlane(clipPolygonHalfPlane(basePoly, 1, 0, x - ribW / 2), -1, 0, -(x + ribW / 2));
+            if (band.length >= 3) polys.push(band);
+          }
+          mergedCutouts.forEach(item => { polys = subtractCutoutFromPolygons(polys, item); });
+          polys.forEach(poly => {
+            const clean = deduplicatePolygonPoints(poly);
+            if (clean.length >= 3) {
+              const g = new THREE.ExtrudeGeometry(new THREE.Shape(clean), { depth: h, bevelEnabled: false });
+              g.translate(0, 0, zTopSurface);
+              group.add(new THREE.Mesh(g, matOv));
+            }
+          });
+
+        } else if (p.overlay === 'deco' || p.overlay === 'stadion') {
+          const steps = Math.max(1, p.ovCount);
+          for (let s = 0; s < steps; s++) {
+            const inset = s * (w * 0.85);
+            const wOut = plateW - inset * 2, hOut = plateH - inset * 2;
+            const wIn = wOut - w * 1.4, hIn = hOut - w * 1.4;
+            if (wIn <= 20 || hIn <= 20) break;
+            const rOut = p.overlay === 'stadion' ? Math.min(wOut, hOut) * 0.42 : Math.max(1.0, cornerR - inset * 0.5);
+            const rIn = p.overlay === 'stadion' ? Math.min(wIn, hIn) * 0.42 : Math.max(0.8, rOut - w * 0.6);
+            const stepShape = createRoundedRectShape(wOut, hOut, rOut);
+            stepShape.holes.push(createRoundedRectPath(wIn, hIn, rIn));
+            const stepH = h * ((s + 1) / steps);
+            const stepGeo = new THREE.ExtrudeGeometry(stepShape, { depth: stepH, bevelEnabled: false });
+            stepGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(stepGeo, s % 2 === 0 ? matOv : matD2));
+          }
+
+        } else if (p.overlay === 'rosetta_discs') {
+          activeItems.filter(it => it.kind === 'switch').forEach((it, idx) => {
+            const rOut = Math.max(it.cutW, it.cutH) / 2 + w * 1.35;
+            const dShape = new THREE.Shape();
+            dShape.absarc(it.cx, it.cy, rOut, 0, Math.PI * 2, false);
+            dShape.holes.push(makeItemHolePath(it, 0.15));
+            const dGeo = new THREE.ExtrudeGeometry(dShape, { depth: h, bevelEnabled: false });
+            dGeo.translate(0, 0, zTopSurface);
+            group.add(new THREE.Mesh(dGeo, idx % 2 === 0 ? matOv : matD2));
+          });
+        }
+
+        return group;
+      }
+
+      function buildKnobBaseAndStem(p) {
+        const group = new THREE.Group();
+        const matStem = createGlossMat(p.colT, isWireframe);
+
+        const footShape = createRoundedRectShape(p.footW, p.footH, Math.min(2.5, p.footW * 0.25));
+        const footGeo = new THREE.ExtrudeGeometry(footShape, { depth: p.footT, bevelEnabled: false });
+        if (p.vRoof > 0.05) {
+          const pos = footGeo.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            const vy = pos.getY(i), vz = pos.getZ(i);
+            if (vz < 0.05) {
+              const normY = Math.abs(vy) / (p.footH / 2);
+              pos.setZ(i, vz + normY * p.vRoof);
+            }
+          }
+          footGeo.computeVertexNormals();
+        }
+        group.add(new THREE.Mesh(footGeo, matStem));
+
+        if (p.tipStyle === 'stadium_blade') {
+          const bladeW = Math.max(3.6, p.tBase * 0.9);
+          const bladeH = Math.max(10.0, p.tipDia * 0.88);
+          const stemShape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+          const stemGeo = new THREE.ExtrudeGeometry(stemShape, { depth: p.tLen, bevelEnabled: false });
+          stemGeo.translate(0, 0, p.footT);
+          group.add(new THREE.Mesh(stemGeo, matStem));
+        } else {
+          const rBase = p.tBase / 2;
+          const stemGeo = new THREE.CylinderGeometry(rBase, rBase * 1.08, p.tLen, 36);
+          stemGeo.rotateX(Math.PI / 2);
+          stemGeo.translate(0, 0, p.footT + p.tLen / 2);
+          group.add(new THREE.Mesh(stemGeo, matStem));
+        }
+
+        const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat' && p.tipStyle !== 'stadium_blade');
+        if (isThreaded) {
+          const pegLen = Math.min(5.5, p.tipLen * 0.65);
+          const studGeo = buildHelicalThreadedCylinder(p.pegDia, pegLen, 1.25, 0.42);
+          studGeo.translate(0, 0, p.footT + p.tLen);
+          group.add(new THREE.Mesh(studGeo, matStem));
+        }
+
+        return group;
+      }
+
+      function buildKnobTipVolume(p, sliceCutaway = false, customHex = null) {
+        const group = new THREE.Group();
+        const hex = customHex || p.colTip;
+        const isMetallic = (p.tipStyle === 'knurled_cylinder' || p.tipStyle === 'stadium_blade');
+        const matTip = createGlossMat(hex, isWireframe, isMetallic ? 0.22 : 0.25, isMetallic ? 0.65 : 0.08);
+        const isThreaded = (p.tipJoint === 'screw' && p.tipStyle !== 'bat');
+        const boreMajorDia = p.pegDia + p.threadTol;
+
+        if (p.tipStyle === 'stadium_blade') {
+          const bladeW = Math.max(4.2, p.tBase);
+          const bladeH = Math.max(12.0, p.tipDia);
+          const shape = createRoundedRectShape(bladeW, bladeH, bladeW / 2);
+          const geo = new THREE.ExtrudeGeometry(shape, {
+            depth: Math.max(1.5, p.tipLen - 0.8),
+            bevelEnabled: true,
+            bevelSize: 0.45,
+            bevelThickness: 0.45,
+            bevelSegments: 4
+          });
+          group.add(new THREE.Mesh(geo, matTip));
+          return group;
+        }
+
+        if (p.tipStyle === 'sewing_button') {
+          const rBtn = p.tipDia / 2;
+          const collarH = Math.max(3.6, p.tipLen * 0.55);
+          const discH = Math.max(2.6, p.tipLen - collarH);
+          const collarR = Math.max(boreMajorDia / 2 + 1.25, rBtn * 0.42);
+
+          const collarGeo = buildFemaleThreadedSocketCollar(collarR, collarH, boreMajorDia, isThreaded, sliceCutaway);
+          group.add(new THREE.Mesh(collarGeo, matTip));
+
+          const btnShape = new THREE.Shape();
+          btnShape.absarc(0, 0, rBtn, 0, sliceCutaway ? Math.PI : Math.PI * 2, false);
+          const holeOffset = rBtn * 0.34;
+          const holeR = Math.max(0.85, rBtn * 0.10);
+          [[-holeOffset, -holeOffset], [holeOffset, -holeOffset], [-holeOffset, holeOffset], [holeOffset, holeOffset]].forEach(([hx, hy]) => {
+            if (!sliceCutaway || hy >= 0) {
+              const hp = new THREE.Path();
+              hp.absarc(hx, hy, holeR, 0, Math.PI * 2, true);
+              btnShape.holes.push(hp);
+            }
+          });
+          const btnGeo = new THREE.ExtrudeGeometry(btnShape, {
+            depth: discH,
+            bevelEnabled: true,
+            bevelSize: 0.35,
+            bevelThickness: 0.35,
+            bevelSegments: 3
+          });
+          btnGeo.translate(0, 0, collarH);
+          group.add(new THREE.Mesh(btnGeo, matTip));
+          return group;
+        }
+
+        if (p.tipStyle === 'tbar') {
+          const rBar = Math.max(3.2, p.tipLen * 0.38);
+          const barLen = Math.max(12.0, p.tipDia * 1.15);
+          const collarH = Math.max(4.0, p.tipLen * 0.55);
+          const collarR = Math.max(boreMajorDia / 2 + 1.25, rBar * 0.85);
+
+          const collarGeo = buildFemaleThreadedSocketCollar(collarR, collarH, boreMajorDia, isThreaded, sliceCutaway);
+          group.add(new THREE.Mesh(collarGeo, matTip));
+
+          const barGeo = new THREE.CylinderGeometry(rBar, rBar, barLen, 32);
+          barGeo.rotateZ(Math.PI / 2);
+          barGeo.translate(0, 0, collarH + rBar * 0.75);
+          group.add(new THREE.Mesh(barGeo, matTip));
+          return group;
+        }
+
+        if (p.tipStyle === 'custom_knob_mesh' && userKnobGeometry) {
+          const collarH = Math.max(4.2, p.cuOffZ + 3.0);
+          const collarR = Math.max(boreMajorDia / 2 + 1.25, p.tBase * 0.6);
+          const collarGeo = buildFemaleThreadedSocketCollar(collarR, collarH, boreMajorDia, isThreaded, sliceCutaway);
+          group.add(new THREE.Mesh(collarGeo, matTip));
+
+          const customClone = userKnobGeometry.clone();
+          const sc = Math.max(p.tipDia, p.tipLen);
+          customClone.scale(sc, sc, sc);
+          customClone.rotateX(THREE.MathUtils.degToRad(p.cuRotX));
+          customClone.rotateY(THREE.MathUtils.degToRad(p.cuRotY));
+          customClone.rotateZ(THREE.MathUtils.degToRad(p.cuRotZ));
+          customClone.computeBoundingBox();
+          const minZ = customClone.boundingBox ? customClone.boundingBox.min.z : 0;
+          customClone.translate(p.cuOffX, p.cuOffY, -minZ + p.cuOffZ);
+          group.add(new THREE.Mesh(customClone, matTip));
+          return group;
+        }
+
+        const latheGeo = buildPrintReadyThreadedTipGeometry(p, sliceCutaway);
+        group.add(new THREE.Mesh(latheGeo, matTip));
+        return group;
+      }
+
+      function rebuildEdgesOverlay() {
+        clearAndDisposeGroup(edgesGroup);
+        if (!showCadEdges || isWireframe) return;
+
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.36 });
+        const targetGroups = isKnobOnly
+          ? [toggleStemGroup, toggleTipGroup]
+          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup];
+
+        targetGroups.forEach(grp => {
+          if (!grp.visible) return;
+          grp.updateMatrixWorld(true);
+          grp.traverse(child => {
+            if (child.isMesh && child.geometry) {
+              const eGeo = new THREE.EdgesGeometry(child.geometry, 28);
+              const line = new THREE.LineSegments(eGeo, lineMat);
+              line.applyMatrix4(child.matrixWorld);
+              edgesGroup.add(line);
+            }
+          });
+        });
       }
 
       // --- MAIN REBUILD ---
