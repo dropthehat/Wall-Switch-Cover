@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArteorCAD v25 — 1-Piece Skeleton Web, Open 2-Screw Base & Safe Magnets</title>
+  <title>ArteorCAD</title>
+  <script>
+    // Short product token. Title, STL names, JSON export, and the save-setup default use it as-is.
+    // The header badge is this token plus ".0 Studio" (v25 → "v25.0 Studio").
+    var APP_VERSION = 'v25';
+    document.title = 'ArteorCAD ' + APP_VERSION + ' — 1-Piece Skeleton Web, Open 2-Screw Base & Safe Magnets';
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -45,7 +51,8 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span class="text-xs font-mono text-emerald-400">v25.0 Studio</span></h1>
+          <h1 class="font-bold text-base tracking-tight text-white">Arteor<span class="text-sky-400">CAD</span> <span id="app-version" class="text-xs font-mono text-emerald-400"></span></h1>
+          <script>document.getElementById('app-version').textContent = APP_VERSION + '.0 Studio';</script>
         </div>
         <p class="text-[10px] text-slate-400">1-Piece Skeleton Web • Open 2-Screw Base • Safe Magnets & Snaps</p>
       </div>
@@ -2636,7 +2643,7 @@
           const skelTurretOuterH = skelInnerH + skelTurretWall * 2;
 
           if (isScrewTabs) {
-            // FIXED IN v24: Open-Center 2-Screw Skeleton!
+            // FIXED IN v25: Open-Center 2-Screw Skeleton!
             const earSpanW = Math.min(skelClearW, Math.max(skelTurretOuterW + 16.0, p.screwX + p.screwDia + 9.5));
             const earWingH = Math.max(20.0, p.screwDia + 13.0);
             const sx = p.screwX / 2;
@@ -2666,7 +2673,7 @@
             chassisGroup.add(new THREE.Mesh(turretGeo, matBase));
 
           } else {
-            // FIXED IN v24: 1-Piece Connected Factory H-Pin Skeleton Web!
+            // FIXED IN v25: 1-Piece Connected Factory H-Pin Skeleton Web!
             const skelPlateShape = createRoundedRectShape(skelClearW, skelClearH, 2.0);
             skelPlateShape.holes.push(createRoundedRectPath(skelInnerW, skelInnerH, 1.2));
 
@@ -3092,6 +3099,7 @@
         rebuildModel();
       });
 
+      // Stable key, not tied to APP_VERSION, so a version bump does not hide setups already saved in this browser.
       const STORAGE_KEY = 'arteor_cad_v24_profiles';
       const PARAM_IDS = [
         'inp-fixmode', 'inp-coverbuild', 'inp-sideskirt', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb',
@@ -3152,7 +3160,7 @@
       }
 
       document.getElementById('btn-prof-save').addEventListener('click', () => {
-        const name = prompt('Enter a name for this switch profile:', `Arteor v24 ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+        const name = prompt('Enter a name for this switch profile:', `Arteor ${APP_VERSION} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
         if (!name) return;
         const map = getStoredProfiles();
         map[name] = captureProfileData();
@@ -3174,7 +3182,7 @@
       });
       document.getElementById('btn-prof-export').addEventListener('click', () => {
         const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(captureProfileData(), null, 2));
-        const a = document.createElement('a'); a.href = str; a.download = 'arteor_v24_profile.json'; a.click();
+        const a = document.createElement('a'); a.href = str; a.download = `arteor_${APP_VERSION}_profile.json`; a.click();
       });
       document.getElementById('btn-prof-import').addEventListener('click', () => document.getElementById('file-prof-import').click());
       document.getElementById('file-prof-import').addEventListener('change', (e) => {
@@ -3479,37 +3487,37 @@
       document.getElementById('btn-exp-cover').addEventListener('click', () => {
         const p = getParams(), combined = new THREE.Group();
         combined.add(chassisGroup.clone(true), faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(combined, `Arteor_v24_FullAssembly_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(combined, `Arteor_${APP_VERSION}_FullAssembly_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-chassis').addEventListener('click', () => {
         const p = getParams();
-        downloadPrintReadySTL(chassisGroup, `Arteor_v24_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(chassisGroup, `Arteor_${APP_VERSION}_Part1_SkeletonBase_${p.fixMode}_${p.coverBuild}.stl`);
       });
       // Part 2 Cover ONLY (no Waffle / overlay) so the top is flat for separate printing and gluing
       document.getElementById('btn-exp-faceplate-bare').addEventListener('click', () => {
         const p = getParams(), faceBare = new THREE.Group();
         faceBare.add(faceplateGroup.clone(true), bubblesGroup.clone(true));
-        downloadPrintReadySTL(faceBare, `Arteor_v25_Part2_BareCover_NoOverlay_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceBare, `Arteor_${APP_VERSION}_Part2_BareCover_NoOverlay_${p.coverBuild}.stl`);
       });
 
       // Part 2 Cover + Overlay merged (single-piece / AMS printing)
       document.getElementById('btn-exp-faceplate').addEventListener('click', () => {
         const p = getParams(), faceCombined = new THREE.Group();
         faceCombined.add(faceplateGroup.clone(true), bubblesGroup.clone(true), overlayGroup.clone(true));
-        downloadPrintReadySTL(faceCombined, `Arteor_v25_Part2_CoverWithOverlay_${p.coverBuild}.stl`);
+        downloadPrintReadySTL(faceCombined, `Arteor_${APP_VERSION}_Part2_CoverWithOverlay_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-stem').addEventListener('click', () => {
         const p = getParams(), stem = buildKnobBaseAndStem(p);
         if (p.tipJoint === 'onepiece' || p.tipStyle === 'bat') {
           const tip = buildKnobTipVolume(p, false); tip.position.z = p.footT + p.tLen; stem.add(tip);
         }
-        downloadPrintReadySTL(stem, `Arteor_v24_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
+        downloadPrintReadySTL(stem, `Arteor_${APP_VERSION}_Stem_M${p.pegDia.toFixed(1)}_PositiveThread_READY.stl`);
       });
       document.getElementById('btn-exp-tip').addEventListener('click', () => {
         const p = getParams(), tip = buildKnobTipVolume(p, false);
-        downloadPrintReadySTL(tip, `Arteor_v24_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
+        downloadPrintReadySTL(tip, `Arteor_${APP_VERSION}_Tip_${p.tipStyle}_${(p.pegDia + p.threadTol).toFixed(2)}mm_NegativeThread_READY.stl`);
       });
-      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_v24_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
+      document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_${APP_VERSION}_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
