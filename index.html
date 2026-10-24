@@ -90,6 +90,10 @@
         <button id="pre-schuko-2m" class="py-1 text-[10px] font-semibold rounded bg-teal-600/25 hover:bg-teal-600/40 text-teal-200 border border-teal-500/40 truncate">⚡ Schuko</button>
         <button id="pre-twopart-swap" class="py-1 text-[10px] font-semibold rounded bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-500/40 truncate">🦴 Skeleton</button>
       </div>
+      <div class="grid grid-cols-6 gap-1">
+        <button id="pre-khatam" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-100 border border-amber-400/50 truncate" title="Limestone plate, turquoise khatam star field, gold centre gems">✦ Khatam</button>
+        <button id="pre-mashrabiya" class="py-1 text-[10px] font-semibold rounded bg-teal-700/30 hover:bg-teal-700/45 text-teal-100 border border-teal-500/40 truncate" title="Pointed mihrab arch with a wood mashrabiya lattice">🕌 Mashrabiya</button>
+      </div>
     </div>
 
     <!-- 6-STEP LOGICAL WORKFLOW -->
@@ -414,6 +418,7 @@
                 <option value="bubble_rim">🫧 Rosetta 3D Full Bubble Perimeter</option>
                 <option value="scallop_stamp">Scalloped Cookie Stamp (Striped)</option>
                 <option value="flower_5petal">🌸 5-Petal Pop Flower (Full Corner Coverage)</option>
+                <option value="mihrab_arch">Mihrab Pointed Arch Crown</option>
                 <option value="merged_lobes">Rosetta Merged Circle Lobes</option>
                 <option value="custom_plate_mesh">📂 Custom Imported Plate (.STL/.OBJ)</option>
                 <option value="open_frame">Open Test Frame Only (No Faceplate)</option>
@@ -478,6 +483,10 @@
                 <option value="deco">Stepped Art Deco Frame</option>
                 <option value="stadion">70s Concentric Stadion</option>
                 <option value="rosetta_discs">Rosetta Multi-Color Discs</option>
+                <option value="khatam">Islamic Khatam (8-Point Stars)</option>
+                <option value="mashrabiya">Mashrabiya Jaali Lattice</option>
+                <option value="girih">Girih Strap Interlace</option>
+                <option value="cedar">Stylised Cedar Frieze</option>
               </select>
             </div>
             <div>
@@ -1036,6 +1045,30 @@
           const rAdd = lobeAmp * petalWave;
           pts.push(new THREE.Vector2((rx + rAdd) * Math.cos(theta), (ry + rAdd) * Math.sin(theta)));
         }
+        return pts;
+      }
+
+      // Pointed crown on the standard rounded plate. The arch rises outside the
+      // original rectangle, so the face still covers the chassis.
+      function getMihrabArchPoints(w, h, cornerR) {
+        const hw = w / 2, hh = h / 2;
+        const rad = Math.min(Math.max(0.8, cornerR), hw * 0.35, hh * 0.28);
+        const rise = Math.max(12, Math.min(20, h * 0.22));
+        const pts = [];
+        function addArc(cx, cy, a0, a1, segs) {
+          for (let i = 0; i <= segs; i++) {
+            const a = a0 + (i / segs) * (a1 - a0);
+            const p = new THREE.Vector2(cx + rad * Math.cos(a), cy + rad * Math.sin(a));
+            const prev = pts[pts.length - 1];
+            if (!prev || prev.distanceTo(p) > 0.02) pts.push(p);
+          }
+        }
+        addArc(hw - rad, -hh + rad, -Math.PI / 2, 0, 8);
+        pts.push(new THREE.Vector2(hw, hh));
+        pts.push(new THREE.Vector2(0, hh + rise));
+        pts.push(new THREE.Vector2(-hw, hh));
+        pts.push(new THREE.Vector2(-hw, -hh + rad));
+        addArc(-hw + rad, -hh + rad, Math.PI, Math.PI * 1.5, 8);
         return pts;
       }
 
@@ -2087,7 +2120,830 @@
         });
       }
 
-      function buildAll3DOverlays(p, plateW, plateH, zTopSurface, mergedCutouts, activeItems, zPerimDeckTop, cornerR) {
+      // Middle Eastern reliefs. Straps and borders stay at least ~1.1mm wide.
+      // Voids are punched only when they sit inside the plate and clear of openings.
+      function meSignedArea(pts) {
+        let a = 0;
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i], q = pts[(i + 1) % pts.length];
+          a += p.x * q.y - q.x * p.y;
+        }
+        return a * 0.5;
+      }
+
+      function mePointInPoly(p, poly) {
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const yi = poly[i].y, yj = poly[j].y;
+          if ((yi > p.y) !== (yj > p.y)) {
+            const x = (poly[j].x - poly[i].x) * (p.y - yi) / ((yj - yi) || 1e-16) + poly[i].x;
+            if (p.x < x) inside = !inside;
+          }
+        }
+        return inside;
+      }
+
+      function meDistToSeg(p, a, b) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const l2 = dx * dx + dy * dy;
+        if (l2 < 1e-12) return Math.hypot(p.x - a.x, p.y - a.y);
+        let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+      }
+
+      function meDistToPoly(p, poly) {
+        let m = Infinity;
+        for (let i = 0; i < poly.length; i++) m = Math.min(m, meDistToSeg(p, poly[i], poly[(i + 1) % poly.length]));
+        return m;
+      }
+
+      function meSegsCross(a, b, c, d) {
+        const cr = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+        const c1 = cr(a, b, c), c2 = cr(a, b, d), c3 = cr(c, d, a), c4 = cr(c, d, b);
+        if (Math.abs(c1) < 1e-8 || Math.abs(c2) < 1e-8 || Math.abs(c3) < 1e-8 || Math.abs(c4) < 1e-8) return false;
+        return (c1 * c2 < 0) && (c3 * c4 < 0);
+      }
+
+      function mePolysOverlap(a, b) {
+        for (let i = 0; i < a.length; i++) if (mePointInPoly(a[i], b)) return true;
+        for (let i = 0; i < b.length; i++) if (mePointInPoly(b[i], a)) return true;
+        for (let i = 0; i < a.length; i++) {
+          const a1 = a[i], a2 = a[(i + 1) % a.length];
+          for (let j = 0; j < b.length; j++) {
+            if (meSegsCross(a1, a2, b[j], b[(j + 1) % b.length])) return true;
+          }
+        }
+        return false;
+      }
+
+      function meMinPolySep(a, b) {
+        if (mePolysOverlap(a, b)) return 0;
+        let m = Infinity;
+        for (let i = 0; i < a.length; i++) m = Math.min(m, meDistToPoly(a[i], b));
+        for (let i = 0; i < b.length; i++) m = Math.min(m, meDistToPoly(b[i], a));
+        return m;
+      }
+
+      function meSimplePoly(pts) {
+        const n = pts.length;
+        if (n < 3) return false;
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) {
+            if ((j - i + n) % n <= 1 || (i - j + n) % n <= 1) continue;
+            if (meSegsCross(pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n])) return false;
+          }
+        }
+        return true;
+      }
+
+      function meDropCollinear(pts) {
+        const n = pts.length;
+        if (n < 3) return pts;
+        const out = [];
+        for (let i = 0; i < n; i++) {
+          const a = pts[(i + n - 1) % n], b = pts[i], c = pts[(i + 1) % n];
+          const abx = b.x - a.x, aby = b.y - a.y, bcx = c.x - b.x, bcy = c.y - b.y;
+          const lab = Math.hypot(abx, aby), lbc = Math.hypot(bcx, bcy);
+          if (lab < 1e-4 || lbc < 1e-4) continue;
+          const cr = abx * bcy - aby * bcx;
+          if (Math.abs(cr) <= 0.02 * lab * lbc) continue;
+          out.push(b);
+        }
+        return out.length >= 3 ? out : pts;
+      }
+
+      // Earcut leaves a cap edge lying across several collinear wall edges (axis-aligned
+      // lattice holes, clipped friezes). Split those caps so every edge is shared twice.
+      function meWeldTJunctions(geo) {
+        const attr = geo.attributes.position;
+        if (!attr || attr.count < 3 || attr.count % 3 !== 0) return false;
+        const tris = [];
+        for (let i = 0; i < attr.count; i += 3) {
+          tris.push([
+            [attr.getX(i), attr.getY(i), attr.getZ(i)],
+            [attr.getX(i + 1), attr.getY(i + 1), attr.getZ(i + 1)],
+            [attr.getX(i + 2), attr.getY(i + 2), attr.getZ(i + 2)]
+          ]);
+        }
+        const q = (n) => Math.round(n * 1e5) / 1e5;
+        const key = (p) => `${q(p[0])},${q(p[1])},${q(p[2])}`;
+        const verts = [];
+        const seen = new Set();
+        tris.forEach(t => t.forEach(p => {
+          const k = key(p);
+          if (!seen.has(k)) { seen.add(k); verts.push([q(p[0]), q(p[1]), q(p[2])]); }
+        }));
+        const edgeKey = (a, b) => {
+          const ka = key(a), kb = key(b);
+          return ka < kb ? ka + '|' + kb : kb + '|' + ka;
+        };
+        const count = new Map();
+        tris.forEach(t => {
+          for (let i = 0; i < 3; i++) {
+            const k = edgeKey(t[i], t[(i + 1) % 3]);
+            count.set(k, (count.get(k) || 0) + 1);
+          }
+        });
+        const onSeg = (p, a, b) => {
+          const abx = b[0] - a[0], aby = b[1] - a[1], abz = b[2] - a[2];
+          const ab2 = abx * abx + aby * aby + abz * abz;
+          if (ab2 < 1e-12) return null;
+          const t = ((p[0] - a[0]) * abx + (p[1] - a[1]) * aby + (p[2] - a[2]) * abz) / ab2;
+          if (t <= 1e-5 || t >= 1 - 1e-5) return null;
+          const dx = a[0] + abx * t - p[0], dy = a[1] + aby * t - p[1], dz = a[2] + abz * t - p[2];
+          if (dx * dx + dy * dy + dz * dz > 1e-8) return null;
+          return t;
+        };
+        const splits = new Map();
+        count.forEach((n, k) => {
+          if (n !== 1) return;
+          const [sa, sb] = k.split('|');
+          const a = sa.split(',').map(Number), b = sb.split(',').map(Number);
+          const mids = [];
+          for (let i = 0; i < verts.length; i++) {
+            const t = onSeg(verts[i], a, b);
+            if (t != null) mids.push({ t, p: verts[i] });
+          }
+          if (!mids.length) return;
+          mids.sort((u, v) => u.t - v.t);
+          const uniq = [];
+          mids.forEach(m => { if (!uniq.length || Math.abs(m.t - uniq[uniq.length - 1].t) > 1e-5) uniq.push(m); });
+          splits.set(k, uniq.map(m => m.p));
+        });
+        if (!splits.size) return false;
+        const out = [];
+        const queue = tris.map(t => t);
+        let guard = 0;
+        const limit = tris.length * 8 + 100;
+        while (queue.length && guard++ < limit) {
+          const t = queue.pop();
+          let edge = -1, pts = null;
+          for (let i = 0; i < 3; i++) {
+            const hit = splits.get(edgeKey(t[i], t[(i + 1) % 3]));
+            if (hit && hit.length) { edge = i; pts = hit; break; }
+          }
+          if (edge < 0) { out.push(t); continue; }
+          const a = t[edge].map(q), b = t[(edge + 1) % 3].map(q), c = t[(edge + 2) % 3].map(q);
+          const ordered = [];
+          pts.forEach(p => {
+            const tt = onSeg(p, a, b);
+            if (tt != null) ordered.push({ t: tt, p });
+          });
+          ordered.sort((u, v) => u.t - v.t);
+          const deduped = [a];
+          ordered.forEach(m => {
+            const prev = deduped[deduped.length - 1];
+            if (Math.hypot(m.p[0] - prev[0], m.p[1] - prev[1], m.p[2] - prev[2]) > 1e-5) deduped.push(m.p);
+          });
+          if (Math.hypot(b[0] - deduped[deduped.length - 1][0], b[1] - deduped[deduped.length - 1][1], b[2] - deduped[deduped.length - 1][2]) > 1e-5) deduped.push(b);
+          if (deduped.length < 3) { out.push(t); continue; }
+          for (let i = 0; i < deduped.length - 1; i++) queue.push([deduped[i], deduped[i + 1], c]);
+        }
+        if (queue.length) return false;
+        const arr = new Float32Array(out.length * 9);
+        for (let i = 0; i < out.length; i++) {
+          for (let k = 0; k < 3; k++) {
+            arr[i * 9 + k * 3] = out[i][k][0];
+            arr[i * 9 + k * 3 + 1] = out[i][k][1];
+            arr[i * 9 + k * 3 + 2] = out[i][k][2];
+          }
+        }
+        geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+        geo.computeVertexNormals();
+        return true;
+      }
+
+      function meKeepPoly(poly) {
+        const clean = meDropCollinear(deduplicatePolygonPoints(poly, 0.03));
+        if (!meSimplePoly(clean)) return null;
+        const A = Math.abs(meSignedArea(clean));
+        if (A < 0.9) return null;
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        clean.forEach(p => {
+          minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+          minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+        });
+        if (A / Math.max(maxX - minX, maxY - minY, 0.001) < 0.8) return null;
+        return clean;
+      }
+
+      function meCutoutPoly(item, expand) {
+        const e = Math.max(0, expand);
+        if (item.isRoundCut || item.slotShape === 'circle' || item.slotShape === 'pill') {
+          const vertical = item.cutH >= item.cutW;
+          const rad = Math.min(item.cutW, item.cutH) / 2 + e;
+          const half = Math.max(0, Math.abs(item.cutH - item.cutW) / 2);
+          const pts = [], segs = 8;
+          if (vertical) {
+            for (let i = 0; i <= segs; i++) {
+              const a = (i / segs) * Math.PI;
+              pts.push(new THREE.Vector2(item.cx + rad * Math.cos(a), item.cy + half + rad * Math.sin(a)));
+            }
+            for (let i = 0; i <= segs; i++) {
+              const a = Math.PI + (i / segs) * Math.PI;
+              pts.push(new THREE.Vector2(item.cx + rad * Math.cos(a), item.cy - half + rad * Math.sin(a)));
+            }
+          } else {
+            for (let i = 0; i <= segs; i++) {
+              const a = -Math.PI / 2 + (i / segs) * Math.PI;
+              pts.push(new THREE.Vector2(item.cx + half + rad * Math.cos(a), item.cy + rad * Math.sin(a)));
+            }
+            for (let i = 0; i <= segs; i++) {
+              const a = Math.PI / 2 + (i / segs) * Math.PI;
+              pts.push(new THREE.Vector2(item.cx - half + rad * Math.cos(a), item.cy + rad * Math.sin(a)));
+            }
+          }
+          return deduplicatePolygonPoints(pts, 0.02);
+        }
+        const hw = item.cutW / 2 + e, hh = item.cutH / 2 + e;
+        return [
+          new THREE.Vector2(item.cx - hw, item.cy - hh),
+          new THREE.Vector2(item.cx + hw, item.cy - hh),
+          new THREE.Vector2(item.cx + hw, item.cy + hh),
+          new THREE.Vector2(item.cx - hw, item.cy + hh)
+        ];
+      }
+
+      function meVoidInside(pts, outline, cutouts, margin) {
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          if (!mePointInPoly(p, outline)) return false;
+          if (meDistToPoly(p, outline) < margin) return false;
+        }
+        for (let i = 0; i < pts.length; i++) {
+          const a = pts[i], b = pts[(i + 1) % pts.length];
+          for (let j = 0; j < outline.length; j++) {
+            if (meSegsCross(a, b, outline[j], outline[(j + 1) % outline.length])) return false;
+          }
+        }
+        for (let i = 0; i < outline.length; i++) if (mePointInPoly(outline[i], pts)) return false;
+        for (let k = 0; k < cutouts.length; k++) {
+          if (mePolysOverlap(pts, meCutoutPoly(cutouts[k], margin))) return false;
+        }
+        return meSimplePoly(pts);
+      }
+
+      function meHolePath(pts, outerSign) {
+        const p = pts.map(v => v.clone());
+        if (meSignedArea(p) * outerSign > 0) p.reverse();
+        return new THREE.Path(p);
+      }
+
+      function meRegPoly(cx, cy, radius, n, rot) {
+        const pts = [];
+        for (let i = 0; i < n; i++) {
+          const a = rot + (i / n) * Math.PI * 2;
+          pts.push(new THREE.Vector2(cx + Math.cos(a) * radius, cy + Math.sin(a) * radius));
+        }
+        return pts;
+      }
+
+      function meStar8(cx, cy, outerR) {
+        const innerR = outerR * 0.52;
+        const pts = [];
+        for (let i = 0; i < 16; i++) {
+          const a = -Math.PI / 2 + i * (Math.PI / 8);
+          const rad = (i % 2 === 0) ? outerR : innerR;
+          pts.push(new THREE.Vector2(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad));
+        }
+        return pts;
+      }
+
+      function meAxisSquare(cx, cy, half) {
+        return [
+          new THREE.Vector2(cx - half, cy - half),
+          new THREE.Vector2(cx + half, cy - half),
+          new THREE.Vector2(cx + half, cy + half),
+          new THREE.Vector2(cx - half, cy + half)
+        ];
+      }
+
+      // A couple of degrees keeps the square reading as a square, but takes its edges
+      // off the shared horizontal and vertical lines that make earcut open the shell.
+      function meLatticeSquare(cx, cy, half) {
+        return meRegPoly(cx, cy, half * Math.SQRT2, 4, Math.PI / 4 + 0.035);
+      }
+
+      function meExtrude(group, pts, depth, z, mat) {
+        const clean = meKeepPoly(pts);
+        if (!clean) return;
+        if (meSignedArea(clean) < 0) clean.reverse();
+        const geo = new THREE.ExtrudeGeometry(new THREE.Shape(clean), { depth: depth, bevelEnabled: false });
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          if (!isFinite(pos.getX(i)) || !isFinite(pos.getY(i)) || !isFinite(pos.getZ(i))) { geo.dispose(); return; }
+        }
+        meWeldTJunctions(geo);
+        geo.computeVertexNormals();
+        geo.translate(0, 0, z);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function meEdgeInside(p, a, b) {
+        return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x) >= -1e-7;
+      }
+
+      function meEdgeHit(p, q, a, b) {
+        const rx = q.x - p.x, ry = q.y - p.y;
+        const sx = b.x - a.x, sy = b.y - a.y;
+        const den = rx * sy - ry * sx;
+        if (Math.abs(den) < 1e-12) return p.clone();
+        const t = ((a.x - p.x) * sy - (a.y - p.y) * sx) / den;
+        return new THREE.Vector2(p.x + t * rx, p.y + t * ry);
+      }
+
+      function meClipConvex(subject, clip) {
+        let out = subject.map(p => p.clone());
+        for (let i = 0; i < clip.length && out.length; i++) {
+          const a = clip[i], b = clip[(i + 1) % clip.length];
+          const input = out;
+          out = [];
+          for (let j = 0; j < input.length; j++) {
+            const cur = input[j];
+            const prev = input[(j + input.length - 1) % input.length];
+            const curIn = meEdgeInside(cur, a, b);
+            const prevIn = meEdgeInside(prev, a, b);
+            if (curIn) {
+              if (!prevIn) out.push(meEdgeHit(prev, cur, a, b));
+              out.push(cur.clone());
+            } else if (prevIn) out.push(meEdgeHit(prev, cur, a, b));
+          }
+        }
+        return deduplicatePolygonPoints(out, 0.01);
+      }
+
+      function meIsConvex(poly) {
+        let sign = 0;
+        for (let i = 0; i < poly.length; i++) {
+          const a = poly[i], b = poly[(i + 1) % poly.length], c = poly[(i + 2) % poly.length];
+          const cr = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+          if (Math.abs(cr) < 1e-7) continue;
+          const s = cr > 0 ? 1 : -1;
+          if (!sign) sign = s;
+          else if (s !== sign) return false;
+        }
+        return sign !== 0;
+      }
+
+      function mePointInTri(p, a, b, c) {
+        const c1 = (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+        const c2 = (c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x);
+        const c3 = (a.x - c.x) * (p.y - c.y) - (a.y - c.y) * (p.x - c.x);
+        return (c1 > 1e-7 && c2 > 1e-7 && c3 > 1e-7) || (c1 < -1e-7 && c2 < -1e-7 && c3 < -1e-7);
+      }
+
+      function meTriangulate(poly) {
+        const verts = poly.map(p => p.clone());
+        const tris = [];
+        let guard = 0;
+        const limit = poly.length * poly.length;
+        while (verts.length > 3 && guard++ < limit) {
+          let found = false;
+          for (let i = 0; i < verts.length; i++) {
+            const ip = (i + verts.length - 1) % verts.length;
+            const inx = (i + 1) % verts.length;
+            const a = verts[ip], b = verts[i], c = verts[inx];
+            const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+            if (cross <= 1e-8) continue;
+            let contains = false;
+            for (let k = 0; k < verts.length; k++) {
+              if (k === i || k === ip || k === inx) continue;
+              if (mePointInTri(verts[k], a, b, c)) { contains = true; break; }
+            }
+            if (contains) continue;
+            tris.push([a.clone(), b.clone(), c.clone()]);
+            verts.splice(i, 1);
+            found = true;
+            break;
+          }
+          if (!found) return null;
+        }
+        if (verts.length === 3) tris.push(verts.map(v => v.clone()));
+        return tris;
+      }
+
+      function meStitchLoops(polys) {
+        const key = (p) => `${Math.round(p.x * 1000)},${Math.round(p.y * 1000)}`;
+        const edges = new Map();
+        polys.forEach(poly => {
+          for (let i = 0; i < poly.length; i++) {
+            const a = poly[i], b = poly[(i + 1) % poly.length];
+            const ka = key(a), kb = key(b);
+            if (ka === kb) continue;
+            const fwd = ka + '|' + kb, rev = kb + '|' + ka;
+            if (edges.has(rev)) edges.delete(rev);
+            else edges.set(fwd, { a, b, ka, kb });
+          }
+        });
+        const outGo = new Map();
+        edges.forEach(e => {
+          if (!outGo.has(e.ka)) outGo.set(e.ka, []);
+          outGo.get(e.ka).push(e);
+        });
+        const used = new Set();
+        const loops = [];
+        edges.forEach(start => {
+          const sk = start.ka + '|' + start.kb;
+          if (used.has(sk)) return;
+          const loop = [];
+          let e = start;
+          let guard = 0;
+          while (e && guard++ < 10000) {
+            const ek = e.ka + '|' + e.kb;
+            if (used.has(ek)) break;
+            used.add(ek);
+            loop.push(e.a.clone());
+            const nexts = outGo.get(e.kb) || [];
+            let nxt = null;
+            for (let i = 0; i < nexts.length; i++) {
+              if (!used.has(nexts[i].ka + '|' + nexts[i].kb)) { nxt = nexts[i]; break; }
+            }
+            if (!nxt) break;
+            if (nxt.ka === start.ka && loop.length > 2) break;
+            e = nxt;
+          }
+          if (loop.length >= 3 && Math.abs(meSignedArea(loop)) > 0.2) loops.push(loop);
+        });
+        return loops;
+      }
+
+      function meClipToOutline(subject, outline, triCache) {
+        if (!subject || subject.length < 3) return [];
+        if (meSignedArea(outline) < 0) outline = outline.map(p => p.clone()).reverse();
+        if (meIsConvex(outline)) {
+          const c = meClipConvex(subject, outline);
+          return c.length >= 3 ? [c] : [];
+        }
+        if (!triCache.tris) triCache.tris = meTriangulate(outline);
+        if (!triCache.tris) {
+          let inside = true;
+          for (let i = 0; i < subject.length; i++) if (!mePointInPoly(subject[i], outline)) inside = false;
+          return inside ? [subject.map(p => p.clone())] : [];
+        }
+        const pieces = [];
+        triCache.tris.forEach(tri => {
+          const c = meClipConvex(subject, tri);
+          if (c.length >= 3) pieces.push(c);
+        });
+        return pieces.length ? meStitchLoops(pieces) : [];
+      }
+
+      function meApplyCutouts(polys, cutouts, clearance) {
+        let next = polys;
+        cutouts.forEach(item => {
+          next = subtractCutoutFromPolygons(next, {
+            cx: item.cx, cy: item.cy,
+            cutW: item.cutW + clearance * 2,
+            cutH: item.cutH + clearance * 2,
+            slotShape: item.slotShape,
+            isRoundCut: item.isRoundCut
+          });
+        });
+        return next.map(meKeepPoly).filter(Boolean);
+      }
+
+      function meRibbon(cx, cy, len, width, ang) {
+        const ux = Math.cos(ang), uy = Math.sin(ang);
+        const vx = -uy, vy = ux;
+        const hl = len / 2, hw = width / 2;
+        return [
+          new THREE.Vector2(cx + ux * hl + vx * hw, cy + uy * hl + vy * hw),
+          new THREE.Vector2(cx - ux * hl + vx * hw, cy - uy * hl + vy * hw),
+          new THREE.Vector2(cx - ux * hl - vx * hw, cy - uy * hl - vy * hw),
+          new THREE.Vector2(cx + ux * hl - vx * hw, cy + uy * hl - vy * hw)
+        ];
+      }
+
+      function meRoundHolePath(item, margin) {
+        const r = Math.min(item.cutW, item.cutH) / 2 + margin;
+        const n = 28;
+        const pts = [];
+        for (let i = 0; i < n; i++) {
+          const a = 0.17 + (i / n) * Math.PI * 2;
+          pts.push(new THREE.Vector2(item.cx + Math.cos(a) * r, item.cy + Math.sin(a) * r));
+        }
+        pts.reverse();
+        return new THREE.Path(pts);
+      }
+
+      function mePunchField(group, outline, cutouts, z, depth, mat, voids, accents) {
+        const outer = outline.map(p => p.clone());
+        if (meSignedArea(outer) < 0) outer.reverse();
+        const shape = new THREE.Shape(outer);
+        const sign = meSignedArea(outer);
+        cutouts.forEach(item => {
+          if (item.isRoundCut || item.slotShape === 'circle') shape.holes.push(meRoundHolePath(item, 0.15));
+          else shape.holes.push(makeItemHolePath(item, 0.15));
+        });
+        voids.forEach(pts => shape.holes.push(meHolePath(pts, sign)));
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false });
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          if (!isFinite(pos.getX(i)) || !isFinite(pos.getY(i)) || !isFinite(pos.getZ(i))) { geo.dispose(); return; }
+        }
+        meWeldTJunctions(geo);
+        geo.computeVertexNormals();
+        geo.translate(0, 0, z);
+        group.add(new THREE.Mesh(geo, mat));
+        (accents || []).forEach(pts => meExtrude(group, pts, depth, z, accents.mat));
+      }
+
+      function meNestedClear(inner, outer, gap) {
+        for (let i = 0; i < inner.length; i++) {
+          if (!mePointInPoly(inner[i], outer)) return false;
+          if (meDistToPoly(inner[i], outer) < gap) return false;
+        }
+        for (let i = 0; i < outer.length; i++) if (mePointInPoly(outer[i], inner)) return false;
+        return true;
+      }
+
+      function meTryAddVoid(voids, pts, outline, cutouts, margin, minSep) {
+        if (!meVoidInside(pts, outline, cutouts, margin)) return false;
+        for (let i = 0; i < voids.length; i++) {
+          if (meMinPolySep(pts, voids[i]) < minSep) return false;
+        }
+        voids.push(pts);
+        return true;
+      }
+
+      function buildKhatamOverlay(group, p, plateW, plateH, z, depth, matOv, matD2, outline, cutouts) {
+        const sw = Math.max(1.2, Math.min(3.4, p.ovWidth * 0.32));
+        const density = Math.max(1, Math.min(5, p.ovCount));
+        let pitch = Math.min(plateW, plateH) / (density + 2);
+        pitch = Math.max(pitch, sw * 4.8);
+        const R = (pitch - sw) / 2;
+        if (R < 3.5) return;
+        const margin = Math.max(1.25, sw * 0.95);
+        const cols = Math.ceil(plateW / pitch) + 3;
+        const rows = Math.ceil(plateH / pitch) + 3;
+        const x0 = -((cols - 1) * pitch) / 2 + 0.33;
+        const y0 = -((rows - 1) * pitch) / 2 + 0.47;
+        const voids = [];
+        const accents = [];
+        accents.mat = matD2;
+        const sd = pitch / Math.SQRT2 - R - sw;
+        const squareHalf = sd > 1.15 ? sd / Math.SQRT2 : 0;
+
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            const cx = x0 + i * pitch, cy = y0 + j * pitch;
+            const star = meStar8(cx, cy, R);
+            if (!meTryAddVoid(voids, star, outline, cutouts, margin, sw * 0.85)) continue;
+            const innerR = R * 0.52;
+            const accentR = Math.min(innerR * 0.46, innerR - 1.05);
+            if (accentR >= 1.25) {
+              const gem = meRegPoly(cx, cy, accentR, 8, Math.PI / 8);
+              if (meNestedClear(gem, star, 0.95)) accents.push(gem);
+            }
+          }
+        }
+        if (squareHalf >= 0.9) {
+          for (let i = 0; i < cols - 1; i++) {
+            for (let j = 0; j < rows - 1; j++) {
+              const cx = x0 + (i + 0.5) * pitch, cy = y0 + (j + 0.5) * pitch;
+              meTryAddVoid(voids, meLatticeSquare(cx, cy, squareHalf), outline, cutouts, margin, sw * 0.85);
+            }
+          }
+        }
+        if (!voids.length) return;
+        mePunchField(group, outline, cutouts, z, depth, matOv, voids, accents);
+      }
+
+      function buildMashrabiyaOverlay(group, p, plateW, plateH, z, depth, matOv, matD2, outline, cutouts) {
+        const sw = Math.max(1.2, Math.min(3.2, p.ovWidth * 0.3));
+        const density = Math.max(1, Math.min(5, p.ovCount));
+        let pitch = Math.min(plateW, plateH) / (density + 3);
+        pitch = Math.max(pitch, sw * 3.4);
+        const apothem = (pitch - sw) / 2;
+        const R = apothem / Math.cos(Math.PI / 8);
+        if (R < 2.2) return;
+        const margin = Math.max(1.25, sw * 0.95);
+        const cols = Math.ceil(plateW / pitch) + 3;
+        const rows = Math.ceil(plateH / pitch) + 3;
+        const x0 = -((cols - 1) * pitch) / 2 + 0.33;
+        const y0 = -((rows - 1) * pitch) / 2 + 0.47;
+        const voids = [];
+        const accents = [];
+        accents.mat = matD2;
+        const sd = pitch / Math.SQRT2 - R - sw;
+        const squareHalf = sd > 1.2 ? sd / Math.SQRT2 : 0;
+
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            const cx = x0 + i * pitch, cy = y0 + j * pitch;
+            meTryAddVoid(voids, meRegPoly(cx, cy, R, 8, Math.PI / 8), outline, cutouts, margin, sw * 0.85);
+          }
+        }
+        if (squareHalf >= 0.95) {
+          for (let i = 0; i < cols - 1; i++) {
+            for (let j = 0; j < rows - 1; j++) {
+              const cx = x0 + (i + 0.5) * pitch, cy = y0 + (j + 0.5) * pitch;
+              const sq = meLatticeSquare(cx, cy, squareHalf);
+              if (!meTryAddVoid(voids, sq, outline, cutouts, margin, sw * 0.85)) continue;
+              const gemHalf = squareHalf - 0.95;
+              if (gemHalf >= 0.85) {
+                const gem = meLatticeSquare(cx, cy, gemHalf);
+                if (meNestedClear(gem, sq, 0.9)) accents.push(gem);
+              }
+            }
+          }
+        }
+        if (!voids.length) return;
+        mePunchField(group, outline, cutouts, z, depth, matOv, voids, accents);
+      }
+
+      function buildGirihOverlay(group, p, plateW, plateH, z, depth, matOv, matD2, outline, cutouts) {
+        const sw = Math.max(1.25, Math.min(3.2, p.ovWidth * 0.36));
+        const gap = Math.max(1.1, Math.min(1.8, sw * 0.48));
+        const density = Math.max(1, Math.min(5, p.ovCount));
+        const pitch = Math.max(sw + 2 * gap + 1.8, sw + 2 * gap + 2.4 + (5 - density) * 1.7);
+        const angOver = Math.PI / 4;
+        const angUnder = -Math.PI / 4;
+        const dirO = { x: Math.cos(angOver), y: Math.sin(angOver) };
+        const nrmO = { x: -dirO.y, y: dirO.x };
+        const dirU = { x: Math.cos(angUnder), y: Math.sin(angUnder) };
+        const nrmU = { x: -dirU.y, y: dirU.x };
+        const span = plateW + plateH + pitch * 2;
+        const count = Math.min(28, Math.ceil(span / pitch) + 2);
+        const d0 = -((count - 1) * pitch) / 2;
+        const triCache = { tris: null };
+        const outlineCCW = meSignedArea(outline) >= 0 ? outline : outline.map(pt => pt.clone()).reverse();
+        const clearance = Math.max(1.15, sw * 0.55);
+        const overRaw = [];
+        const underRaw = [];
+
+        for (let i = 0; i < count; i++) {
+          const d = d0 + i * pitch;
+          const rib = meRibbon(nrmO.x * d, nrmO.y * d, span, sw, angOver);
+          meClipToOutline(rib, outlineCCW, triCache).forEach(poly => overRaw.push(poly));
+        }
+
+        const clear = sw / 2 + gap + 0.06;
+        for (let u = 0; u < count; u++) {
+          const d = d0 + u * pitch;
+          const origin = { x: nrmU.x * d, y: nrmU.y * d };
+          const crosses = [];
+          for (let i = 0; i < count; i++) {
+            const od = d0 + i * pitch;
+            const oc = { x: nrmO.x * od, y: nrmO.y * od };
+            const den = dirU.x * dirO.y - dirU.y * dirO.x;
+            if (Math.abs(den) < 1e-8) continue;
+            const t = ((oc.x - origin.x) * dirO.y - (oc.y - origin.y) * dirO.x) / den;
+            crosses.push(t);
+          }
+          crosses.sort((a, b) => a - b);
+          const marks = [-span / 2, ...crosses, span / 2];
+          for (let k = 0; k < marks.length - 1; k++) {
+            const t0 = marks[k] + (k === 0 ? 0 : clear);
+            const t1 = marks[k + 1] - (k + 1 === marks.length - 1 ? 0 : clear);
+            if (t1 - t0 < 1.7) continue;
+            const mid = (t0 + t1) / 2;
+            const seg = meRibbon(origin.x + dirU.x * mid, origin.y + dirU.y * mid, t1 - t0, sw, angUnder);
+            meClipToOutline(seg, outlineCCW, triCache).forEach(poly => underRaw.push(poly));
+          }
+        }
+
+        meApplyCutouts(overRaw, cutouts, clearance).forEach(poly => meExtrude(group, poly, depth, z, matOv));
+        meApplyCutouts(underRaw, cutouts, clearance).forEach(poly => meExtrude(group, poly, depth, z, matD2));
+      }
+
+      function meCedarSide(halfW, height) {
+        const tipT = Math.max(1.6, Math.min(2.5, halfW * 0.18));
+        const tw = Math.max(1.9, Math.min(3.4, halfW * 0.22));
+        let tiers = 4;
+        const trunkH = Math.max(3.2, Math.min(5.5, height * 0.2));
+        const crownH = Math.max(1.9, tipT);
+        while (tiers > 2 && trunkH + crownH + tiers * (tipT + 1.2) > height + 0.2) tiers -= 1;
+        const pts = [new THREE.Vector2(-tw, 0), new THREE.Vector2(-tw, trunkH)];
+        let prevTop = trunkH;
+        for (let t = 0; t < tiers; t++) {
+          const spread = halfW * (1 - t * 0.18);
+          const rise = tipT + t * 0.45;
+          pts.push(new THREE.Vector2(-spread, prevTop));
+          pts.push(new THREE.Vector2(-spread, prevTop + rise));
+          prevTop += rise;
+        }
+        const crownHalf = Math.max(1.5, tw * 0.8);
+        pts.push(new THREE.Vector2(-crownHalf, prevTop));
+        pts.push(new THREE.Vector2(-crownHalf, prevTop + crownH));
+        return { pts, tw, height: prevTop + crownH };
+      }
+
+      function meCedarPoly(cx, baseY, side) {
+        const pts = side.pts.map(p => new THREE.Vector2(cx + p.x, baseY + p.y));
+        for (let i = side.pts.length - 1; i >= 0; i--) {
+          pts.push(new THREE.Vector2(cx - side.pts[i].x, baseY + side.pts[i].y));
+        }
+        return pts;
+      }
+
+      function meFriezePoly(trees, barH) {
+        if (!trees.length) return null;
+        const top = barH;
+        const left = Math.min(...trees.map(t => t.cx - t.tw)) - 1.6;
+        const right = Math.max(...trees.map(t => t.cx + t.tw)) + 1.6;
+        const pts = [
+          new THREE.Vector2(left, 0),
+          new THREE.Vector2(right, 0),
+          new THREE.Vector2(right, top)
+        ];
+        trees.slice().sort((a, b) => b.cx - a.cx).forEach(t => {
+          for (let i = 0; i < t.side.pts.length; i++) {
+            pts.push(new THREE.Vector2(t.cx - t.side.pts[i].x, top + t.side.pts[i].y));
+          }
+          for (let i = t.side.pts.length - 1; i >= 0; i--) {
+            pts.push(new THREE.Vector2(t.cx + t.side.pts[i].x, top + t.side.pts[i].y));
+          }
+        });
+        pts.push(new THREE.Vector2(left, top));
+        const yShift = trees[0].barY;
+        return pts.map(p => new THREE.Vector2(p.x, p.y + yShift));
+      }
+
+      function buildCedarOverlay(group, p, plateW, plateH, z, depth, matOv, matD2, outline, cutouts) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        outline.forEach(pt => {
+          minX = Math.min(minX, pt.x); maxX = Math.max(maxX, pt.x);
+          minY = Math.min(minY, pt.y); maxY = Math.max(maxY, pt.y);
+        });
+        let cMinX = Infinity, cMaxX = -Infinity, cMinY = Infinity, cMaxY = -Infinity;
+        cutouts.forEach(item => {
+          cMinX = Math.min(cMinX, item.cx - item.cutW / 2);
+          cMaxX = Math.max(cMaxX, item.cx + item.cutW / 2);
+          cMinY = Math.min(cMinY, item.cy - item.cutH / 2);
+          cMaxY = Math.max(cMaxY, item.cy + item.cutH / 2);
+        });
+        const hasCuts = cutouts.length > 0;
+        const edge = 1.7;
+        const barH = 1.7;
+        const outlineCCW = meSignedArea(outline) >= 0 ? outline : outline.map(pt => pt.clone()).reverse();
+
+        function emitInside(poly) {
+          if (!poly || !meVoidInside(poly, outlineCCW, cutouts, 1.05)) return false;
+          meExtrude(group, poly, depth, z, matOv);
+          return true;
+        }
+
+        function addFrieze(bandBot, bandTop) {
+          const span = bandTop - bandBot;
+          if (span < 12) return;
+          const treeH = span - barH - 0.3;
+          const availW = (maxX - minX) - edge * 2;
+          const gap = Math.max(2.0, 6.5 - p.ovCount);
+          let count = Math.max(1, Math.min(7, p.ovCount + 1));
+          for (let attempt = 0; attempt < 6 && count >= 1; attempt++) {
+            let halfW = Math.min(treeH * 0.46, (availW / count) * 0.38, 14);
+            halfW = Math.max(4.4, halfW);
+            while (count > 1 && count * (halfW * 2 + gap) - gap > availW - 4) count -= 1;
+            const rowW = count * (halfW * 2) + (count - 1) * gap;
+            const xStart = -rowW / 2 + halfW;
+            const trees = [];
+            for (let i = 0; i < count; i++) {
+              const cx = xStart + i * (halfW * 2 + gap);
+              const side = meCedarSide(halfW, treeH);
+              trees.push({ cx, tw: side.tw, side, barY: bandBot });
+            }
+            if (emitInside(meFriezePoly(trees, barH))) return;
+            count -= 1;
+          }
+        }
+
+        if (!hasCuts) {
+          let heroH = Math.min((maxY - minY) * 0.62, 36);
+          let heroHalf = Math.min((maxX - minX) * 0.16, heroH * 0.42, 16);
+          for (let attempt = 0; attempt < 4; attempt++) {
+            const side = meCedarSide(Math.max(6, heroHalf), heroH);
+            const baseY = -side.height * 0.5;
+            if (emitInside(meCedarPoly(0, baseY, side))) return;
+            heroH *= 0.82;
+            heroHalf *= 0.82;
+          }
+          return;
+        }
+
+        addFrieze(cMaxY + 1.35, maxY - edge);
+        const botSpan = (cMinY - 1.35) - (minY + edge);
+        if (botSpan >= 12) addFrieze(minY + edge, minY + edge + botSpan);
+
+        [-1, 1].forEach(dir => {
+          const inner = dir < 0 ? cMinX - 1.3 : cMaxX + 1.3;
+          const outer = dir < 0 ? minX + edge : maxX - edge;
+          const span = Math.abs(outer - inner);
+          if (span < 13) return;
+          const halfW = Math.min(span / 2 - 1.3, 10);
+          if (halfW < 4.6) return;
+          const treeH = Math.min((cMaxY - cMinY) - 1.0, halfW * 2.15, 28);
+          if (treeH < 12) return;
+          const cx = (inner + outer) / 2;
+          const side = meCedarSide(halfW, treeH);
+          const baseY = (cMinY + cMaxY) / 2 - side.height / 2;
+          const poly = meCedarPoly(cx, baseY, side);
+          if (meVoidInside(poly, outlineCCW, cutouts, 1.05)) meExtrude(group, poly, depth, z, matD2);
+        });
+      }
+
+      function buildAll3DOverlays(p, plateW, plateH, zTopSurface, mergedCutouts, activeItems, zPerimDeckTop, cornerR, faceOutlinePts) {
         const group = new THREE.Group();
         if (p.overlay === 'none' || p.silhouette === 'open_frame' || p.ovHeight <= 0.05) return group;
 
@@ -2290,6 +3146,15 @@
             dGeo.translate(0, 0, zTopSurface);
             group.add(new THREE.Mesh(dGeo, idx % 2 === 0 ? matOv : matD2));
           });
+
+        } else if (p.overlay === 'khatam' || p.overlay === 'mashrabiya' || p.overlay === 'girih' || p.overlay === 'cedar') {
+          const outlinePts = (faceOutlinePts && faceOutlinePts.length >= 3)
+            ? faceOutlinePts.map(pt => new THREE.Vector2(pt.x, pt.y))
+            : getRoundedRectPoints(plateW, plateH, Math.max(0.8, cornerR), 20);
+          if (p.overlay === 'khatam') buildKhatamOverlay(group, p, plateW, plateH, zTopSurface, h, matOv, matD2, outlinePts, mergedCutouts);
+          else if (p.overlay === 'mashrabiya') buildMashrabiyaOverlay(group, p, plateW, plateH, zTopSurface, h, matOv, matD2, outlinePts, mergedCutouts);
+          else if (p.overlay === 'girih') buildGirihOverlay(group, p, plateW, plateH, zTopSurface, h, matOv, matD2, outlinePts, mergedCutouts);
+          else buildCedarOverlay(group, p, plateW, plateH, zTopSurface, h, matOv, matD2, outlinePts, mergedCutouts);
         }
 
         return group;
@@ -2598,6 +3463,8 @@
           currentOutlinePts = getScallopedStampPoints(outerW - 3, outerH - 3, p.stripes, Math.max(3, p.stripes - 1), 4.0);
         } else if (p.silhouette === 'flower_5petal') {
           currentOutlinePts = getFivePetalFlowerPoints(p.inW, p.inH, p.wall, 240);
+        } else if (p.silhouette === 'mihrab_arch') {
+          currentOutlinePts = getMihrabArchPoints(outerW, outerH, p.corner);
         } else {
           currentOutlinePts = getRoundedRectPoints(outerW, outerH, p.corner, 24);
         }
@@ -2917,7 +3784,7 @@
         }
 
         const ovCornerR = isInlaySwap ? inlayCornerR : p.corner;
-        overlayGroup.add(buildAll3DOverlays(p, isInlaySwap ? inlayW : outerW, isInlaySwap ? inlayH : outerH, totalDepth, mergedCutouts, activeItems, zPerimDeckTop, ovCornerR));
+        overlayGroup.add(buildAll3DOverlays(p, isInlaySwap ? inlayW : outerW, isInlaySwap ? inlayH : outerH, totalDepth, mergedCutouts, activeItems, zPerimDeckTop, ovCornerR, faceOutlinePts));
 
         const multiKnobPalette = ['#ef4444', '#facc15', '#2563eb', '#10b981'];
         if (p.showToggles && p.silhouette !== 'open_frame' && (p.swMode === 'covered' || isKnobOnly)) {
@@ -3397,6 +4264,48 @@
           isExploded = true;
           document.getElementById('btn-explode').classList.add('bg-rose-500/25');
           showStatusBanner('🦴 Minimalist 2-Part Skeleton Active (-65% Base Filament, Zero Outer Wall Overlap!)');
+
+        } else if (name === 'khatam') {
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
+          setIfUnlocked('modules', 'inp-swcount', 3);
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('chassis', 'inp-corner', 6.0);
+          setIfUnlocked('overlay', 'inp-overlay', 'khatam');
+          setIfUnlocked('overlay', 'inp-ovheight', 1.8);
+          setIfUnlocked('overlay', 'inp-ovwidth', 4.5);
+          setIfUnlocked('overlay', 'inp-ovcount', 2);
+          setIfUnlocked('knob', 'inp-tipstyle', 'ball');
+          setIfUnlocked('knob', 'inp-tipdia', 13.0);
+          setIfUnlocked('colors', 'inp-cola', '#f3e6cf');
+          setIfUnlocked('colors', 'inp-colb', '#115e59');
+          setIfUnlocked('colors', 'inp-colov', '#0f766e');
+          setIfUnlocked('colors', 'inp-cold2', '#e4b15a');
+          setIfUnlocked('colors', 'inp-colt', '#44403c');
+          setIfUnlocked('colors', 'inp-coltip', '#e4b15a');
+          showStatusBanner('✦ Khatam Active: 8-point star field, gold centre gems, limestone showing through');
+
+        } else if (name === 'mashrabiya') {
+          setIfUnlocked('fixation', 'inp-coverbuild', 'fulltop_snaps');
+          setIfUnlocked('fixation', 'inp-sideskirt', 'skeleton_wrap');
+          setIfUnlocked('modules', 'inp-swcount', 2);
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'mihrab_arch');
+          setIfUnlocked('chassis', 'inp-corner', 8.0);
+          setIfUnlocked('overlay', 'inp-overlay', 'mashrabiya');
+          setIfUnlocked('overlay', 'inp-ovheight', 2.0);
+          setIfUnlocked('overlay', 'inp-ovwidth', 4.0);
+          setIfUnlocked('overlay', 'inp-ovcount', 3);
+          setIfUnlocked('knob', 'inp-tipstyle', 'sphere_flat');
+          setIfUnlocked('knob', 'inp-tipdia', 13.5);
+          setIfUnlocked('colors', 'inp-cola', '#f6f1e7');
+          setIfUnlocked('colors', 'inp-colb', '#3f2a22');
+          setIfUnlocked('colors', 'inp-colov', '#4a2c22');
+          setIfUnlocked('colors', 'inp-cold2', '#d4a054');
+          setIfUnlocked('colors', 'inp-colt', '#3f2a22');
+          setIfUnlocked('colors', 'inp-coltip', '#d4a054');
+          showStatusBanner('🕌 Mashrabiya Active: pointed mihrab crown + octagon-and-square jaali');
         }
         rebuildModel();
       }
@@ -3413,6 +4322,8 @@
       document.getElementById('pre-uncovered-sw').addEventListener('click', () => applyPreset('uncovered_sw'));
       document.getElementById('pre-schuko-2m').addEventListener('click', () => applyPreset('schuko_2m'));
       document.getElementById('pre-twopart-swap').addEventListener('click', () => applyPreset('twopart_swap'));
+      document.getElementById('pre-khatam').addEventListener('click', () => applyPreset('khatam'));
+      document.getElementById('pre-mashrabiya').addEventListener('click', () => applyPreset('mashrabiya'));
 
       document.getElementById('btn-knob-only').addEventListener('click', (e) => {
         isKnobOnly = !isKnobOnly;
