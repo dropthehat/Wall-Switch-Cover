@@ -17,6 +17,10 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script type="module">
+    import Module from 'https://cdn.jsdelivr.net/npm/manifold-3d@2.5.1/manifold.js';
+    window.ManifoldModule = Module;
+  </script>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #182030; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -3779,15 +3783,19 @@
       }
 
       function buildOneTrack(group, sm, cx, mat) {
-        trackSpans(sm).forEach(sp => {
+        const spans = trackSpans(sm);
+        spans.forEach((sp, i) => {
+          const y0 = sp.y0 - (i > 0 ? 0.22 : 0);
+          const y1 = sp.y1 + (i < spans.length - 1 ? 0.22 : 0);
           const ptsR = rightRailPts(sm, sp.extra, sp.mode).map(pt => [pt[0] + cx, pt[1]]);
           const ptsL = mirrorXPts(rightRailPts(sm, sp.extra, sp.mode)).map(pt => [pt[0] + cx, pt[1]]);
-          addProfileXZ(group, ptsR, sp.y0, sp.y1, mat);
-          addProfileXZ(group, ptsL, sp.y0, sp.y1, mat);
+          addProfileXZ(group, ptsR, y0, y1, mat);
+          addProfileXZ(group, ptsL, y0, y1, mat);
         });
         const zBot = sm.zFloor - 0.9;
         const railH = sm.zRailTop - zBot;
-        addBox(group, sm.outerW, sm.endBar, railH, cx, sm.trackInnerHalf + sm.endBar / 2, (sm.zRailTop + zBot) / 2, mat);
+        const barLen = sm.endBar + 0.45;
+        addBox(group, sm.outerW, barLen, railH, cx, sm.trackInnerHalf - 0.4 + barLen / 2, (sm.zRailTop + zBot) / 2, mat);
         const tieY0 = -sm.trackInnerHalf - sm.tieLen;
         const tieY1 = -sm.trackInnerHalf + sm.stopLead + sm.stopLen;
         addBox(group, sm.outerW, tieY1 - tieY0, 0.9, cx, (tieY0 + tieY1) / 2, zBot + 0.45, mat);
@@ -3840,7 +3848,7 @@
         const hCy = shift;
         addBox(group, sm.handleW, sm.handleL, Math.max(0.8, handleTopZ - (sm.zBodyFront - 0.25)),
           hCx, hCy, (sm.zBodyFront - 0.25 + handleTopZ) / 2, mat);
-        const ridgeZ = handleTopZ + 0.55;
+        const ridgeZ = handleTopZ + 0.20;
         addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy - 2.15, ridgeZ, mat);
         addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy + 2.15, ridgeZ, mat);
         if (pips) {
@@ -5396,6 +5404,107 @@
       });
 
       const stlExporter = new THREE.STLExporter();
+
+      let manifoldPromise = null;
+      function ensureManifold() {
+        if (!manifoldPromise) {
+          manifoldPromise = (async () => {
+            const start = Date.now();
+            while (!window.ManifoldModule) {
+              if (Date.now() - start > 20000) throw new Error('Solid kernel failed to load');
+              await new Promise(r => setTimeout(r, 40));
+            }
+            const api = await window.ManifoldModule();
+            api.setup();
+            return api;
+          })();
+        }
+        return manifoldPromise;
+      }
+
+      function weldMeshData(geo) {
+        const pos = geo.attributes.position;
+        const idx = geo.index ? geo.index.array : null;
+        const map = new Map();
+        const verts = [];
+        const tris = [];
+        const keyOf = (x, y, z) => `${Math.round(x * 10000)},${Math.round(y * 10000)},${Math.round(z * 10000)}`;
+        const add = (i) => {
+          const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+          const k = keyOf(x, y, z);
+          if (map.has(k)) return map.get(k);
+          const id = verts.length / 3;
+          verts.push(x, y, z);
+          map.set(k, id);
+          return id;
+        };
+        const n = idx ? idx.length : pos.count;
+        for (let t = 0; t < n; t += 3) {
+          const ia = add(idx ? idx[t] : t);
+          const ib = add(idx ? idx[t + 1] : t + 1);
+          const ic = add(idx ? idx[t + 2] : t + 2);
+          if (ia !== ib && ib !== ic && ic !== ia) tris.push(ia, ib, ic);
+        }
+        return { numProp: 3, vertProperties: new Float32Array(verts), triVerts: new Uint32Array(tris) };
+      }
+
+      function solidifyGroup(group, Manifold, mat) {
+        group.updateMatrixWorld(true);
+        const pieces = [];
+        group.traverse(obj => {
+          if (!obj.isMesh || !obj.geometry) return;
+          const g = obj.geometry.clone();
+          g.applyMatrix4(obj.matrixWorld);
+          pieces.push(Manifold.ofMesh(weldMeshData(g)));
+          g.dispose();
+        });
+        if (!pieces.length) throw new Error('Empty solid');
+        const united = pieces.length === 1 ? pieces[0] : Manifold.union(pieces);
+        const shells = united.decompose();
+        const shellCount = shells.length;
+        shells.forEach(s => s.delete());
+        const volume = united.getProperties().volume;
+        const mesh = united.getMesh();
+        const numProp = mesh.numProp || 3;
+        const src = mesh.vertProperties;
+        const posArr = new Float32Array((src.length / numProp) * 3);
+        for (let i = 0, j = 0; i < src.length; i += numProp, j += 3) {
+          posArr[j] = src[i];
+          posArr[j + 1] = src[i + 1];
+          posArr[j + 2] = src[i + 2];
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        geo.setIndex(new THREE.BufferAttribute(mesh.triVerts, 1));
+        geo.computeVertexNormals();
+        while (group.children.length) {
+          const ch = group.children[0];
+          group.remove(ch);
+          if (ch.geometry) ch.geometry.dispose();
+        }
+        group.position.set(0, 0, 0);
+        group.rotation.set(0, 0, 0);
+        group.scale.set(1, 1, 1);
+        group.add(new THREE.Mesh(geo, mat || new THREE.MeshStandardMaterial({ color: 0xd5dbe3, roughness: 0.5, metalness: 0.05 })));
+        if (pieces.length > 1) pieces.forEach(p => p.delete());
+        united.delete();
+        return { shells: shellCount, volume: volume };
+      }
+
+      async function solidifyDirectChildren(row) {
+        const api = await ensureManifold();
+        const info = [];
+        for (let i = 0; i < row.children.length; i++) {
+          const child = row.children[i];
+          const result = solidifyGroup(child, api.Manifold);
+          if (result.shells !== 1 || !(result.volume > 0)) {
+            throw new Error('Part ' + (i + 1) + ' is ' + result.shells + ' shells, volume ' + result.volume);
+          }
+          info.push(result);
+        }
+        return info;
+      }
+
       function downloadPrintReadySTL(object3D, filename, rotY) {
         const clone = object3D.clone(true);
         clone.rotation.set(0, 0, 0); clone.position.set(0, 0, 0); clone.updateMatrixWorld(true);
@@ -5477,27 +5586,49 @@
         if (p.swMode !== 'slide') { showStatusBanner('Set Switch Exposure to Slide switch before exporting the track.'); return; }
         downloadPrintReadySTL(chassisGroup, `Arteor_${APP_VERSION}_Slide_BaseTrack_${p.fixMode}.stl`);
       });
-      document.getElementById('btn-exp-slide-shuttle').addEventListener('click', () => {
+      document.getElementById('btn-exp-slide-shuttle').addEventListener('click', async () => {
         const p = getParams();
         if (p.swMode !== 'slide' || slideGroup.children.length === 0) { showStatusBanner('Set Switch Exposure to Slide switch before exporting the shuttle.'); return; }
         const n = getActiveModuleItems(p).filter(it => it.kind === 'switch').length;
-        const shuttles = new THREE.Group();
-        slideGroup.children.forEach((child, i) => {
-          const c = child.clone(true);
-          c.userData.slidePart = 'shuttle';
-          c.position.set(i * 30, 0, 0);
-          shuttles.add(c);
-        });
-        const stops = new THREE.Group();
-        slideStopGroup.children.forEach((child, i) => {
-          const c = child.clone(true);
-          c.userData.slidePart = 'stop';
-          c.position.set(i * 22, 0, 0);
-          stops.add(c);
-        });
-        downloadPrintReadySTL(shuttles, `Arteor_${APP_VERSION}_Slide_Shuttles_x${n}.stl`, -Math.PI / 2);
-        downloadPrintReadySTL(stops, `Arteor_${APP_VERSION}_Slide_Stops_x${n}.stl`);
-        showStatusBanner('Saved two files: shuttles only, then stops only.');
+        showStatusBanner('Unioning shuttles and stops into closed solids…');
+        try {
+          const shuttles = new THREE.Group();
+          slideGroup.children.forEach(child => {
+            const c = child.clone(true);
+            c.userData.slidePart = 'shuttle';
+            shuttles.add(c);
+          });
+          const stops = new THREE.Group();
+          slideStopGroup.children.forEach(child => {
+            const c = child.clone(true);
+            c.userData.slidePart = 'stop';
+            stops.add(c);
+          });
+          await solidifyDirectChildren(shuttles);
+          await solidifyDirectChildren(stops);
+          let x = 0;
+          shuttles.children.forEach(child => {
+            child.updateMatrixWorld(true);
+            const box = new THREE.Box3().setFromObject(child);
+            child.position.set(x - box.min.x, -box.min.y, -box.min.z);
+            child.updateMatrixWorld(true);
+            x = new THREE.Box3().setFromObject(child).max.x + 8;
+          });
+          x = 0;
+          stops.children.forEach(child => {
+            child.updateMatrixWorld(true);
+            const box = new THREE.Box3().setFromObject(child);
+            child.position.set(x - box.min.x, -box.min.y, -box.min.z);
+            child.updateMatrixWorld(true);
+            x = new THREE.Box3().setFromObject(child).max.x + 8;
+          });
+          downloadPrintReadySTL(shuttles, `Arteor_${APP_VERSION}_Slide_Shuttles_x${n}.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(stops, `Arteor_${APP_VERSION}_Slide_Stops_x${n}.stl`);
+          showStatusBanner('Saved two closed solids files: shuttles only, then stops only.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Solid union failed: ' + err.message);
+        }
       });
       document.getElementById('btn-exp-slide-cover').addEventListener('click', () => {
         const p = getParams();
@@ -5506,7 +5637,7 @@
         cover.add(faceplateGroup.clone(true), bubblesGroup.clone(true));
         downloadPrintReadySTL(cover, `Arteor_${APP_VERSION}_Slide_Cover_${p.coverBuild}.stl`);
       });
-      document.getElementById('btn-exp-slide-coupon').addEventListener('click', () => {
+      document.getElementById('btn-exp-slide-coupon').addEventListener('click', async () => {
         const params = getParams();
         const files = [
           ['fit', 'track', `Arteor_${APP_VERSION}_Slide_Fit_Tracks_F40_F55_F70.stl`],
@@ -5516,8 +5647,18 @@
           ['fit', 'stop', `Arteor_${APP_VERSION}_Slide_Fit_Stops_F40_F55_F70.stl`],
           ['ramp', 'stop', `Arteor_${APP_VERSION}_Slide_Ramp_Stops_R55_R60_R65.stl`]
         ];
-        files.forEach(entry => downloadPrintReadySTL(buildSlideCoupon(params, entry[0], entry[1]), entry[2]));
-        showStatusBanner('Saved 6 separate files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops.');
+        showStatusBanner('Unioning each track, shuttle, and stop into one closed solid…');
+        try {
+          for (let i = 0; i < files.length; i++) {
+            const row = buildSlideCoupon(params, files[i][0], files[i][1]);
+            await solidifyDirectChildren(row);
+            downloadPrintReadySTL(row, files[i][2]);
+          }
+          showStatusBanner('Saved 6 files. Each of the 3 parts in a file is one closed solid.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Solid union failed: ' + err.message);
+        }
       });
 
       let rebuildQueued = false;
