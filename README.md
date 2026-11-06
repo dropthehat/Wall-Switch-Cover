@@ -125,7 +125,7 @@ These are the measured rocker heights the ramps are built against, taken from th
 
 The active slope length is `max(5.5, travel × 0.96)` mm. The angle readout turns green inside 27–30°. The nose of each wedge is rounded to about 1.7 mm. **Side Section** clips the model through the middle module, draws both rocker states (orange raised-top, blue pressed-top), and switches the corner inspector to the same side view. **Rock Switch** parks the preview at the other end. The preview scrubber moves between them.
 
-The track is part of the base, not the cover. Rails flank each module window. The dovetail opens toward the room, so a 45° undercut prints without support with the room side up. The fixed-rail plate still puts a full-width plate across the loading end. That plate sits in the path of the cams, and a printed shuttle will not pass it. Cutting the lips near the middle lets one side in and leaves the other forced. Do not reprint the six coupon files to solve that. The next print is the removable-rail fit test below.
+The track is part of the base, not the cover. Rails flank each module window. The dovetail opens toward the room, so a 45° undercut prints without support with the room side up. The fixed-rail plate still puts a full-width plate across the loading end. That plate sits in the path of the cams, and a printed shuttle will not pass it. Cutting the lips near the middle lets one side in and leaves the other forced. Do not reprint the six coupon files to solve that. The print to try is the tool-free F55 test below. It has no screw.
 
 On the full plate the fascia still snaps on after the shuttle, and the H-pins and 83.5 mm screw ears are unchanged. Existing overlay styles still cut around the slot. A monolithic cover is split into a snap-on fascia while slide mode is on.
 
@@ -157,9 +157,29 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 
 **Ramp tracks** `Arteor_v25_Slide_Ramp_Tracks_R55_R60_R65.stl`, with matching `Arteor_v25_Slide_Ramp_Shuttles_R55_R60_R65.stl` and `Arteor_v25_Slide_Ramp_Stops_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
 
-### Removable-rail fit test (one station)
+### Tool-free F55 test (the one to print)
 
-This is not the fixed-rail coupon. Those six files still have a rail on both sides. Carl could not get a shuttle into them without cutting the lips. **⬇ Removable-rail fit test — F55, one station** writes three different files. There is no cover, no ramp, and no second clearance.
+**⬇ Tool-free F55 test** writes three files. Both rails are on one piece. The middle of the entrance plate is open, 9.2 mm, so the 7.2 mm cams can slide through. There is no second rail and no screw. This is a bench coupon, not a finished wall switch. The stop is not locked in. Turn the coupon over and the stop can fall out. The cover, when it is fitted later, is what keeps the stop from falling toward the room.
+
+| Part | File | On the bed |
+| --- | --- | --- |
+| Track | `Arteor_v25_ToolFree_F55_Track.stl` | Room side up. Supports off. |
+| Shuttle | `Arteor_v25_ToolFree_F55_Shuttle.stl` | Already on its side. Supports on. |
+| Stop | `Arteor_v25_ToolFree_F55_Stop.stl` | Flat face down, feet up. Supports off. |
+
+The dovetail gap is 0.55 mm per side and 0.30 mm in Z. Travel is 11 mm. Both cams are on the shuttle, 6 mm deep, for the rocker at 5.2 mm pressed and 10.5 mm raised. **OPEN** is on the loading end. **F55** is on the far end.
+
+1. Track on the bench, **OPEN** toward you.
+2. Slide the shuttle straight in from **OPEN**. Leave the stop out.
+3. Drop the stop into the two slots at **OPEN**.
+4. Slide the shuttle by hand. It should stay in the rails.
+5. Lift the stop straight up, then slide the shuttle back out.
+
+Pass if that needs no cutting, the plastic does not whiten, the shuttle moves freely, and the mouth width changes by less than 0.2 mm. This set has not been printed.
+
+### Older removable-rail test (do not print)
+
+Carl rejected this one because it needs a screw and a nut. The button is still in the app so the files can be told apart. It is not the current test.
 
 | Part | File | Print |
 | --- | --- | --- |

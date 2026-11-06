@@ -716,7 +716,8 @@
         <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
         <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops. Fixed rails. Not the removable-rail fit test.">⬇ Coupon parts</button>
       </div>
-      <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold rounded text-[10px] transition" title="One station only. Slider goes on the fixed rail, then the loose rail slides on. Not the fixed-rail coupon files.">⬇ Removable-rail fit test — F55, one station</button>
+      <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[10px] border border-slate-600 transition" title="Older test. Needs an M3 screw and nut. Not the current tool-free test.">Older: removable rail with a screw</button>
+      <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Current test. One F55 station, both rails fixed, open middle, drop-in stop. No screw. Not the old coupons.">⬇ Tool-free F55 test — slide in, drop the stop</button>
     </div>
   </aside>
 
@@ -3459,7 +3460,8 @@
         'L': ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
         'O': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
         'P': ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
-        'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110']
+        'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
+        'T': ['11111', '00100', '00100', '00100', '00100', '00100', '00100']
       };
 
       function slidePreviewPos() {
@@ -3640,6 +3642,31 @@
               addBox(group, depth, cw * 0.84, cw * 0.84,
                 xCenter,
                 cursor + (c + 0.5) * cw,
+                zTop - (r + 0.5) * cw,
+                mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
+      function slideEmbossNegY(group, text, ySurface, xLeft, zTop, mat, cw) {
+        cw = cw || 0.48;
+        const embed = 0.30;
+        const proud = 0.45;
+        const depth = embed + proud;
+        const yCenter = ySurface - (proud - embed) / 2;
+        let cursor = xLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.84, depth, cw * 0.84,
+                cursor + (c + 0.5) * cw,
+                yCenter,
                 zTop - (r + 0.5) * cw,
                 mat);
             }
@@ -5993,6 +6020,239 @@
         }
       });
 
+      function buildToolFreeF55(sm) {
+        const matT = createGlossMat('#e2e8f0', false, 0.45, 0.04);
+        const matS = createGlossMat('#fde68a', false, 0.38, 0.05);
+        const matP = createGlossMat('#86efac', false, 0.4, 0.04);
+        const track = new THREE.Group();
+        const yRail0 = -sm.trackInnerHalf;
+        const yRail1 = sm.trackInnerHalf;
+        const slot0 = yRail0 + sm.stopLead;
+        const slotLen = 4.8;
+        const slot1 = slot0 + slotLen;
+        const flare1 = Math.min(yRail1 - 1, slot1 + sm.flareLen);
+        const spans = [
+          { y0: yRail0, y1: slot0, mode: 'keeper', extra: 0 },
+          { y0: slot0, y1: slot1, mode: 'sole', extra: 0 },
+          { y0: slot1, y1: flare1, mode: 'full', extra: sm.flare },
+          { y0: flare1, y1: yRail1, mode: 'full', extra: 0 }
+        ];
+        spans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.22 : 0);
+          const yB = sp.y1 + (i < spans.length - 1 ? 0.22 : 0);
+          const ptsR = rightRailPts(sm, sp.extra, sp.mode);
+          addProfileXZ(track, ptsR, yA, yB, matT);
+          addProfileXZ(track, mirrorXPts(ptsR), yA, yB, matT);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        const barLen = sm.endBar + 0.45;
+        addBox(track, sm.outerW, barLen, railH, 0, sm.trackInnerHalf - 0.4 + barLen / 2, (sm.zRailTop + zBot) / 2, matT);
+        const tieY0 = yRail0 - sm.tieLen;
+        const tieY1 = slot1;
+        const tieH = 0.9;
+        addBox(track, sm.railW, tieY1 - tieY0, tieH, sm.winHalf + sm.railW / 2, (tieY0 + tieY1) / 2, zBot + tieH / 2, matT);
+        addBox(track, sm.railW, tieY1 - tieY0, tieH, -(sm.winHalf + sm.railW / 2), (tieY0 + tieY1) / 2, zBot + tieH / 2, matT);
+        const tabThick = 1.6;
+        const tabLen = 12;
+        const tabW = Math.min(18, sm.outerW);
+        const tabY0 = sm.trackInnerHalf + sm.endBar * 0.45;
+        const tabTop = sm.zFloor + tabThick;
+        addBox(track, tabW, tabLen, tabThick, 0, tabY0 + tabLen / 2, sm.zFloor + tabThick / 2, matT);
+        const farId = slideTextSize('F55', 0.55);
+        slideEmboss(track, 'F55', -farId.width / 2, tabY0 + tabLen - 1.0, tabTop, matT, 0.55);
+        const openMark = slideTextSize('OPEN', 0.46);
+        slideEmbossX(track, 'OPEN', sm.winHalf + sm.railW, slot1 + 0.6, sm.zRailTop - 0.5, matT, 0.46);
+
+        const shuttle = new THREE.Group();
+        buildOneShuttle(shuttle, sm, 0, 0, 1, matS, 0, 'F55');
+
+        const stop = new THREE.Group();
+        const yC = (slot0 + slot1) / 2;
+        const footY = 3.4;
+        const xIn = sm.winHalf + 0.25;
+        const xOut = sm.winHalf + sm.railW - 0.25;
+        const footW = Math.max(1.2, xOut - xIn);
+        const zFoot0 = sm.zFloor + 0.20;
+        const zFoot1 = sm.zRailTop - 0.15;
+        addBox(stop, footW, footY, zFoot1 - zFoot0, (xIn + xOut) / 2, yC, (zFoot0 + zFoot1) / 2, matP);
+        addBox(stop, footW, footY, zFoot1 - zFoot0, -(xIn + xOut) / 2, yC, (zFoot0 + zFoot1) / 2, matP);
+        const bridgeZ0 = sm.zBodyBack + 0.55;
+        const bridgeZ1 = zFoot1;
+        addBox(stop, xOut * 2, footY, bridgeZ1 - bridgeZ0, 0, yC, (bridgeZ0 + bridgeZ1) / 2, matP);
+        const stopFace = yC - footY / 2;
+        const stopMark = slideTextSize('STOP', 0.42);
+        slideEmbossNegY(stop, 'STOP', stopFace, -stopMark.width / 2, bridgeZ1 - 0.25, matP, 0.34);
+
+        return {
+          track, shuttle, stop, sm,
+          meta: {
+            slot0, slot1, yC, footY, zBot, tieY0, tieY1,
+            bridgeZ0, bridgeZ1, zFoot0, zFoot1, xIn, xOut,
+            openMarkWidth: openMark.width
+          }
+        };
+      }
+
+      function toolFreeSolid(group, Manifold) {
+        group.updateMatrixWorld(true);
+        const mesh = group.children.find(ch => ch.isMesh && ch.geometry && !(ch.userData && ch.userData.cutter));
+        const g = mesh.geometry.clone();
+        g.applyMatrix4(mesh.matrixWorld);
+        const solid = Manifold.ofMesh(weldMeshData(g));
+        g.dispose();
+        return solid;
+      }
+
+      function toolFreeOverlap(Manifold, a, b) {
+        const hit = Manifold.intersection(a, b);
+        const volume = hit.getProperties().volume;
+        hit.delete();
+        return volume;
+      }
+
+      function toolFreeMoved(Manifold, solid, y, z) {
+        let copy = Manifold.ofMesh(solid.getMesh());
+        if (y || z) copy = copy.translate([0, y || 0, z || 0]);
+        return copy;
+      }
+
+      function auditToolFreeSweep(built, Manifold) {
+        const sm = built.sm;
+        const track = toolFreeSolid(built.track, Manifold);
+        const shuttle0 = toolFreeSolid(built.shuttle, Manifold);
+        const stop0 = toolFreeSolid(built.stop, Manifold);
+        const report = { ok: true, maxTrack: 0, maxStopTravel: 0, steps: [] };
+        const fail = (name, detail) => { report.ok = false; report.steps.push({ name, ok: false, detail }); };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const yStart = -(sm.shuttleHalf + sm.trackInnerHalf + 8);
+        const yEnd = sm.travel / 2;
+        const step = 1;
+        for (let shift = yStart; shift <= yEnd + 1e-6; shift += step) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > report.maxTrack) report.maxTrack = hit;
+        }
+        if (report.maxTrack > 0.05) fail('insertion and travel', 'track intersection ' + report.maxTrack.toFixed(3) + ' mm3');
+        else pass('insertion and travel', 'no track intersection from fully outside through +' + (sm.travel / 2) + ' mm, ' + step + ' mm steps');
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        let captured = true;
+        const lipNotes = [];
+        [-sm.travel / 2, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > 0.05) captured = false;
+          const yLo = -sm.shuttleHalf + shift;
+          const yHi = sm.shuttleHalf + shift;
+          // Stay out of the flared mouth so the probe sits in the running lip.
+          [Math.max(yLo + 4, -18), Math.min(yHi - 4, 18)].forEach(yy => {
+            let probe = Manifold.cube([0.45, 0.6, 0.45], true).translate([-(lipX + 0.55), yy, lipZ]);
+            const left = toolFreeOverlap(Manifold, track, probe);
+            probe.delete();
+            probe = Manifold.cube([0.45, 0.6, 0.45], true).translate([lipX + 0.55, yy, lipZ]);
+            const right = toolFreeOverlap(Manifold, track, probe);
+            probe.delete();
+            lipNotes.push({ shift, y: +yy.toFixed(1), left: +left.toFixed(3), right: +right.toFixed(3) });
+            if (left < 0.002 || right < 0.002) captured = false;
+          });
+        });
+        report.lips = lipNotes;
+        if (!captured) fail('retained at both ends', 'a lip does not cover the tongue, or the shuttle hits the track');
+        else pass('retained at both ends', 'both lips cover the tongue at +/- ' + (sm.travel / 2) + ' mm');
+        [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, stop0, shuttle);
+          shuttle.delete();
+          if (hit > report.maxStopTravel) report.maxStopTravel = hit;
+        });
+        if (report.maxStopTravel > 0.05) fail('stop during travel', 'intersection ' + report.maxStopTravel.toFixed(3) + ' mm3');
+        else pass('stop during travel', 'stop misses the shuttle, including both cams, at both ends and the middle');
+        let dropHit = 0;
+        for (let z = 18; z >= 0; z -= 1) {
+          const stop = toolFreeMoved(Manifold, stop0, 0, z);
+          const shuttle = toolFreeMoved(Manifold, shuttle0, 0, 0);
+          const hit = toolFreeOverlap(Manifold, stop, shuttle);
+          stop.delete();
+          shuttle.delete();
+          if (hit > dropHit) dropHit = hit;
+        }
+        if (dropHit > 0.05) fail('stop drop and lift', 'hits the shuttle, ' + dropHit.toFixed(3) + ' mm3');
+        else pass('stop drop and lift', 'the stop moves straight down and back up clear of the seated shuttle');
+        let trackStop = 0;
+        for (let z = 16; z >= 0; z -= 1) {
+          const stop = toolFreeMoved(Manifold, stop0, 0, z);
+          const hit = toolFreeOverlap(Manifold, track, stop);
+          stop.delete();
+          if (hit > trackStop) trackStop = hit;
+        }
+        if (trackStop > 0.05) fail('stop fits the slots', 'hits the track by ' + trackStop.toFixed(3) + ' mm3');
+        else pass('stop fits the slots', 'the stop drops into the slots without touching the rails');
+        let blocked = false;
+        let blockShift = null;
+        for (let shift = -sm.travel / 2; shift >= -sm.travel / 2 - 12; shift -= 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, stop0, shuttle);
+          const trackHit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > 0.2 && trackHit < 0.05) { blocked = true; blockShift = shift; break; }
+        }
+        if (!blocked) fail('pull-out', 'the shuttle did not meet the stop before hitting the track');
+        else pass('pull-out', 'the stop stops the shuttle at shift ' + blockShift.toFixed(1) + ' mm, before the rails do');
+        const plate = Manifold.cube([7.2, (built.meta.tieY1 - built.meta.tieY0) + 1, 6.2], true)
+          .translate([0, (built.meta.tieY0 + built.meta.tieY1) / 2, sm.zDwell + 3.0]);
+        const plateHit = toolFreeOverlap(Manifold, track, plate);
+        plate.delete();
+        const foot = Manifold.cube([3, 2, 0.6], true)
+          .translate([sm.winHalf + sm.railW / 2, (built.meta.tieY0 + built.meta.tieY1) / 2, sm.zFloor - 0.45]);
+        const footHit = toolFreeOverlap(Manifold, track, foot);
+        foot.delete();
+        if (plateHit > 0.05) fail('open middle', 'entrance plate still crosses the cam path, ' + plateHit.toFixed(2) + ' mm3');
+        else if (footHit < 0.05) fail('rail feet', 'the entrance foot under the rail is missing');
+        else pass('open middle', 'the 7.2 mm cam path is open and both rail feet remain');
+        [track, shuttle0, stop0].forEach(m => m.delete());
+        report.maxTrack = +report.maxTrack.toFixed(4);
+        report.maxStopTravel = +report.maxStopTravel.toFixed(4);
+        return report;
+      }
+
+      document.getElementById('btn-exp-toolfree').addEventListener('click', async () => {
+        showStatusBanner('Checking the full cam path, then saving the tool-free F55 test…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildToolFreeF55(sm);
+          const api = await ensureManifold();
+          const infos = [
+            solidifyGroup(built.track, api.Manifold),
+            solidifyGroup(built.shuttle, api.Manifold),
+            solidifyGroup(built.stop, api.Manifold)
+          ];
+          infos.forEach((info, i) => {
+            if (info.shells !== 1 || !(info.volume > 0)) {
+              throw new Error('Part ' + (i + 1) + ' is ' + info.shells + ' shells, volume ' + info.volume);
+            }
+          });
+          const report = auditToolFreeSweep(built, api.Manifold);
+          window.__arteor.toolFreeAudit = report;
+          if (!report.ok) {
+            const bad = report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; ');
+            throw new Error(bad);
+          }
+          const spin = new THREE.Matrix4().makeRotationX(Math.PI);
+          built.stop.updateMatrixWorld(true);
+          built.stop.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          downloadPrintReadySTL(built.track, `Arteor_${APP_VERSION}_ToolFree_F55_Track.stl`);
+          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_ToolFree_F55_Shuttle.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(built.stop, `Arteor_${APP_VERSION}_ToolFree_F55_Stop.stl`);
+          showStatusBanner('Saved 3 tool-free files: track, shuttle, stop. No screw. The stop can fall out if the coupon is turned over.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Tool-free test failed: ' + err.message);
+        }
+      });
+
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
         if (sourceId === 'inp-pegdia' || sourceId === 'inp-threadtol') {
@@ -6030,7 +6290,8 @@
         auditSlideFit: auditSlideFit,
         computeSlideMetrics: computeSlideMetrics,
         couponMetrics: couponMetrics,
-        buildRemovableRailFit: buildRemovableRailFit
+        buildRemovableRailFit: buildRemovableRailFit,
+        buildToolFreeF55: buildToolFreeF55
       };
 
       function animate() {
