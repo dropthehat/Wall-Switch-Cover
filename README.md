@@ -125,9 +125,9 @@ These are the measured rocker heights the ramps are built against, taken from th
 
 The active slope length is `max(5.5, travel × 0.96)` mm. The angle readout turns green inside 27–30°. The nose of each wedge is rounded to about 1.7 mm. **Side Section** clips the model through the middle module, draws both rocker states (orange raised-top, blue pressed-top), and switches the corner inspector to the same side view. **Rock Switch** parks the preview at the other end. The preview scrubber moves between them.
 
-The track is part of the base, not the cover. Rails flank each module window. The dovetail opens toward the room, so a 45° undercut prints without support with the room side up. The two rails stay a fixed distance apart: a sole runs under each rail, a cross-sole ties them at the loading end, and a full-height bar ties them at the other end. Nothing in that loop has to be cut or flexed to get the shuttle in.
+The track is part of the base, not the cover. Rails flank each module window. The dovetail opens toward the room, so a 45° undercut prints without support with the room side up. The fixed-rail plate still puts a full-width plate across the loading end. That plate sits in the path of the cams, and a printed shuttle will not pass it. Cutting the lips near the middle lets one side in and leaves the other forced. Do not reprint the six coupon files to solve that. The next print is the removable-rail fit test below.
 
-The loading end is the end with the arrow and the letters **IN**. That end of the dovetail is open. Slide the shuttle in from there, grip toward the room, until it is past the two slots. Then drop the removable stop into those slots. The stop is a separate piece. Lift it out to remove the shuttle. On the wall plate the fascia sits over the stop and keeps it from falling toward the room. H-pins and the 83.5 mm screw ears are unchanged. Existing overlay styles still cut around the slot. A monolithic cover is split into a snap-on fascia while slide mode is on, because the shuttle has to go in before the face does.
+On the full plate the fascia still snaps on after the shuttle, and the H-pins and 83.5 mm screw ears are unchanged. Existing overlay styles still cut around the slot. A monolithic cover is split into a snap-on fascia while slide mode is on.
 
 The number in **X/side** is the horizontal gap between the tongue and the rail on each side, and it is the same at every height along the 45° face. Total horizontal clearance is twice that. It is not the gap measured perpendicular to the sloping face; that normal gap is X/side × cos 45°. **Z gap** is the separate vertical clearance under the tongue and under the lip.
 
@@ -140,6 +140,8 @@ Print the **shuttle** on its side. The shuttle STL is already rotated that way: 
 The **cover** prints as a normal faceplate, slots up or down as you prefer, and snaps onto the base.
 
 ### Test coupons
+
+These six files are the older fixed-rail coupons. They are not the removable-rail fit test. A later print still could not be assembled without cutting the lips.
 
 **⬇ Coupon parts** saves six STLs. Tracks, shuttles, and stops are never in the same file, so supports can be enabled on the shuttle files only. Before each file is written, every track, shuttle, and stop is boolean-unioned with its ID into one closed solid. The letters are not separate boxes. Each ID is on a non-mating face: the closed-end tab on a track (with **IN** and an arrow toward the open end), the handle top on a shuttle, and the top of a stop. Pips (1, 2, or 3) are part of the closed end of the shuttle, off the dovetail. A file of three parts is three solids, not one fused plate.
 
@@ -154,6 +156,29 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 | F70 | 3 | 0.70 mm | 1.40 mm | 0.30 mm | 0.49 mm | 6.0 mm |
 
 **Ramp tracks** `Arteor_v25_Slide_Ramp_Tracks_R55_R60_R65.stl`, with matching `Arteor_v25_Slide_Ramp_Shuttles_R55_R60_R65.stl` and `Arteor_v25_Slide_Ramp_Stops_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
+
+### Removable-rail fit test (one station)
+
+This is not the fixed-rail coupon. Those six files still have a rail on both sides. Carl could not get a shuttle into them without cutting the lips. **⬇ Removable-rail fit test — F55, one station** writes three different files. There is no cover, no ramp, and no second clearance.
+
+| Part | File | Print |
+| --- | --- | --- |
+| Base, fixed rail on one side | `Arteor_v25_RailFit_F55_Base.stl` | Flat on the bed, channel up. Supports off. |
+| Loose rail | `Arteor_v25_RailFit_F55_Rail.stl` | Foot on the bed, dovetail up. Supports off. |
+| Slider | `Arteor_v25_RailFit_F55_Slider.stl` | Already turned on its side. Supports on, this file only. |
+
+Hardware, not printed: one **M3×12** socket or machine screw and one **M3 nut**. The channel walls set the rail spacing. The screw only pulls the loose rail down onto the floor. It does not pinch the two rails together.
+
+The slider dovetail is the F55 size: **0.55 mm per side** and **0.30 mm in Z**. The loose rail's foot has **0.20 mm** of air on the slider side of the channel and **0.28 mm** on the outer side, plus **0.15 mm** under the foot so it can slide in. The screw takes up that 0.15 mm. The side play stays. In the designed seat the shuttle gap is still 0.55 mm. The center of the base is open under the slider, about 6 mm below the rail floor, for cams that are not in this test. The guide is 32 mm long and stays under both lips through 11 mm of travel.
+
+1. Put the base on the bench with **OPEN** toward you. **F55** is on the far end.
+2. Slide the yellow slider in from **OPEN** onto the fixed rail until it sits in the middle. The loose rail is still off.
+3. Slide the M3 nut, flats horizontal, into the tunnel in the **OPEN** end.
+4. Slide the teal rail in from **OPEN**, foot in the channel, until it stops at the far end.
+5. Run the M3×12 screw down through the tab into the nut. Snug. Do not crush the rail.
+6. Move the slider by hand. It should travel and stay in both grooves. Removal is the screw, then the teal rail, then the slider, all back out of **OPEN**.
+
+Pass if that happens with no cutting and no bent rail, and the outside width of the base changes by less than 0.2 mm. This file set has not been printed.
 
 Print the fit plate in PLA first, the same layer height you intend to use. For each ID: leave the stop out, slide the shuttle in from the **IN** end, then drop that station's stop into the two slots. The rails should not be cut or spread. Note which ID runs and which is sloppy. Then print the ramp plate at the clearance you chose and see which wedge clicks the real rocker (pressed edge 5.2 mm, raised edge 10.5 mm, 5.3 mm of edge travel) and sits in the relief afterward. Copy those two numbers into **X/side** and **Ramp H**. None of these clearances has been confirmed by a print of this revision.
 

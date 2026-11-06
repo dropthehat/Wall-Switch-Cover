@@ -714,8 +714,9 @@
         <button id="btn-exp-slide-base" class="py-1.5 px-1 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded text-[10px] transition truncate" title="Base with the dovetail track, plus the current wall mount">⬇ Slide Base</button>
         <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Two files: shuttles only, then stops only">⬇ Shuttles / Stops</button>
         <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
-        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops">⬇ Coupon parts</button>
+        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops. Fixed rails. Not the removable-rail fit test.">⬇ Coupon parts</button>
       </div>
+      <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold rounded text-[10px] transition" title="One station only. Slider goes on the fixed rail, then the loose rail slides on. Not the fixed-rail coupon files.">⬇ Removable-rail fit test — F55, one station</button>
     </div>
   </aside>
 
@@ -3451,7 +3452,14 @@
         'R': ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
         '.': ['00000', '00000', '00000', '00000', '00000', '00110', '00110'],
         ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
-        '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000']
+        '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
+        'A': ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+        'B': ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+        'E': ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+        'L': ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
+        'O': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+        'P': ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
+        'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110']
       };
 
       function slidePreviewPos() {
@@ -3613,6 +3621,49 @@
           cursor += cols * cw + gap;
         }
         return { width: Math.max(0, cursor - x - gap), height: 7 * ch };
+      }
+
+      function slideEmbossX(group, text, xSurface, yLeft, zTop, mat, cw) {
+        cw = cw || 0.48;
+        const embed = 0.30;
+        const proud = 0.45;
+        const depth = embed + proud;
+        const xCenter = xSurface + (proud - embed) / 2;
+        let cursor = yLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, depth, cw * 0.84, cw * 0.84,
+                xCenter,
+                cursor + (c + 0.5) * cw,
+                zTop - (r + 0.5) * cw,
+                mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
+      function addVerticalCutter(group, radius, z0, z1, x, y) {
+        const h = Math.max(0.2, z1 - z0);
+        const geo = new THREE.CylinderGeometry(radius, radius, h, 24);
+        geo.rotateX(Math.PI / 2);
+        geo.translate(x, y, z0 + h / 2);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial());
+        mesh.userData.cutter = true;
+        group.add(mesh);
+      }
+
+      function addBoxCutter(group, w, h, d, cx, cy, cz) {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        geo.translate(cx, cy, cz);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial());
+        mesh.userData.cutter = true;
+        group.add(mesh);
       }
 
       function slideTextSize(text, cw) {
@@ -5451,15 +5502,26 @@
       function solidifyGroup(group, Manifold, mat) {
         group.updateMatrixWorld(true);
         const pieces = [];
+        const cutters = [];
         group.traverse(obj => {
           if (!obj.isMesh || !obj.geometry) return;
           const g = obj.geometry.clone();
           g.applyMatrix4(obj.matrixWorld);
-          pieces.push(Manifold.ofMesh(weldMeshData(g)));
+          const solid = Manifold.ofMesh(weldMeshData(g));
           g.dispose();
+          if (obj.userData && obj.userData.cutter) cutters.push(solid);
+          else pieces.push(solid);
         });
         if (!pieces.length) throw new Error('Empty solid');
-        const united = pieces.length === 1 ? pieces[0] : Manifold.union(pieces);
+        let united = pieces.length === 1 ? pieces[0] : Manifold.union(pieces);
+        if (cutters.length) {
+          const cut = cutters.length === 1 ? cutters[0] : Manifold.union(cutters);
+          const opened = Manifold.difference(united, cut);
+          if (united !== pieces[0] || pieces.length > 1) united.delete();
+          else if (pieces.length === 1 && united === pieces[0]) united.delete();
+          cut.delete();
+          united = opened;
+        }
         const shells = united.decompose();
         const shellCount = shells.length;
         shells.forEach(s => s.delete());
@@ -5661,6 +5723,276 @@
         }
       });
 
+      function buildRemovableRailFit(sm) {
+        const matB = createGlossMat('#cbd5e1', false, 0.45, 0.04);
+        const matR = createGlossMat('#5eead4', false, 0.4, 0.05);
+        const matS = createGlossMat('#fde68a', false, 0.4, 0.05);
+        const tongueHalf = 16;
+        const yTongue0 = -tongueHalf;
+        const yTongue1 = tongueHalf;
+        const yNeed0 = yTongue0 - sm.travel / 2;
+        const yNeed1 = yTongue1 + sm.travel / 2;
+        const yYoke0 = yNeed0 - 14;
+        const yStop = yNeed0 - 2.4;
+        const yGroove0 = yStop + 0.20;
+        const yGroove1 = yNeed1 + 2.4;
+        const yTab1 = yGroove1 + 8;
+        const yChan1 = yTab1 + 6;
+        const yFixed1 = yNeed1 + 8;
+        const footX0 = sm.winHalf + 2.55;
+        const footX1 = sm.winHalf + sm.railW - 0.15;
+        const seatIn = 0.20;
+        const seatOut = 0.28;
+        const xO = sm.winHalf + sm.railW;
+        const xLeft = -xO;
+        const floorTop = sm.zFloor - 3.5;
+        const footZ0 = floorTop + 0.15;
+        const slotH = 2.8;
+        const floorWeb = 2.0;
+        const bedSkin = 1.4;
+        const slotZ1 = floorTop - floorWeb;
+        const slotZ0 = slotZ1 - slotH;
+        const floorBottom = slotZ0 - bedSkin;
+        const wallInX1 = footX0 - seatIn;
+        const wallInX0 = wallInX1 - 2.2;
+        const wallOutX0 = footX1 + seatOut;
+        const wallOutX1 = wallOutX0 + 2.4;
+        const screwX = (footX0 + footX1) / 2;
+        const slabX0 = wallInX0;
+        const slabX1 = wallOutX1;
+        const screwY = yGroove1 + 4.2;
+        const tabTop = sm.zFloor + 5.2;
+
+        const base = new THREE.Group();
+        const fixedSpans = [
+          { y0: yYoke0, y1: yFixed1 - 5, extra: 0 },
+          { y0: yFixed1 - 5, y1: yFixed1, extra: 0.55 }
+        ];
+        fixedSpans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.2 : 0);
+          const yB = sp.y1 + (i < fixedSpans.length - 1 ? 0.2 : 0);
+          const pts = mirrorXPts(rightRailPts(sm, sp.extra, 'full'));
+          addProfileXZ(base, pts, yA, yB, matB);
+        });
+        addBox(base, Math.max(wallOutX1, slabX1) - xLeft, yStop - yYoke0, sm.zFloor - floorBottom,
+          (xLeft + Math.max(wallOutX1, slabX1)) / 2, (yYoke0 + yStop) / 2, (floorBottom + sm.zFloor) / 2, matB);
+        addBox(base, slabX1 - slabX0, yChan1 - yYoke0, floorTop - floorBottom,
+          (slabX0 + slabX1) / 2, (yYoke0 + yChan1) / 2, (floorBottom + floorTop) / 2, matB);
+        addBox(base, wallInX1 - wallInX0, yChan1 - yStop, sm.zFloor - (floorTop - 0.3),
+          (wallInX0 + wallInX1) / 2, (yStop + yChan1) / 2, ((floorTop - 0.3) + sm.zFloor) / 2, matB);
+        addBox(base, wallOutX1 - wallOutX0, yChan1 - yStop, sm.zFloor - (floorTop - 0.3),
+          (wallOutX0 + wallOutX1) / 2, (yStop + yChan1) / 2, ((floorTop - 0.3) + sm.zFloor) / 2, matB);
+        const baseId = slideTextSize('F55', 0.62);
+        slideEmboss(base, 'F55', -baseId.width / 2, yYoke0 + baseId.height + 1.1, sm.zFloor, matB, 0.62);
+        slideEmbossX(base, 'OPEN', wallOutX1, yChan1 - 12, sm.zFloor - 0.4, matB, 0.46);
+        addBoxCutter(base, 6.3, (yChan1 + 1.4) - (screwY - 2.6), slotZ1 - slotZ0,
+          screwX, ((screwY - 2.6) + (yChan1 + 1.4)) / 2, (slotZ0 + slotZ1) / 2);
+        addVerticalCutter(base, 1.7, slotZ0 - 0.2, floorTop + 0.5, screwX, screwY);
+
+        const rail = new THREE.Group();
+        const head = (extra) => {
+          const side = sm.xyClear + (extra || 0);
+          const xMouth = sm.winHalf + sm.tNarrow + side;
+          const xRoot = sm.winHalf + sm.tWide + side;
+          return [
+            [xO, sm.zFloor - 0.25],
+            [xO, sm.zRailTop],
+            [xMouth, sm.zRailTop],
+            [xMouth, sm.zLip],
+            [xMouth, sm.zBodyFront],
+            [xRoot, sm.zBodyBack],
+            [xRoot, sm.zFloor],
+            [footX0, sm.zFloor],
+            [footX0, sm.zFloor - 0.25]
+          ];
+        };
+        addProfileXZ(rail, head(0.45), yGroove0, yGroove0 + 1.8, matR);
+        addProfileXZ(rail, head(0), yGroove0 + 1.55, yGroove1, matR);
+        addBox(rail, footX1 - footX0, yTab1 - yGroove0, (sm.zFloor + 0.2) - footZ0,
+          (footX0 + footX1) / 2, (yGroove0 + yTab1) / 2, (footZ0 + sm.zFloor + 0.2) / 2, matR);
+        addBox(rail, footX1 - footX0 - 0.5, yTab1 - yGroove1 + 0.4, tabTop - sm.zFloor,
+          screwX, (yGroove1 - 0.2 + yTab1) / 2, (sm.zFloor + tabTop) / 2, matR);
+        const railMark = slideTextSize('RAIL', 0.42);
+        slideEmbossX(rail, 'RAIL', xO, -railMark.width / 2, sm.zLip, matR, 0.42);
+        addVerticalCutter(rail, 1.7, footZ0 - 0.3, tabTop + 0.6, screwX, screwY);
+
+        const slider = new THREE.Group();
+        const cross = shuttleCrossPts(sm);
+        addProfileXZ(slider, cross, yTongue0, yTongue1, matS);
+        addBox(slider, 6.8, 14, 4.6, 0, 0, sm.zBodyFront + 1.9, matS);
+        const id = slideTextSize('F55', 0.48);
+        slideEmboss(slider, 'F55', -id.width / 2, id.height / 2, sm.zBodyFront + 4.2, matS, 0.48);
+
+        return {
+          base, rail, slider, sm,
+          seat: {
+            tongueHalf, yStop, yGroove0, yGroove1, yNeed0, yNeed1,
+            footX0, footX1, seatIn, seatOut, screwX, screwY,
+            floorTop, footZ0, slotZ0, slotZ1, floorBottom, tabTop,
+            wallInX0, wallInX1, wallOutX0, wallOutX1, xO
+          }
+        };
+      }
+
+      function railFitSolid(group, Manifold) {
+        const mesh = group.children.find(ch => ch.isMesh && ch.geometry);
+        const g = mesh.geometry.clone();
+        g.applyMatrix4(mesh.matrixWorld);
+        const solid = Manifold.ofMesh(weldMeshData(g));
+        g.dispose();
+        return solid;
+      }
+
+      function railFitOverlap(Manifold, a, b) {
+        const hit = Manifold.intersection(a, b);
+        const volume = hit.getProperties().volume;
+        hit.delete();
+        return volume;
+      }
+
+      function auditRemovableRailFit(built, Manifold) {
+        const sm = built.sm;
+        const seat = built.seat;
+        const base = railFitSolid(built.base, Manifold);
+        const rail0 = railFitSolid(built.rail, Manifold);
+        const slider0 = railFitSolid(built.slider, Manifold);
+        const report = {
+          ok: true, steps: [], hardware: 'M3x12 screw and M3 nut',
+          baseBox: base.boundingBox(), railBox: rail0.boundingBox(), sliderBox: slider0.boundingBox(),
+          lipExpect: {
+            x: sm.winHalf + sm.tNarrow + sm.xyClear,
+            zFront: sm.zBodyFront, zLip: sm.zLip, zTop: sm.zRailTop, zFloor: sm.zFloor
+          }
+        };
+        const fail = (name, detail) => {
+          report.ok = false;
+          report.steps.push({ name, ok: false, detail });
+        };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const place = (solid, y) => {
+          const mesh = solid.getMesh();
+          let copy = Manifold.ofMesh(mesh);
+          if (y) copy = copy.translate([0, y, 0]);
+          return copy;
+        };
+        let worst = 0;
+        for (let y = 46; y >= 0; y -= 2) {
+          const slider = place(slider0, y);
+          const hit = railFitOverlap(Manifold, base, slider);
+          slider.delete();
+          worst = Math.max(worst, hit);
+        }
+        if (worst > 0.05) fail('slider onto fixed rail', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else pass('slider onto fixed rail', 'clear from 46 mm out to seated');
+        worst = 0;
+        const sliderSeated = place(slider0, 0);
+        for (let y = 52; y >= 0; y -= 2) {
+          const rail = place(rail0, y);
+          const hitB = railFitOverlap(Manifold, base, rail);
+          const hitS = railFitOverlap(Manifold, sliderSeated, rail);
+          rail.delete();
+          worst = Math.max(worst, hitB, hitS);
+        }
+        if (worst > 0.05) fail('rail slides on', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else pass('rail slides on', 'clear of the base and the seated slider');
+        worst = 0;
+        let captured = true;
+        const probes = [];
+        const railSeated = place(rail0, 0);
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        for (let y = -sm.travel / 2; y <= sm.travel / 2 + 0.01; y += sm.travel / 2) {
+          const slider = place(slider0, y);
+          worst = Math.max(worst, railFitOverlap(Manifold, base, slider), railFitOverlap(Manifold, railSeated, slider));
+          const yTip0 = -seat.tongueHalf + y;
+          const yTip1 = seat.tongueHalf + y;
+          [yTip0 + 0.6, yTip1 - 0.6].forEach(yy => {
+            let probe = Manifold.cube([0.4, 0.4, 0.4], true);
+            probe = probe.translate([-(lipX + 0.8), yy, lipZ]);
+            const left = railFitOverlap(Manifold, base, probe);
+            probe.delete();
+            let probeR = Manifold.cube([0.4, 0.4, 0.4], true);
+            probeR = probeR.translate([lipX + 0.8, yy, lipZ]);
+            const right = railFitOverlap(Manifold, railSeated, probeR);
+            probeR.delete();
+            probes.push({ y: +yy.toFixed(2), left: +left.toFixed(3), right: +right.toFixed(3) });
+            if (left < 0.002 || right < 0.002) captured = false;
+          });
+          slider.delete();
+        }
+        report.probes = probes;
+        const hitAt = (solid, x, y, z) => {
+          let probe = Manifold.cube([0.5, 0.5, 0.5], true);
+          probe = probe.translate([x, y, z]);
+          const volume = railFitOverlap(Manifold, solid, probe);
+          probe.delete();
+          return +volume.toFixed(3);
+        };
+        report.railVol = rail0.getProperties().volume;
+        report.baseVol = base.getProperties().volume;
+        report.samples = {
+          railOuter: hitAt(rail0, 10.4, 0, 14.8),
+          railLip: hitAt(rail0, lipX + 0.9, 0, lipZ),
+          railLow: hitAt(rail0, 9.2, 0, sm.zFloor + 0.4),
+          baseOuter: hitAt(base, -10.2, 0, 14.8),
+          baseLip: hitAt(base, -(lipX + 0.9), 0, lipZ)
+        };
+        if (worst > 0.05) fail('11 mm travel', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else if (!captured) fail('11 mm travel', 'a lip does not cover the tongue at an end of travel');
+        else pass('11 mm travel', 'both lips cover the tongue at both ends');
+        let cam = Manifold.cube([6.4, seat.tongueHalf * 2, 6.2], true);
+        cam = cam.translate([0, 0, sm.zFloor - 3.3]);
+        const camHit = railFitOverlap(Manifold, base, cam);
+        cam.delete();
+        if (camHit > 0.05) fail('cam space', 'base enters the center void by ' + camHit.toFixed(2) + ' mm3');
+        else pass('cam space', 'center under the slider is open for 6 mm below the rail floor');
+        let web = Manifold.cylinder(Math.max(0.4, seat.floorTop - seat.slotZ1 - 0.5), 1.4, 1.4, 16);
+        web = web.translate([seat.screwX, seat.screwY, seat.slotZ1 + 0.25]);
+        let tabHole = Manifold.cylinder(Math.max(0.4, seat.tabTop - seat.footZ0 - 0.8), 1.4, 1.4, 16);
+        tabHole = tabHole.translate([seat.screwX, seat.screwY, seat.footZ0 + 0.4]);
+        let pocket = Manifold.cube([4.0, 3.2, Math.max(0.4, seat.slotZ1 - seat.slotZ0 - 0.6)], true);
+        pocket = pocket.translate([seat.screwX, seat.screwY + 1.5, (seat.slotZ0 + seat.slotZ1) / 2]);
+        const screwRail = railFitOverlap(Manifold, railSeated, tabHole);
+        const screwBase = railFitOverlap(Manifold, base, web);
+        const pocketHit = railFitOverlap(Manifold, base, pocket);
+        web.delete(); tabHole.delete(); pocket.delete();
+        if (screwRail > 0.15 || screwBase > 0.15 || pocketHit > 0.15) {
+          fail('screw hole', 'tab ' + screwRail.toFixed(2) + ' web ' + screwBase.toFixed(2) + ' nut slot ' + pocketHit.toFixed(2));
+        } else pass('screw hole', 'M3 hole is open through the tab and the floor, and the nut slot is open');
+        [base, rail0, slider0, sliderSeated, railSeated].forEach(m => m.delete());
+        return report;
+      }
+
+      document.getElementById('btn-exp-rail-fit').addEventListener('click', async () => {
+        showStatusBanner('Building the removable-rail fit test…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildRemovableRailFit(sm);
+          const api = await ensureManifold();
+          const baseInfo = solidifyGroup(built.base, api.Manifold);
+          const railInfo = solidifyGroup(built.rail, api.Manifold);
+          const sliderInfo = solidifyGroup(built.slider, api.Manifold);
+          [baseInfo, railInfo, sliderInfo].forEach((info, i) => {
+            if (info.shells !== 1 || !(info.volume > 0)) {
+              throw new Error('Part ' + (i + 1) + ' is ' + info.shells + ' shells, volume ' + info.volume);
+            }
+          });
+          const report = auditRemovableRailFit(built, api.Manifold);
+          window.__arteor.railFitAudit = report;
+          if (!report.ok) {
+            const bad = report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; ');
+            throw new Error(bad);
+          }
+          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_RailFit_F55_Base.stl`);
+          downloadPrintReadySTL(built.rail, `Arteor_${APP_VERSION}_RailFit_F55_Rail.stl`);
+          downloadPrintReadySTL(built.slider, `Arteor_${APP_VERSION}_RailFit_F55_Slider.stl`, -Math.PI / 2);
+          showStatusBanner('Saved 3 files: base, loose rail, slider. Hardware: one M3×12 screw and one M3 nut. Not the fixed-rail coupons.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Rail fit test failed: ' + err.message);
+        }
+      });
+
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
         if (sourceId === 'inp-pegdia' || sourceId === 'inp-threadtol') {
@@ -5696,7 +6028,9 @@
         camera: camera, controls: controls, scene: scene, rebuild: rebuildModel, getParams: getParams,
         groups: { chassisGroup, faceplateGroup, slideGroup, slideStopGroup, slideGhostGroup, overlayGroup, legrandRefGroup, bubblesGroup },
         auditSlideFit: auditSlideFit,
-        computeSlideMetrics: computeSlideMetrics
+        computeSlideMetrics: computeSlideMetrics,
+        couponMetrics: couponMetrics,
+        buildRemovableRailFit: buildRemovableRailFit
       };
 
       function animate() {
