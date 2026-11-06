@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ArteorCAD</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23182030'/%3E%3C/svg%3E" />
   <script>
     // Short product token. Title, STL names, JSON export, and the save-setup default use it as-is.
     // The header badge is this token plus ".0 Studio" (v25 → "v25.0 Studio").
@@ -93,6 +94,7 @@
       <div class="grid grid-cols-6 gap-1">
         <button id="pre-khatam" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-100 border border-amber-400/50 truncate" title="Limestone plate, turquoise khatam star field, gold centre gems">✦ Khatam</button>
         <button id="pre-mashrabiya" class="py-1 text-[10px] font-semibold rounded bg-teal-700/30 hover:bg-teal-700/45 text-teal-100 border border-teal-500/40 truncate" title="Pointed mihrab arch with a wood mashrabiya lattice">🕌 Mashrabiya</button>
+        <button id="pre-slide" class="py-1 text-[10px] font-semibold rounded bg-orange-500/25 hover:bg-orange-500/40 text-orange-100 border border-orange-400/50 truncate" title="Linear shuttle: opposing ramps drive the Arteor rocker">↕ Slide</button>
       </div>
     </div>
 
@@ -333,6 +335,7 @@
               <select id="inp-swmode" class="w-full bg-slate-950 border border-amber-500/50 rounded px-1.5 py-1 text-amber-100 font-semibold text-[11px]">
                 <option value="covered" selected>🕹️ Covered + Knobs</option>
                 <option value="uncovered">🔲 Uncovered (+0.43mm)</option>
+                <option value="slide">↕ Slide switch (ramps)</option>
               </select>
             </div>
             <div>
@@ -390,6 +393,72 @@
             </div>
           </div>
           <input id="inp-slotaxis" type="hidden" value="vert" />
+        </div>
+      </div>
+
+      <!-- SLIDE SWITCH -->
+      <div class="cat-card bg-slate-800/40 border border-orange-500/40 rounded-lg transition" data-cat="slide">
+        <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('slide', event)">
+          <div class="flex items-center gap-2">
+            <span class="cat-chevron text-[10px] text-orange-400 transition-transform">▼</span>
+            <span class="font-semibold text-orange-300 uppercase tracking-wider text-[11px]">3b. Slide Switch — Shuttle &amp; Ramps</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badge-slide" class="text-[10px] font-mono text-orange-300">Off</span>
+            <button class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-orange-300 border border-slate-700 transition" onclick="resetCat('slide', event)" title="Reset slide dimensions">↺ Reset</button>
+            <button class="lock-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700" onclick="toggleLock('slide', event)">🔓</button>
+          </div>
+        </div>
+        <div class="cat-body p-3 space-y-2.5 border-t border-slate-800">
+          <div id="slide-mode-note" class="text-[10px] font-mono text-orange-200/90 bg-orange-950/30 px-2 py-1.5 rounded border border-orange-500/20 leading-snug">
+            Set Switch Exposure to Slide switch. The shuttle rides a 45° dovetail. Up drives the lower ramp into the rocker's bottom half; down drives the upper ramp into the top half.
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <div class="flex justify-between mb-1"><span>Ramp H</span><span id="val-slide-ramph" class="font-mono text-orange-300">6.0</span></div>
+              <input id="inp-slide-ramph" type="range" min="4.5" max="7.5" step="0.1" value="6.0" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Travel</span><span id="val-slide-travel" class="font-mono text-orange-300">11.0</span></div>
+              <input id="inp-slide-travel" type="range" min="8" max="14" step="0.5" value="11" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>XY gap</span><span id="val-slide-xy" class="font-mono text-orange-300">0.25</span></div>
+              <input id="inp-slide-xy" type="range" min="0.10" max="0.45" step="0.01" value="0.25" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Z gap</span><span id="val-slide-z" class="font-mono text-orange-300">0.20</span></div>
+              <input id="inp-slide-z" type="range" min="0.08" max="0.40" step="0.01" value="0.20" class="w-full" />
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <div class="flex justify-between mb-1"><span>Contact</span><span id="val-slide-contact" class="font-mono text-orange-300">15.0</span></div>
+              <input id="inp-slide-contact" type="range" min="12" max="18" step="0.5" value="15" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Grip L</span><span id="val-slide-handle" class="font-mono text-orange-300">12.5</span></div>
+              <input id="inp-slide-handle" type="range" min="10" max="18" step="0.5" value="12.5" class="w-full" />
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="text-[10px] text-orange-100 flex items-center gap-1.5 cursor-pointer">
+                <input id="inp-slide-detent" type="checkbox" checked class="accent-orange-400 rounded" /> Detent nub
+              </label>
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="text-[10px] text-orange-100 flex items-center gap-1.5 cursor-pointer" data-tip="Pocket for a short 4 mm PTFE tube on each ramp nose. Needs ramp height of at least 5.5 mm.">
+                <input id="inp-slide-ptfe" type="checkbox" class="accent-orange-400 rounded" /> PTFE slot
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-[10px] font-mono bg-slate-950/60 border border-slate-800 rounded px-2 py-1.5">
+            <span>Ramp angle <span id="slide-angle-readout" class="text-emerald-300 font-bold">29°</span></span>
+            <span id="slide-slot-readout" class="text-slate-400">slot —</span>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Preview position (up ← → down)</span><span id="val-slide-pos" class="font-mono text-orange-300">1.00</span></div>
+            <input id="inp-slide-pos" type="range" min="-1" max="1" step="0.05" value="1" class="w-full" />
+          </div>
         </div>
       </div>
 
@@ -637,6 +706,12 @@
         <button id="btn-exp-tip" class="py-1 px-2 bg-amber-300 hover:bg-amber-200 text-slate-950 font-semibold rounded text-[10px] transition truncate">⬇ STL: Tip (-Thread)</button>
         <button id="btn-exp-cover" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">⬇ Full Assembly STL</button>
       </div>
+      <div class="grid grid-cols-4 gap-1.5">
+        <button id="btn-exp-slide-base" class="py-1.5 px-1 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded text-[10px] transition truncate" title="Base with the dovetail track, plus the current wall mount">⬇ Slide Base</button>
+        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Shuttle laid on its side so layer lines run along the slide">⬇ Slide Shuttle</button>
+        <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
+        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="One-module bases and shuttles at three clearances and three ramp heights">⬇ Test Coupon</button>
+      </div>
     </div>
   </aside>
 
@@ -657,6 +732,7 @@
         </div>
         <button id="btn-edges" class="px-2.5 py-1 rounded bg-sky-500/25 text-sky-300 border border-sky-500/40 transition">CAD Edges: ON</button>
         <button id="btn-rock-sim" class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition">Rock Switch</button>
+        <button id="btn-slide-section" class="px-2.5 py-1 rounded bg-slate-800 text-orange-200 border border-orange-500/30 hover:bg-orange-500/20 transition">Side Section</button>
         <button id="btn-wall" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wall Hardware Ref</button>
         <button id="btn-explode" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Explode All Layers</button>
         <button id="btn-wire" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wireframe</button>
@@ -681,7 +757,7 @@
   </main>
 
   <script>
-    const lockedCats = { fixation: false, chassis: false, modules: false, plate: false, overlay: false, knob: false, colors: false };
+    const lockedCats = { fixation: false, chassis: false, modules: false, slide: false, plate: false, overlay: false, knob: false, colors: false };
     let allCollapsed = false;
 
     const DEFAULT_CAT_VALUES = {
@@ -715,6 +791,15 @@
         'inp-wall': 2.5,
         'inp-face': 2.6,
         'inp-deckdrop': 5.0
+      },
+      slide: {
+        'inp-slide-ramph': 6.0,
+        'inp-slide-travel': 11,
+        'inp-slide-xy': 0.25,
+        'inp-slide-z': 0.20,
+        'inp-slide-contact': 15,
+        'inp-slide-handle': 12.5,
+        'inp-slide-pos': 1
       }
     };
 
@@ -805,6 +890,7 @@
       renderer.setSize(initW, initH);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.toneMapping = THREE.NoToneMapping;
+      renderer.localClippingEnabled = true;
       container.innerHTML = '';
       container.appendChild(renderer.domElement);
 
@@ -847,9 +933,11 @@
       const overlayGroup = new THREE.Group();
       const toggleStemGroup = new THREE.Group();
       const toggleTipGroup = new THREE.Group();
+      const slideGroup = new THREE.Group();
+      const slideGhostGroup = new THREE.Group();
       const edgesGroup = new THREE.Group();
 
-      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, edgesGroup);
+      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup, edgesGroup);
 
       let isExploded = false;
       let isWireframe = false;
@@ -859,8 +947,10 @@
       let isKnobCutaway = false;
       let showCadEdges = true;
       let showWall = false;
+      let showSlideSection = false;
       let rockPolarity = 1;
       let hudTabMode = 'side';
+      let savedSlideCam = null;
 
       let userPlateGeometry = null;
       let userKnobGeometry = null;
@@ -1822,12 +1912,13 @@
       function getActiveModuleItems(p) {
         const swCount = Math.max(0, Math.min(4, p.swCount));
         const isUncoveredSw = (p.swMode === 'uncovered');
+        const isSlideSw = (p.swMode === 'slide');
         const outletType = p.outletType, outletPos = p.outletPos;
-        const isCircleSlot = (!isUncoveredSw && p.slotShape === 'circle');
-        const effSlotW = isUncoveredSw ? (p.pitch + 0.2) : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotW);
-        const effSlotH = isUncoveredSw ? p.modH : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotH);
+        const isCircleSlot = (!isUncoveredSw && !isSlideSw && p.slotShape === 'circle');
+        const effSlotW = isUncoveredSw ? (p.pitch + 0.2) : (isSlideSw ? 9.25 : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotW));
+        const effSlotH = isUncoveredSw ? p.modH : (isSlideSw ? ((p.slideHandle || 12.5) + (p.slideTravel || 11) + 0.5) : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotH));
         const swKind = isUncoveredSw ? 'switch_open' : 'switch';
-        const swSlotShape = isUncoveredSw ? 'rect' : p.slotShape;
+        const swSlotShape = (isUncoveredSw || isSlideSw) ? 'rect' : p.slotShape;
         const items = [], pitch = p.pitch;
 
         const makeSwItem = (cx, idx) => ({ kind: swKind, slotShape: swSlotShape, cx, cy: 0, w: effSlotW, h: effSlotH, cutW: effSlotW, cutH: effSlotH, isRoundCut: isCircleSlot, index: idx });
@@ -1997,7 +2088,15 @@
           colOv: str('inp-colov', '#f8fafc'),
           colD2: str('inp-cold2', '#e8c39e'),
           colT: str('inp-colt', '#5da9c4'),
-          colTip: str('inp-coltip', '#eab308')
+          colTip: str('inp-coltip', '#eab308'),
+          slideRampH: num('inp-slide-ramph', 6.0),
+          slideTravel: num('inp-slide-travel', 11),
+          slideXY: num('inp-slide-xy', 0.25),
+          slideZ: num('inp-slide-z', 0.20),
+          slideContact: num('inp-slide-contact', 15),
+          slideHandle: num('inp-slide-handle', 12.5),
+          slideDetent: bool('inp-slide-detent', true),
+          slidePtfe: bool('inp-slide-ptfe', false)
         };
       }
 
@@ -2090,7 +2189,7 @@
           collarGeo.translate(it.cx, it.cy, zSupportFront + 1.4);
           legrandRefGroup.add(new THREE.Mesh(collarGeo, bossMat));
 
-          if (it.kind === 'switch' || it.kind === 'switch_open') {
+          if ((it.kind === 'switch' || it.kind === 'switch_open') && p.swMode !== 'slide') {
             const rockerW = modW - 1.0;
             const rockerH = 43.8;
             const rShape = createRoundedRectShape(rockerW, rockerH, 1.2);
@@ -3307,7 +3406,7 @@
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.36 });
         const targetGroups = isKnobOnly
           ? [toggleStemGroup, toggleTipGroup]
-          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup];
+          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup];
 
         targetGroups.forEach(grp => {
           if (!grp.visible) return;
@@ -3323,6 +3422,548 @@
         });
       }
 
+      // --- Slide switch -------------------------------------------------------
+      // Linear shuttle in a 45° dovetail. Sliding up cams the lower ramp onto the
+      // bottom half of the rocker; sliding down cams the upper ramp onto the top
+      // half. A short dwell finishes the click, then a relief step parks clear of
+      // the rocker so the plastic is not held loaded. The rocker's own spring
+      // keeps the shuttle at that end of travel.
+      const SLIDE_GLYPH = {
+        '0': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+        '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+        '2': ['01110', '10001', '00001', '00110', '01000', '10000', '11111'],
+        '3': ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+        '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+        '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+        '6': ['01110', '10000', '11110', '10001', '10001', '10001', '01110'],
+        '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+        '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+        '9': ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
+        'C': ['01111', '10000', '10000', '10000', '10000', '10000', '01111'],
+        'R': ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+        '.': ['00000', '00000', '00000', '00000', '00000', '00110', '00110'],
+        ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
+        '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000']
+      };
+
+      function slidePreviewPos() {
+        const el = document.getElementById('inp-slide-pos');
+        const v = el ? parseFloat(el.value) : 1;
+        return isNaN(v) ? 1 : Math.max(-1, Math.min(1, v));
+      }
+
+      function computeSlideMetrics(p) {
+        const travel = Math.max(8, Math.min(14, p.slideTravel || 11));
+        const rampH = Math.max(4.5, Math.min(7.5, p.slideRampH || 6));
+        const contact = Math.max(12, Math.min(18, p.slideContact || 15));
+        const xyClear = Math.max(0.08, Math.min(0.55, p.slideXY != null ? p.slideXY : 0.25));
+        const zClear = Math.max(0.05, Math.min(0.45, p.slideZ != null ? p.slideZ : 0.20));
+        const handleL = Math.max(10, Math.min(18, p.slideHandle || 12.5));
+        const handleW = 8.2;
+        const activeLen = Math.max(5.5, travel * 0.96);
+        const angleDeg = Math.atan(rampH / activeLen) * 180 / Math.PI;
+        const noseR = 1.7;
+        const dwell = 1.6;
+        const reliefLen = 1.4;
+        const overtravel = 0.40;
+        const parkClear = 0.30;
+        const reliefDrop = overtravel + parkClear;
+        const halfRock = 21.6;
+        const theta0 = Math.atan(2.65 / halfRock);
+        const zFaceMid = p.rimD + (5.2 + 10.5) / 2;
+        const zContactPressed = zFaceMid - Math.sin(theta0) * contact;
+        const zContactRaised = zFaceMid + Math.sin(theta0) * contact;
+        const zDwell = zContactPressed - overtravel;
+        const zNose = zDwell + rampH;
+        const zBodyBack = zNose + 0.30;
+        const bodyThick = 2.55;
+        const zBodyFront = zBodyBack + bodyThick;
+        const tNarrow = 0.90;
+        const tWide = tNarrow + bodyThick;
+        const railWall = 1.50;
+        const gNarrow = tNarrow + xyClear;
+        const gWide = tWide + xyClear;
+        const railW = gWide + railWall;
+        const moduleGap = 0.30;
+        const winW = Math.max(8.2, (p.pitch || 22.5) - moduleGap - 2 * railW);
+        const winHalf = winW / 2;
+        const zFloor = zBodyBack - zClear;
+        const zLipBot = zFloor + (gWide - gNarrow);
+        const zRailTop = zLipBot + 0.58;
+        const yTail = contact + travel / 2 + reliefLen / 2 + 0.35;
+        const shuttleHalf = yTail + 0.55;
+        let latchZone = 4.2;
+        const endBar = 2.5;
+        let tieLen = 2.4;
+        const rockerBoxH = Math.max(47.4, (p.modH || 45.2) + 2);
+        const maxPocket = Math.max(rockerBoxH, (p.inH || 79.5) - 6.8);
+        let trackInnerHalf = shuttleHalf + travel / 2 + latchZone;
+        let trackOuter = trackInnerHalf * 2 + endBar + tieLen;
+        let fitWarning = false;
+        if (trackOuter + 0.8 > maxPocket) {
+          const spare = maxPocket - 0.8 - (shuttleHalf + travel / 2) * 2 - endBar;
+          latchZone = Math.max(2.3, Math.min(4.2, spare * 0.55));
+          tieLen = Math.max(1.6, spare - latchZone);
+          trackInnerHalf = shuttleHalf + travel / 2 + latchZone;
+          trackOuter = trackInnerHalf * 2 + endBar + tieLen;
+          if (trackOuter + 0.8 > maxPocket + 0.2) fitWarning = true;
+        }
+        const pocketH = Math.min(maxPocket, Math.max(rockerBoxH, trackOuter + 0.8));
+        const cavityZ = Math.max(12.5, Math.round((zRailTop + 0.30 - p.rimD) * 10) / 10);
+        const slotW = handleW + 1.05;
+        const slotH = handleL + travel + 0.5;
+        const notchLen = 2.5;
+        const notchExtra = 0.70;
+        return {
+          travel, rampH, contact, xyClear, zClear, handleL, handleW, activeLen, angleDeg,
+          noseR, dwell, reliefLen, overtravel, parkClear, reliefDrop, halfRock, theta0,
+          zFaceMid, zContactPressed, zContactRaised, zDwell, zNose, zBodyBack, bodyThick,
+          zBodyFront, tNarrow, tWide, railWall, gNarrow, gWide, railW, winW, winHalf,
+          zFloor, zLipBot, zRailTop, shuttleHalf, latchZone, endBar, tieLen, trackInnerHalf,
+          trackOuter, pocketH, cavityZ, slotW, slotH, notchLen, notchExtra, fitWarning,
+          outerW: winW + 2 * railW, detent: !!p.slideDetent, ptfe: !!p.slidePtfe && rampH >= 5.4
+        };
+      }
+
+      function slideShape(pairs, sx, sy) {
+        const sp = pairs.map(p => [sx(p), sy(p)]);
+        let a = 0;
+        for (let i = 0; i < sp.length; i++) {
+          const p = sp[i], q = sp[(i + 1) % sp.length];
+          a += p[0] * q[1] - q[0] * p[1];
+        }
+        if (Math.abs(a) < 1e-4) return null;
+        if (a < 0) sp.reverse();
+        const shape = new THREE.Shape();
+        sp.forEach((p, i) => { if (i) shape.lineTo(p[0], p[1]); else shape.moveTo(p[0], p[1]); });
+        return shape;
+      }
+
+      function meshFromShape(shape, depth) {
+        if (!shape || depth < 0.08) return null;
+        try {
+          const geo = new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false, curveSegments: 2 });
+          geo.computeVertexNormals();
+          return geo;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function addProfileXZ(group, pts, y0, y1, mat) {
+        if (y1 < y0) { const t = y0; y0 = y1; y1 = t; }
+        const shape = slideShape(pts, p => p[0], p => -p[1]);
+        const geo = meshFromShape(shape, y1 - y0);
+        if (!geo) return;
+        geo.rotateX(-Math.PI / 2);
+        geo.translate(0, y0, 0);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function addProfileYZ(group, pts, x0, x1, mat) {
+        if (x1 < x0) { const t = x0; x0 = x1; x1 = t; }
+        const shape = slideShape(pts, p => p[1], p => p[0]);
+        const geo = meshFromShape(shape, x1 - x0);
+        if (!geo) return;
+        geo.rotateY(-Math.PI / 2);
+        geo.translate(x1, 0, 0);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function addBox(group, w, h, d, cx, cy, cz, mat) {
+        if (w < 0.08 || h < 0.08 || d < 0.08) return;
+        const geo = new THREE.BoxGeometry(w, h, d);
+        geo.translate(cx, cy, cz);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function slideEmboss(group, text, x, y, z, mat, cw) {
+        cw = cw || 0.70;
+        const ch = cw;
+        const depth = 0.50;
+        let cursor = x;
+        const gap = cw * 0.45;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.86, ch * 0.86, depth,
+                cursor + (c + 0.5) * cw,
+                y - (r + 0.5) * ch,
+                z + depth / 2,
+                mat);
+            }
+          }
+          cursor += rows[0].length * cw + gap;
+        }
+        return cursor - x;
+      }
+
+      function rightRailPts(sm, extra) {
+        const add = extra || 0;
+        const x0 = sm.winHalf;
+        const xO = sm.winHalf + sm.railW;
+        const gN = sm.gNarrow + add;
+        const gW = sm.gWide + add;
+        const zBot = sm.zFloor - 0.8;
+        return [
+          [x0, zBot],
+          [xO, zBot],
+          [xO, sm.zRailTop],
+          [x0 + gN, sm.zRailTop],
+          [x0 + gN, sm.zLipBot],
+          [x0 + gW, sm.zFloor],
+          [x0, sm.zFloor]
+        ];
+      }
+
+      function mirrorXPts(pts) {
+        return pts.map(p => [-p[0], p[1]]);
+      }
+
+      function lowerRampPts(sm) {
+        const yRel = -(sm.contact + sm.travel / 2);
+        const yTail = yRel - sm.reliefLen * 0.5 - 0.35;
+        const yRel0 = yRel - sm.reliefLen * 0.5;
+        const yRel1 = yRel + sm.reliefLen * 0.5;
+        const yDwell1 = yRel1 + sm.dwell;
+        const yNose = yDwell1 + sm.activeLen;
+        const zTop = sm.zBodyBack + 0.18;
+        const zDw = sm.zDwell;
+        const zRf = sm.zDwell + sm.reliefDrop;
+        const zNs = sm.zNose;
+        const r = sm.noseR;
+        const beta = Math.atan(sm.rampH / sm.activeLen);
+        const ySharp = yNose;
+        const inset = r * Math.tan(Math.max(0.15, beta) / 2);
+        const yFil = ySharp - inset;
+        const pts = [
+          [yTail, zTop],
+          [yTail, zRf],
+          [yRel0, zRf],
+          [yRel1, zRf],
+          [yRel1 + 0.38, zDw],
+          [yDwell1, zDw]
+        ];
+        if (sm.ptfe) {
+          const rTube = 2.10;
+          const proud = 0.50;
+          const dist = Math.hypot(yNose - yDwell1, zNs - zDw) || 1;
+          const dirY = (yNose - yDwell1) / dist;
+          const dirZ = (zNs - zDw) / dist;
+          const nY = dirZ;
+          const nZ = -dirY;
+          const t = 0.62;
+          const py = yDwell1 + (yNose - yDwell1) * t;
+          const pz = zDw + (zNs - zDw) * t;
+          const cy = py + nY * (rTube - proud);
+          const cz = pz + nZ * (rTube - proud);
+          pts.push([py - dirY * rTube * 0.92, pz - dirZ * rTube * 0.92]);
+          const a0 = Math.atan2(pz - dirZ * rTube * 0.92 - cz, py - dirY * rTube * 0.92 - cy);
+          const a1 = Math.atan2(pz + dirZ * rTube * 0.55 - cz, py + dirY * rTube * 0.15 - cy);
+          let sweep = a1 - a0;
+          if (sweep > 0) sweep -= Math.PI * 2;
+          if (sweep < -Math.PI * 1.7) sweep += Math.PI * 2;
+          for (let i = 1; i <= 8; i++) {
+            const a = a0 + sweep * (i / 8);
+            pts.push([cy + rTube * Math.cos(a), cz + rTube * Math.sin(a)]);
+          }
+          pts.push([yFil, zNs]);
+        } else {
+          pts.push([yFil, zNs]);
+        }
+        const cx = yFil;
+        const cz = zNs - r;
+        const aStart = Math.PI / 2;
+        const aEnd = beta;
+        for (let i = 0; i <= 6; i++) {
+          const a = aStart + (aEnd - aStart) * (i / 6);
+          pts.push([cx + r * Math.cos(a), cz + r * Math.sin(a)]);
+        }
+        const yLead = cx + r * Math.cos(aEnd);
+        pts.push([yLead + 0.15, zTop]);
+        return pts;
+      }
+
+      function upperRampPts(sm) {
+        return lowerRampPts(sm).map(p => [-p[0], p[1]]).reverse();
+      }
+
+      function shuttleCrossPts(sm) {
+        const xR = sm.winHalf;
+        return [
+          [-xR - sm.tNarrow, sm.zBodyFront],
+          [-xR - sm.tWide, sm.zBodyBack],
+          [xR + sm.tWide, sm.zBodyBack],
+          [xR + sm.tNarrow, sm.zBodyFront]
+        ];
+      }
+
+      function addMeasuredRocker(group, p, sm, cx, state, mat, x0, x1) {
+        const half = sm.halfRock;
+        const theta = sm.theta0 * state;
+        const c = Math.cos(theta), s = Math.sin(theta);
+        const zMid = sm.zFaceMid;
+        const t = 1.7;
+        const corners = [[-half, t / 2], [half, t / 2], [half, -t / 2], [-half, -t / 2]];
+        const pts = corners.map(([y, zl]) => [y * c - zl * s, zMid + y * s + zl * c]);
+        addProfileYZ(group, pts, cx + x0, cx + x1, mat);
+      }
+
+      function buildOneTrack(group, sm, cx, mat, withLatch) {
+        const spans = [];
+        const y0 = -sm.trackInnerHalf;
+        const y1 = sm.trackInnerHalf;
+        if (!sm.detent) {
+          spans.push([y0, y1, 0]);
+        } else {
+          const notches = [-sm.travel / 2, sm.travel / 2]
+            .map(yc => [yc - sm.notchLen / 2, yc + sm.notchLen / 2])
+            .filter(n => n[0] > y0 + 0.4 && n[1] < y1 - 0.4)
+            .sort((a, b) => a[0] - b[0]);
+          let cursor = y0;
+          notches.forEach(n => {
+            if (n[0] > cursor + 0.2) spans.push([cursor, n[0] + 0.12, 0]);
+            spans.push([n[0] + 0.12, n[1] - 0.12, sm.notchExtra]);
+            cursor = n[1] - 0.12;
+          });
+          if (y1 > cursor + 0.2) spans.push([cursor, y1, 0]);
+        }
+        spans.forEach(sp => {
+          const ptsR = rightRailPts(sm, sp[2]).map(pt => [pt[0] + cx, pt[1]]);
+          const ptsL = mirrorXPts(rightRailPts(sm, sp[2])).map(pt => [pt[0] + cx, pt[1]]);
+          addProfileXZ(group, ptsR, sp[0], sp[1], mat);
+          addProfileXZ(group, ptsL, sp[0], sp[1], mat);
+        });
+        const zBot = sm.zFloor - 0.8;
+        const railH = sm.zRailTop - zBot;
+        addBox(group, sm.outerW, sm.endBar, railH, cx, sm.trackInnerHalf + sm.endBar / 2, (sm.zRailTop + zBot) / 2, mat);
+        addBox(group, sm.outerW, sm.tieLen, 0.8, cx, -sm.trackInnerHalf - sm.tieLen / 2, sm.zFloor - 0.4, mat);
+        if (withLatch) {
+          const latchH = Math.max(3.2, sm.zBodyFront - sm.zFloor - 0.3);
+          addBox(group, 0.72, 2.05, latchH,
+            cx + sm.winHalf - 1.15,
+            -sm.trackInnerHalf + 1.15,
+            sm.zFloor + latchH / 2,
+            mat);
+          addBox(group, 0.72, 1.15, latchH * 0.55,
+            cx + sm.winHalf - 1.7,
+            -sm.trackInnerHalf + 0.35,
+            sm.zFloor + latchH * 0.72,
+            mat);
+        }
+      }
+
+      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips) {
+        const y0 = -sm.shuttleHalf + shift;
+        const y1 = sm.shuttleHalf + shift;
+        const cross = shuttleCrossPts(sm).map(pt => [pt[0] + cx, pt[1]]);
+        addProfileXZ(group, cross, y0, y1, mat);
+        const rampW = Math.min(7.2, sm.winW - 1.3);
+        const ramp = lowerRampPts(sm).map(pt => [pt[0] + shift, pt[1]]);
+        const rampU = upperRampPts(sm).map(pt => [pt[0] + shift, pt[1]]);
+        addProfileYZ(group, ramp, cx - rampW / 2, cx + rampW / 2, mat);
+        addProfileYZ(group, rampU, cx - rampW / 2, cx + rampW / 2, mat);
+        if (sm.detent) {
+          const compressed = Math.abs(pos) < 0.78;
+          const backOff = compressed ? 0.52 : 0;
+          const nubTip = cx + sm.winHalf + sm.gWide + sm.notchExtra - 0.16 - backOff;
+          const tongueHere = Math.max(1.1, sm.tWide - 1.0);
+          const beamOuter = cx + sm.winHalf + tongueHere - 0.20;
+          const rootX = cx + sm.winHalf + 0.30;
+          const beamZ = sm.zBodyBack + 0.95;
+          const nubY = shift;
+          addBox(group, Math.max(0.4, beamOuter - rootX), 10.2, 1.05,
+            (rootX + beamOuter) / 2, nubY - 5.4, beamZ, mat);
+          addBox(group, Math.max(0.35, nubTip - beamOuter), 1.65, 0.95,
+            (beamOuter + nubTip) / 2, nubY, beamZ, mat);
+        }
+        const handleTopZ = (typeof sm.zHandleTop === 'number') ? sm.zHandleTop : (sm.zBodyFront + 6.2);
+        const hCx = cx;
+        const hCy = shift;
+        addBox(group, sm.handleW, sm.handleL, Math.max(0.8, handleTopZ - (sm.zBodyFront - 0.25)),
+          hCx, hCy, (sm.zBodyFront - 0.25 + handleTopZ) / 2, mat);
+        const ridgeZ = handleTopZ + 0.55;
+        addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy - 2.15, ridgeZ, mat);
+        addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy + 2.15, ridgeZ, mat);
+        if (pips) {
+          for (let i = 0; i < pips; i++) {
+            addBox(group, 0.7, 1.5, 1.5,
+              cx + sm.winHalf + sm.tWide + 0.35,
+              y1 - 2.2 - i * 2.3,
+              (sm.zBodyBack + sm.zBodyFront) / 2,
+              mat);
+          }
+        }
+      }
+
+      function buildSlideMechanism(trackGroup, shuttleGroup, ghostGroup, p, sm, activeItems, matBase, matSlide, zFaceBack) {
+        const faceFront = zFaceBack + p.face;
+        sm.zHandleTop = faceFront + 3.3;
+        const pos = slidePreviewPos();
+        const shift = pos * (sm.travel / 2);
+        const switches = activeItems.filter(it => it.kind === 'switch' || it.kind === 'switch_open');
+        let clipCx = 0;
+        if (switches.length) {
+          clipCx = switches.slice().sort((a, b) => Math.abs(a.cx) - Math.abs(b.cx))[0].cx;
+        }
+        switches.forEach(sw => {
+          const local = new THREE.Group();
+          buildOneTrack(local, sm, 0, matBase, true);
+          local.position.x = sw.cx;
+          trackGroup.add(local);
+          const sh = new THREE.Group();
+          buildOneShuttle(sh, sm, 0, shift, pos, matSlide, 0);
+          sh.position.x = sw.cx;
+          shuttleGroup.add(sh);
+        });
+        if (showSlideSection && switches.length) {
+          const ghostUp = new THREE.MeshStandardMaterial({
+            color: 0xfb923c, transparent: true, opacity: 0.55, roughness: 0.4, metalness: 0.0,
+            side: THREE.DoubleSide, depthWrite: false
+          });
+          const ghostDn = ghostUp.clone();
+          ghostDn.color = new THREE.Color(0x38bdf8);
+          ghostDn.opacity = 0.40;
+          addMeasuredRocker(ghostGroup, p, sm, clipCx, 1, ghostUp, -1.15, -0.55);
+          addMeasuredRocker(ghostGroup, p, sm, clipCx, -1, ghostDn, -1.15, -0.55);
+        }
+        switches.forEach(sw => {
+          const state = pos >= 0 ? 1 : -1;
+          const rockMat = new THREE.MeshStandardMaterial({
+            color: 0xf8fafc, roughness: 0.32, metalness: 0.04, side: THREE.DoubleSide, wireframe: isWireframe
+          });
+          addMeasuredRocker(legrandRefGroup, p, sm, sw.cx, state, rockMat, -((Math.min(p.pitch, sm.outerW) - 1.2) / 2), (Math.min(p.pitch, sm.outerW) - 1.2) / 2);
+        });
+        return clipCx;
+      }
+
+      function buildSlideCoupon(p) {
+        const group = new THREE.Group();
+        const variants = [
+          { xy: 0.15, ramp: 5.5, code: 'C15', rampCode: 'R55', pips: 1 },
+          { xy: 0.22, ramp: 6.0, code: 'C22', rampCode: 'R60', pips: 2 },
+          { xy: 0.30, ramp: 6.5, code: 'C30', rampCode: 'R65', pips: 3 }
+        ];
+        const mat = createGlossMat('#e2e8f0', false, 0.42, 0.04);
+        const matS = createGlossMat('#38bdf8', false, 0.35, 0.05);
+        variants.forEach((v, i) => {
+          const vp = Object.assign({}, p, {
+            rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.20,
+            slideTravel: 11, slideContact: 15, slideHandle: 12.5,
+            slideDetent: true, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
+          });
+          const sm = computeSlideMetrics(vp);
+          sm.zHandleTop = sm.zBodyFront + 3.6;
+          const station = new THREE.Group();
+          buildOneTrack(station, sm, 0, mat, true);
+          const tabY = sm.trackInnerHalf + sm.endBar + 0.4;
+          const tabW = 16;
+          addBox(station, tabW, 11.2, 1.3, 0, tabY + 5.6, sm.zFloor + 0.5, mat);
+          slideEmboss(station, v.code, -7.2, tabY + 9.6, sm.zFloor + 1.25, mat, 0.62);
+          slideEmboss(station, v.rampCode, -7.2, tabY + 3.4, sm.zFloor + 1.25, mat, 0.62);
+          const shuttle = new THREE.Group();
+          buildOneShuttle(shuttle, sm, 0, 0, 1, matS, v.pips);
+          shuttle.updateMatrixWorld(true);
+          shuttle.traverse(ch => {
+            if (ch.isMesh && ch.geometry) {
+              ch.geometry = ch.geometry.clone();
+              ch.geometry.applyMatrix4(ch.matrix);
+              ch.position.set(0, 0, 0);
+              ch.rotation.set(0, 0, 0);
+              ch.scale.set(1, 1, 1);
+              ch.updateMatrix();
+            }
+          });
+          const rot = new THREE.Matrix4().makeRotationY(-Math.PI / 2);
+          shuttle.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(rot); });
+          shuttle.updateMatrixWorld(true);
+          const sb = new THREE.Box3().setFromObject(shuttle);
+          shuttle.position.z = -sb.min.z;
+          const bb = new THREE.Box3().setFromObject(station);
+          station.position.z = -bb.min.z;
+          const stB = new THREE.Box3().setFromObject(station);
+          const shB = new THREE.Box3().setFromObject(shuttle);
+          shuttle.position.y = stB.min.y - 6 - shB.max.y;
+          const wrap = new THREE.Group();
+          wrap.add(station);
+          wrap.add(shuttle);
+          wrap.position.x = (i - 1) * 40;
+          group.add(wrap);
+        });
+        return group;
+      }
+
+      function drawSlideSectionHUD(p, sm) {
+        const canvas = document.getElementById('hud-canvas');
+        const ctx = canvas.getContext('2d');
+        const cw = canvas.width, ch = canvas.height;
+        ctx.clearRect(0, 0, cw, ch);
+        const pos = slidePreviewPos();
+        const shift = pos * (sm.travel / 2);
+        const yLo = -(sm.halfRock + 6);
+        const yHi = -yLo;
+        const zHandle = (p.rimD + p.swClear) + p.face + 4.2;
+        const zLo = p.rimD - 1.2;
+        const zHi = Math.max(zHandle, sm.zRailTop + 1);
+        const padL = 16, padR = 10, padT = 16, padB = 16;
+        const sx = (cw - padL - padR) / (yHi - yLo);
+        const sy = (ch - padT - padB) / (zHi - zLo);
+        const sc = Math.min(sx, sy);
+        const X = y => padL + (y - yLo) * sc;
+        const Y = z => ch - padB - (z - zLo) * sc;
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.strokeStyle = '#334155';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(8, Y(p.rimD));
+        ctx.lineTo(cw - 8, Y(p.rimD));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px monospace';
+        ctx.fillText('frame face', 8, Y(p.rimD) - 3);
+
+        function poly(pts, stroke, fill) {
+          ctx.beginPath();
+          pts.forEach((pt, i) => { if (i) ctx.lineTo(X(pt[0]), Y(pt[1])); else ctx.moveTo(X(pt[0]), Y(pt[1])); });
+          ctx.closePath();
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        [1, -1].forEach(state => {
+          const th = sm.theta0 * state;
+          const c = Math.cos(th), s = Math.sin(th);
+          const t = 1.5;
+          const corners = [[-sm.halfRock, t / 2], [sm.halfRock, t / 2], [sm.halfRock, -t / 2], [-sm.halfRock, -t / 2]];
+          const pts = corners.map(([y, zl]) => [y * c - zl * s, sm.zFaceMid + y * s + zl * c]);
+          poly(pts, state > 0 ? '#fb923c' : '#38bdf8', state > 0 ? 'rgba(251,146,60,0.18)' : 'rgba(56,189,248,0.12)');
+        });
+        const body = [
+          [-sm.shuttleHalf + shift, sm.zBodyBack],
+          [sm.shuttleHalf + shift, sm.zBodyBack],
+          [sm.shuttleHalf + shift, sm.zBodyFront],
+          [-sm.shuttleHalf + shift, sm.zBodyFront]
+        ];
+        poly(body, '#e2e8f0', 'rgba(226,232,240,0.16)');
+        poly(lowerRampPts(Object.assign({}, sm, { ptfe: false })).map(pt => [pt[0] + shift, pt[1]]), '#fbbf24', 'rgba(251,191,36,0.35)');
+        poly(upperRampPts(Object.assign({}, sm, { ptfe: false })).map(pt => [pt[0] + shift, pt[1]]), '#fbbf24', 'rgba(251,191,36,0.35)');
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '9px monospace';
+        const angOk = sm.angleDeg >= 27 && sm.angleDeg <= 30;
+        ctx.fillStyle = angOk ? '#4ade80' : '#fb923c';
+        ctx.fillText(sm.angleDeg.toFixed(1) + '°  ramp ' + sm.rampH.toFixed(1) + ' / ' + sm.activeLen.toFixed(1) + ' mm', 8, ch - 6);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('5.2 pressed', 8, 22);
+        ctx.fillText('10.5 raised', 78, 22);
+        ctx.fillText(pos >= 0.2 ? 'parked UP' : (pos <= -0.2 ? 'parked DOWN' : 'mid travel'), cw - 78, 22);
+      }
+
+      // --- end slide switch ---
       // --- MAIN REBUILD ---
       let lastAutoModeState = '';
       function rebuildModel() {
@@ -3333,11 +3974,20 @@
         const outCount = activeItems.filter(it => it.kind !== 'switch' && it.kind !== 'switch_open').length;
 
         const isOnTopOutlet = (outCount > 0 && p.outletStyle === 'cover_holes');
-        const curModeState = `${coveredSwCount > 0 ? 'cov11' : (isOnTopOutlet ? 'top56' : 'flush043')}`;
+        const isSlideMode = p.swMode === 'slide';
+        let slideM = null;
+        if (isSlideMode) {
+          try { slideM = computeSlideMetrics(p); }
+          catch (err) { console.error(err); }
+        }
+        const curModeState = slideM
+          ? `slide-${slideM.rampH.toFixed(2)}-${slideM.contact.toFixed(1)}-${p.rimD.toFixed(1)}`
+          : `${coveredSwCount > 0 ? 'cov11' : (isOnTopOutlet ? 'top56' : 'flush043')}`;
         if (curModeState !== lastAutoModeState && !lockedCats.chassis) {
           lastAutoModeState = curModeState;
           let targetClear = 11.0;
-          if (coveredSwCount === 0) targetClear = isOnTopOutlet ? 5.6 : Math.max(2.4, Number((5.2 + 0.43 - p.face).toFixed(2)));
+          if (slideM) targetClear = Math.max(12.5, slideM.cavityZ);
+          else if (coveredSwCount === 0) targetClear = isOnTopOutlet ? 5.6 : Math.max(2.4, Number((5.2 + 0.43 - p.face).toFixed(2)));
           document.getElementById('inp-swclear').value = targetClear;
           p.swClear = targetClear;
         }
@@ -3396,6 +4046,13 @@
         setBadgeVal('val-tlen', p.tLen.toFixed(1));
         setBadgeVal('val-tbase', p.tBase.toFixed(1));
         setBadgeVal('val-vroof', p.vRoof.toFixed(1));
+        setBadgeVal('val-slide-ramph', p.slideRampH.toFixed(1));
+        setBadgeVal('val-slide-travel', p.slideTravel.toFixed(1));
+        setBadgeVal('val-slide-xy', p.slideXY.toFixed(2));
+        setBadgeVal('val-slide-z', p.slideZ.toFixed(2));
+        setBadgeVal('val-slide-contact', p.slideContact.toFixed(1));
+        setBadgeVal('val-slide-handle', p.slideHandle.toFixed(1));
+        setBadgeVal('val-slide-pos', slidePreviewPos().toFixed(2));
 
         const isSlipOver = (p.fixMode === 'slipover');
         const isScrewTabs = (p.fixMode === 'screwtabs');
@@ -3403,6 +4060,7 @@
         const isFullTopSwap = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets') && p.silhouette !== 'open_frame';
         const isTwoPart = isInlaySwap || isFullTopSwap;
         const isSkeletonBase = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap') && !isSlipOver;
+        const slideSplit = !!(slideM && !isTwoPart && p.silhouette !== 'open_frame');
 
         const innerWallCornerR = isSlipOver ? 0.4 : 1.2;
         const cornerExtra = isSlipOver ? 0 : Math.max(0, (p.corner - innerWallCornerR) * 0.415);
@@ -3411,7 +4069,8 @@
 
         document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(1)} × ${outerH.toFixed(1)} mm`;
         document.getElementById('badge-fixation').textContent = `${isSlipOver ? 'Slip-Over' : (isScrewTabs ? '2-Screw' : 'H-Pins')} • ${isSkeletonBase ? 'Skeleton 2-Pc' : (isInlaySwap ? 'Inlay 2-Pc' : (isFullTopSwap ? 'Full-Top 2-Pc' : '1-Pc'))}`;
-        document.getElementById('badge-modules').textContent = `${coveredSwCount + uncoveredSwCount}×Sw (${p.swMode === 'uncovered' ? 'Open' : p.slotShape}) | ${outCount}×Out`;
+        const swLabel = p.swMode === 'slide' ? 'Slide' : (p.swMode === 'uncovered' ? 'Open' : p.slotShape);
+        document.getElementById('badge-modules').textContent = `${coveredSwCount + uncoveredSwCount}×Sw (${swLabel}) | ${outCount}×Out`;
         document.getElementById('hud-throw-status').textContent = `${p.chassisType}M • ${isSkeletonBase ? 'Skeleton Swap' : (isInlaySwap ? 'Inlay Swap' : 'Full-Top')}`;
 
         clearAndDisposeGroup(chassisGroup);
@@ -3420,6 +4079,8 @@
         clearAndDisposeGroup(overlayGroup);
         clearAndDisposeGroup(toggleStemGroup);
         clearAndDisposeGroup(toggleTipGroup);
+        clearAndDisposeGroup(slideGroup);
+        clearAndDisposeGroup(slideGhostGroup);
 
         buildLegrandReferenceHardware(p, activeItems);
 
@@ -3433,6 +4094,7 @@
 
         const rockerBoxW = (p.chassisType === 4 ? 92.3 : 69.8); // +1.2mm for free rocking
         const rockerBoxH = Math.max(47.4, p.modH + 2.0);
+        const pocketH = slideM ? slideM.pocketH : rockerBoxH;
 
         const lugThickness = isScrewTabs ? p.screwTabZ : p.lugT;
         const zLugTop = p.rimD + lugThickness;
@@ -3440,7 +4102,9 @@
         const totalDepth = p.silhouette === 'open_frame' ? (isSlipOver ? zFaceBack : zLugTop) : (zFaceBack + p.face);
 
         const deckNoteEl = document.getElementById('deck-mode-note');
-        if (isSkeletonBase) {
+        if (slideM) {
+          deckNoteEl.textContent = `↕ Slide track: pocket ${rockerBoxW.toFixed(1)}×${pocketH.toFixed(1)} mm, cavity target ${slideM.cavityZ.toFixed(1)} mm.`;
+        } else if (isSkeletonBase) {
           deckNoteEl.textContent = `🦴 Minimalist Skeleton Base: 1.4mm flat plate + 1.8mm thin central snap turret (saves ~65% base filament, zero outer wall duplication!).`;
         } else if (isInlaySwap) {
           deckNoteEl.textContent = 'ℹ️ In 2-Part Inlay mode, the outer collar is open so the inlay plate can drop in.';
@@ -3489,7 +4153,7 @@
 
         const upperRiserH = zFaceBack - zLugTop;
         const turretOuterW = rockerBoxW + p.wall * 2.2;
-        const turretOuterH = rockerBoxH + p.wall * 2.2;
+        const turretOuterH = pocketH + p.wall * 2.2;
         const effectiveDeckDrop = (!isTwoPart && !isSlipOver && !isAnyStripes && p.deckMode === 'compact_turret' && p.silhouette !== 'custom_plate_mesh')
           ? Math.min(p.deckDrop, Math.max(0, upperRiserH - 0.2))
           : 0.0;
@@ -3497,7 +4161,7 @@
 
         const collarTopZ = isInlaySwap ? totalDepth : zFaceBack;
         const centralHoleW = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayW + 0.35) : rockerBoxW;
-        const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : rockerBoxH;
+        const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : pocketH;
 
         // --- PART 1: CONNECTED 1-PIECE SKELETON SUB-FRAME OR STANDARD BASE ---
         const skelTurretWall = 2.8; // stiffened from 2.2mm
@@ -3505,7 +4169,7 @@
           const skelClearW = p.inW - 0.8;
           const skelClearH = p.inH - 0.8;
           const skelInnerW = rockerBoxW;
-          const skelInnerH = rockerBoxH;
+          const skelInnerH = pocketH;
           const skelTurretOuterW = skelInnerW + skelTurretWall * 2;
           const skelTurretOuterH = skelInnerH + skelTurretWall * 2;
 
@@ -3546,7 +4210,7 @@
 
             const cutW = Math.max(16.0, skelInnerW - 22.0);
             const cutH = Math.max(4.5, (skelClearH - skelTurretOuterH) * 0.5 - 5.5);
-            if (cutH > 2.5) {
+            if (cutH > 2.5 && (skelClearH - skelTurretOuterH) > 14) {
               const yCut = (skelTurretOuterH / 2) + 2.0 + cutH / 2;
               skelPlateShape.holes.push(createTranslatedRectHolePath(0, yCut, cutW, cutH, 1.5));
               skelPlateShape.holes.push(createTranslatedRectHolePath(0, -yCut, cutW, cutH, 1.5));
@@ -3644,8 +4308,35 @@
           if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, skelTurretWall, zFaceBack, matBase));
         }
 
+        if (slideSplit) {
+          const pRet = Object.assign({}, p, { coverBuild: 'fulltop_snaps', sideSkirt: 'float_top' });
+          chassisGroup.add(buildOuterCollarRetentionFeatures(pRet, rockerBoxW, pocketH, skelTurretWall, zFaceBack, matBase));
+        }
+
+        if (slideM) {
+          try {
+            const matSlide = createGlossMat(p.colT, isWireframe, 0.34, 0.06);
+            const clipCx = buildSlideMechanism(chassisGroup, slideGroup, slideGhostGroup, p, slideM, activeItems, matBase, matSlide, zFaceBack);
+            if (showSlideSection) {
+              // Keep a slab through the ramp so the outer wall does not hide the cut.
+              renderer.clippingPlanes = [
+                new THREE.Plane(new THREE.Vector3(-1, 0, 0), clipCx + 0.45),
+                new THREE.Plane(new THREE.Vector3(1, 0, 0), -(clipCx - 16))
+              ];
+            } else {
+              renderer.clippingPlanes = [];
+            }
+          } catch (err) {
+            console.error(err);
+            renderer.clippingPlanes = [];
+            showStatusBanner('Slide geometry error: ' + err.message);
+          }
+        } else {
+          renderer.clippingPlanes = [];
+        }
+
         // --- PART 2: SWAPPABLE FACEPLATE (INLAY OR FULL-TOP) OR MONOLITHIC FRONT ---
-        const targetGroup = isTwoPart ? faceplateGroup : chassisGroup;
+        const targetGroup = (isTwoPart || slideSplit) ? faceplateGroup : chassisGroup;
         const mergedCutouts = getExpandedCutouts(activeItems);
 
         const hasSideWrapSkirt = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap' || p.sideSkirt === 'wrap_sides') && p.silhouette !== 'bubble_rim' && p.silhouette !== 'custom_plate_mesh';
@@ -3716,7 +4407,7 @@
           } else {
             if (!isTwoPart && !isSlipOver && effectiveDeckDrop > 0.05 && p.deckMode === 'compact_turret') {
               const lowFaceShape = new THREE.Shape(faceOutlinePts);
-              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 1.8));
+              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, pocketH, 1.8));
               const lowFaceGeo = new THREE.ExtrudeGeometry(lowFaceShape, { depth: p.face, bevelEnabled: false });
               lowFaceGeo.translate(0, 0, zFaceBack - effectiveDeckDrop);
               targetGroup.add(new THREE.Mesh(lowFaceGeo, matA));
@@ -3776,10 +4467,11 @@
             }
           }
 
-          if (isTwoPart) {
+          if (isTwoPart || slideSplit) {
             const snapPocketW = isSkeletonBase ? rockerBoxW : centralHoleW;
-            const snapPocketH = isSkeletonBase ? rockerBoxH : centralHoleH;
-            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, snapPocketW, snapPocketH, skelTurretWall, zFaceBack, matA));
+            const snapPocketH = isSkeletonBase ? pocketH : centralHoleH;
+            const pFace = slideSplit ? Object.assign({}, p, { coverBuild: 'fulltop_snaps' }) : p;
+            faceplateGroup.add(buildDropInFaceplateBackFeatures(pFace, snapPocketW, snapPocketH, skelTurretWall, zFaceBack, matA));
           }
         }
 
@@ -3813,6 +4505,27 @@
           });
         }
 
+        const slideNote = document.getElementById('slide-mode-note');
+        const slideBadge = document.getElementById('badge-slide');
+        const angEl = document.getElementById('slide-angle-readout');
+        const slotEl = document.getElementById('slide-slot-readout');
+        if (slideM && slideNote && angEl && slotEl && slideBadge) {
+          const angOk = slideM.angleDeg >= 27 && slideM.angleDeg <= 30;
+          angEl.textContent = slideM.angleDeg.toFixed(1) + '°';
+          angEl.style.color = angOk ? '#4ade80' : '#fb923c';
+          slotEl.textContent = `slot ${slideM.slotW.toFixed(1)}×${slideM.slotH.toFixed(1)} mm`;
+          slideBadge.textContent = angOk ? slideM.angleDeg.toFixed(0) + '°' : 'check °';
+          const cavWarn = p.swClear + 0.05 < slideM.cavityZ ? ` Cavity Z is ${p.swClear.toFixed(1)} mm; the shuttle wants ${slideM.cavityZ.toFixed(1)} mm.` : '';
+          const fitWarn = slideM.fitWarning ? ' Track is clamped by the inner frame height.' : '';
+          const ptfeWarn = p.slidePtfe && !slideM.ptfe ? ' PTFE slot needs ramp ≥ 5.5 mm.' : '';
+          slideNote.textContent = `Active. Angle ${slideM.angleDeg.toFixed(1)}° (aim 27–30). Dwell then ${slideM.reliefDrop.toFixed(2)} mm relief. Cavity ${Math.max(p.swClear, slideM.cavityZ).toFixed(1)} mm.${cavWarn}${fitWarn}${ptfeWarn}`;
+        } else if (slideNote && slideBadge) {
+          slideBadge.textContent = 'Off';
+          if (angEl) { angEl.textContent = '—'; angEl.style.color = ''; }
+          if (slotEl) slotEl.textContent = 'slot —';
+          slideNote.textContent = 'Set Switch Exposure to Slide switch. Up drives the lower ramp into the bottom half of the rocker; down drives the upper ramp into the top half. A dwell then a relief parks the ramp unloaded.';
+        }
+
         updateTransforms(totalDepth);
         rebuildEdgesOverlay();
         drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount, isSkeletonBase);
@@ -3823,6 +4536,8 @@
         faceplateGroup.visible = !isKnobOnly;
         bubblesGroup.visible = !isKnobOnly;
         overlayGroup.visible = !isKnobOnly;
+        slideGroup.visible = !isKnobOnly;
+        slideGhostGroup.visible = showSlideSection && !isKnobOnly;
         legrandRefGroup.visible = showWall && !isKnobOnly;
 
         if (isKnobOnly) {
@@ -3837,22 +4552,26 @@
         const faceFrontLift = isExploded ? 24 : 0;
 
         if (isBackView) {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = Math.PI;
           });
           legrandRefGroup.position.z = totalDepth - wallBackShift;
           chassisGroup.position.z = totalDepth;
+          slideGroup.position.z = totalDepth + (isExploded ? 10 : 0);
+          slideGhostGroup.position.z = totalDepth - wallBackShift;
           faceplateGroup.position.z = totalDepth - faceFrontLift;
           bubblesGroup.position.z = totalDepth - faceFrontLift;
           overlayGroup.position.z = totalDepth - faceFrontLift;
           toggleStemGroup.position.z = totalDepth - wallBackShift;
           toggleTipGroup.position.z = totalDepth;
         } else {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = 0;
           });
           legrandRefGroup.position.z = wallBackShift;
           chassisGroup.position.z = 0;
+          slideGroup.position.z = isExploded ? 10 : 0;
+          slideGhostGroup.position.z = wallBackShift;
           faceplateGroup.position.z = faceFrontLift;
           bubblesGroup.position.z = faceFrontLift;
           overlayGroup.position.z = faceFrontLift;
@@ -3868,6 +4587,11 @@
         ctx.clearRect(0, 0, cw, ch);
         const isTwoPart = (p.coverBuild !== 'monolithic');
 
+        if (hudTabMode === 'side' && p.swMode === 'slide') {
+          try { drawSlideSectionHUD(p, computeSlideMetrics(p)); }
+          catch (err) { console.error(err); }
+          return;
+        }
         if (hudTabMode === 'side') {
           const scale = 3.1, originX = 85, originY = ch / 2 + 8;
           ctx.strokeStyle = '#334155'; ctx.setLineDash([3, 3]);
@@ -3973,6 +4697,7 @@
         'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz',
         'inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop',
         'inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis',
+        'inp-slide-ramph', 'inp-slide-travel', 'inp-slide-xy', 'inp-slide-z', 'inp-slide-contact', 'inp-slide-handle',
         'inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows',
         'inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount',
         'inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz',
@@ -3984,6 +4709,7 @@
         fixation: ['inp-fixmode', 'inp-coverbuild', 'inp-sideskirt', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb', 'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz'],
         chassis: ['inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop'],
         modules: ['inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis'],
+        slide: ['inp-slide-ramph', 'inp-slide-travel', 'inp-slide-xy', 'inp-slide-z', 'inp-slide-contact', 'inp-slide-handle'],
         plate: ['inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows'],
         overlay: ['inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount'],
         knob: ['inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz', 'inp-tipdia', 'inp-tiplen', 'inp-pegdia', 'inp-threadtol', 'inp-foott', 'inp-footw', 'inp-footh', 'inp-tlen', 'inp-tbase', 'inp-vroof'],
@@ -4010,6 +4736,8 @@
         const data = {};
         PARAM_IDS.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
         data['inp-multicolorknobs'] = document.getElementById('inp-multicolorknobs').checked;
+        data['inp-slide-detent'] = document.getElementById('inp-slide-detent').checked;
+        data['inp-slide-ptfe'] = document.getElementById('inp-slide-ptfe').checked;
         return data;
       }
 
@@ -4022,6 +4750,10 @@
         });
         if (!lockedCats.colors && data['inp-multicolorknobs'] !== undefined) {
           document.getElementById('inp-multicolorknobs').checked = !!data['inp-multicolorknobs'];
+        }
+        if (!lockedCats.slide) {
+          if (data['inp-slide-detent'] !== undefined) document.getElementById('inp-slide-detent').checked = !!data['inp-slide-detent'];
+          if (data['inp-slide-ptfe'] !== undefined) document.getElementById('inp-slide-ptfe').checked = !!data['inp-slide-ptfe'];
         }
         rebuildModel();
       }
@@ -4306,8 +5038,24 @@
           setIfUnlocked('colors', 'inp-colt', '#3f2a22');
           setIfUnlocked('colors', 'inp-coltip', '#d4a054');
           showStatusBanner('🕌 Mashrabiya Active: pointed mihrab crown + octagon-and-square jaali');
+
+        } else if (name === 'slide') {
+          setIfUnlocked('modules', 'inp-swcount', 3);
+          setIfUnlocked('modules', 'inp-swmode', 'slide');
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('chassis', 'inp-corner', 6);
+          setIfUnlocked('overlay', 'inp-overlay', 'none');
+          showWall = true;
+          document.getElementById('btn-wall').classList.add('bg-sky-500/25');
+          showStatusBanner('↕ Slide switch: dovetail shuttle, opposing ramps, snap-on slotted fascia');
         }
         rebuildModel();
+        if (name === 'slide') {
+          controls.target.set(0, 0, 10);
+          camera.position.set(88, -72, 138);
+          controls.update();
+        }
       }
 
       document.getElementById('pre-alublade').addEventListener('click', () => applyPreset('alublade'));
@@ -4324,6 +5072,7 @@
       document.getElementById('pre-twopart-swap').addEventListener('click', () => applyPreset('twopart_swap'));
       document.getElementById('pre-khatam').addEventListener('click', () => applyPreset('khatam'));
       document.getElementById('pre-mashrabiya').addEventListener('click', () => applyPreset('mashrabiya'));
+      document.getElementById('pre-slide').addEventListener('click', () => applyPreset('slide'));
 
       document.getElementById('btn-knob-only').addEventListener('click', (e) => {
         isKnobOnly = !isKnobOnly;
@@ -4372,7 +5121,42 @@
         controls.update();
       });
 
-      document.getElementById('btn-rock-sim').addEventListener('click', () => { rockPolarity *= -1; rebuildModel(); });
+      document.getElementById('btn-rock-sim').addEventListener('click', () => {
+        rockPolarity *= -1;
+        if (getParams().swMode === 'slide') {
+          const el = document.getElementById('inp-slide-pos');
+          el.value = parseFloat(el.value) >= 0 ? -1 : 1;
+        }
+        rebuildModel();
+      });
+      document.getElementById('btn-slide-section').addEventListener('click', (e) => {
+        showSlideSection = !showSlideSection;
+        e.target.classList.toggle('bg-orange-500/30', showSlideSection);
+        e.target.classList.toggle('text-orange-100', showSlideSection);
+        if (showSlideSection) {
+          if (!showWall) {
+            showWall = true;
+            document.getElementById('btn-wall').classList.add('bg-sky-500/25');
+          }
+          isBackView = false;
+          document.getElementById('btn-flip').textContent = 'Inspect Back';
+          savedSlideCam = { pos: camera.position.clone(), tgt: controls.target.clone() };
+          const p = getParams();
+          controls.target.set(0, 0, p.rimD + 12);
+          camera.position.set(-78, -48, p.rimD + 48);
+          hudTabMode = 'side';
+          ['side', 'thread', 'pin'].forEach(t => {
+            document.getElementById('hud-tab-' + t).className = (t === 'side')
+              ? 'px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-600 text-white'
+              : 'px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700';
+          });
+        } else if (savedSlideCam) {
+          camera.position.copy(savedSlideCam.pos);
+          controls.target.copy(savedSlideCam.tgt);
+        }
+        controls.update();
+        rebuildModel();
+      });
       document.getElementById('btn-wall').addEventListener('click', (e) => { showWall = !showWall; e.target.classList.toggle('bg-sky-500/25', showWall); rebuildModel(); });
       document.getElementById('btn-explode').addEventListener('click', (e) => { isExploded = !isExploded; e.target.classList.toggle('bg-rose-500/25', isExploded); rebuildModel(); });
       document.getElementById('btn-wire').addEventListener('click', (e) => { isWireframe = !isWireframe; e.target.classList.toggle('bg-rose-500/25', isWireframe); rebuildModel(); });
@@ -4384,9 +5168,38 @@
       });
 
       const stlExporter = new THREE.STLExporter();
-      function downloadPrintReadySTL(object3D, filename) {
+      function downloadPrintReadySTL(object3D, filename, rotY) {
         const clone = object3D.clone(true);
         clone.rotation.set(0, 0, 0); clone.position.set(0, 0, 0); clone.updateMatrixWorld(true);
+        if (rotY) {
+          // Spin each direct child around its own origin so a gang of shuttles
+          // stays side by side on the bed, slide axis horizontal.
+          const spin = new THREE.Matrix4().makeRotationY(rotY);
+          const parts = clone.children.slice();
+          parts.forEach(part => {
+            part.updateMatrixWorld(true);
+            const inv = new THREE.Matrix4().copy(part.matrixWorld).invert();
+            part.traverse(ch => {
+              if (!ch.isMesh || !ch.geometry) return;
+              const g = ch.geometry.clone();
+              g.applyMatrix4(ch.matrixWorld);
+              g.applyMatrix4(inv);
+              g.applyMatrix4(spin);
+              ch.geometry = g;
+              ch.position.set(0, 0, 0);
+              ch.rotation.set(0, 0, 0);
+              ch.scale.set(1, 1, 1);
+              ch.updateMatrix();
+            });
+            part.traverse(ch => {
+              if (ch === part) return;
+              ch.position.set(0, 0, 0);
+              ch.rotation.set(0, 0, 0);
+              ch.scale.set(1, 1, 1);
+            });
+          });
+          clone.updateMatrixWorld(true);
+        }
         const box = new THREE.Box3().setFromObject(clone);
         if (isFinite(box.min.z)) { clone.position.z = -box.min.z; clone.updateMatrixWorld(true); }
         const result = stlExporter.parse(clone, { binary: true });
@@ -4430,6 +5243,29 @@
       });
       document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_${APP_VERSION}_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
+      document.getElementById('btn-exp-slide-base').addEventListener('click', () => {
+        const p = getParams();
+        if (p.swMode !== 'slide') { showStatusBanner('Set Switch Exposure to Slide switch before exporting the track.'); return; }
+        downloadPrintReadySTL(chassisGroup, `Arteor_${APP_VERSION}_Slide_BaseTrack_${p.fixMode}.stl`);
+      });
+      document.getElementById('btn-exp-slide-shuttle').addEventListener('click', () => {
+        const p = getParams();
+        if (p.swMode !== 'slide' || slideGroup.children.length === 0) { showStatusBanner('Set Switch Exposure to Slide switch before exporting the shuttle.'); return; }
+        const n = getActiveModuleItems(p).filter(it => it.kind === 'switch').length;
+        downloadPrintReadySTL(slideGroup, `Arteor_${APP_VERSION}_Slide_Shuttle_x${n}.stl`, -Math.PI / 2);
+      });
+      document.getElementById('btn-exp-slide-cover').addEventListener('click', () => {
+        const p = getParams();
+        if (p.swMode !== 'slide') { showStatusBanner('Set Switch Exposure to Slide switch before exporting the fascia.'); return; }
+        const cover = new THREE.Group();
+        cover.add(faceplateGroup.clone(true), bubblesGroup.clone(true));
+        downloadPrintReadySTL(cover, `Arteor_${APP_VERSION}_Slide_Cover_${p.coverBuild}.stl`);
+      });
+      document.getElementById('btn-exp-slide-coupon').addEventListener('click', () => {
+        const coupon = buildSlideCoupon(getParams());
+        downloadPrintReadySTL(coupon, `Arteor_${APP_VERSION}_Slide_TestCoupon_3way.stl`);
+      });
+
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
         if (sourceId === 'inp-pegdia' || sourceId === 'inp-threadtol') {
@@ -4461,6 +5297,10 @@
 
       updateProfileSelect('');
       applyPreset('alublade');
+      window.__arteor = {
+        camera: camera, controls: controls, scene: scene, rebuild: rebuildModel, getParams: getParams,
+        groups: { chassisGroup, faceplateGroup, slideGroup, slideGhostGroup, overlayGroup, legrandRefGroup, bubblesGroup }
+      };
 
       function animate() {
         requestAnimationFrame(animate);
