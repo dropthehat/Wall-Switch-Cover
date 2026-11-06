@@ -423,12 +423,12 @@
               <input id="inp-slide-travel" type="range" min="8" max="14" step="0.5" value="11" class="w-full" />
             </div>
             <div>
-              <div class="flex justify-between mb-1"><span>XY gap</span><span id="val-slide-xy" class="font-mono text-orange-300">0.25</span></div>
-              <input id="inp-slide-xy" type="range" min="0.10" max="0.45" step="0.01" value="0.25" class="w-full" />
+              <div class="flex justify-between mb-1"><span>X/side</span><span id="val-slide-xy" class="font-mono text-orange-300">0.50</span></div>
+              <input id="inp-slide-xy" type="range" min="0.25" max="0.80" step="0.01" value="0.50" class="w-full" />
             </div>
             <div>
-              <div class="flex justify-between mb-1"><span>Z gap</span><span id="val-slide-z" class="font-mono text-orange-300">0.20</span></div>
-              <input id="inp-slide-z" type="range" min="0.08" max="0.40" step="0.01" value="0.20" class="w-full" />
+              <div class="flex justify-between mb-1"><span>Z gap</span><span id="val-slide-z" class="font-mono text-orange-300">0.30</span></div>
+              <input id="inp-slide-z" type="range" min="0.15" max="0.50" step="0.01" value="0.30" class="w-full" />
             </div>
           </div>
           <div class="grid grid-cols-4 gap-2">
@@ -708,9 +708,9 @@
       </div>
       <div class="grid grid-cols-4 gap-1.5">
         <button id="btn-exp-slide-base" class="py-1.5 px-1 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded text-[10px] transition truncate" title="Base with the dovetail track, plus the current wall mount">⬇ Slide Base</button>
-        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Shuttle laid on its side so layer lines run along the slide">⬇ Slide Shuttle</button>
+        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Shuttles on their sides, plus the removable end stops">⬇ Shuttle+Stop</button>
         <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
-        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="One-module bases and shuttles at three clearances and three ramp heights">⬇ Test Coupon</button>
+        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Downloads two plates: fit clearances F40 F55 F70, and ramp heights R55 R60 R65">⬇ Fit + Ramp</button>
       </div>
     </div>
   </aside>
@@ -795,8 +795,8 @@
       slide: {
         'inp-slide-ramph': 6.0,
         'inp-slide-travel': 11,
-        'inp-slide-xy': 0.25,
-        'inp-slide-z': 0.20,
+        'inp-slide-xy': 0.50,
+        'inp-slide-z': 0.30,
         'inp-slide-contact': 15,
         'inp-slide-handle': 12.5,
         'inp-slide-pos': 1
@@ -934,10 +934,11 @@
       const toggleStemGroup = new THREE.Group();
       const toggleTipGroup = new THREE.Group();
       const slideGroup = new THREE.Group();
+      const slideStopGroup = new THREE.Group();
       const slideGhostGroup = new THREE.Group();
       const edgesGroup = new THREE.Group();
 
-      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup, edgesGroup);
+      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup, edgesGroup);
 
       let isExploded = false;
       let isWireframe = false;
@@ -2091,8 +2092,8 @@
           colTip: str('inp-coltip', '#eab308'),
           slideRampH: num('inp-slide-ramph', 6.0),
           slideTravel: num('inp-slide-travel', 11),
-          slideXY: num('inp-slide-xy', 0.25),
-          slideZ: num('inp-slide-z', 0.20),
+          slideXY: num('inp-slide-xy', 0.50),
+          slideZ: num('inp-slide-z', 0.30),
           slideContact: num('inp-slide-contact', 15),
           slideHandle: num('inp-slide-handle', 12.5),
           slideDetent: bool('inp-slide-detent', true),
@@ -3406,7 +3407,7 @@
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.36 });
         const targetGroups = isKnobOnly
           ? [toggleStemGroup, toggleTipGroup]
-          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup];
+          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup];
 
         targetGroups.forEach(grp => {
           if (!grp.visible) return;
@@ -3437,6 +3438,9 @@
         '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
         '6': ['01110', '10000', '11110', '10001', '10001', '10001', '01110'],
         '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+        'F': ['11110', '10000', '11100', '10000', '10000', '10000', '10000'],
+        'I': ['11111', '00100', '00100', '00100', '00100', '00100', '11111'],
+        'N': ['10001', '11001', '10101', '10011', '10001', '10001', '10001'],
         '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
         '9': ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
         'C': ['01111', '10000', '10000', '10000', '10000', '10000', '01111'],
@@ -3456,8 +3460,8 @@
         const travel = Math.max(8, Math.min(14, p.slideTravel || 11));
         const rampH = Math.max(4.5, Math.min(7.5, p.slideRampH || 6));
         const contact = Math.max(12, Math.min(18, p.slideContact || 15));
-        const xyClear = Math.max(0.08, Math.min(0.55, p.slideXY != null ? p.slideXY : 0.25));
-        const zClear = Math.max(0.05, Math.min(0.45, p.slideZ != null ? p.slideZ : 0.20));
+        const xyClear = Math.max(0.20, Math.min(0.80, p.slideXY != null ? p.slideXY : 0.50));
+        const zClear = Math.max(0.10, Math.min(0.55, p.slideZ != null ? p.slideZ : 0.30));
         const handleL = Math.max(10, Math.min(18, p.slideHandle || 12.5));
         const handleW = 8.2;
         const activeLen = Math.max(5.5, travel * 0.96);
@@ -3480,47 +3484,50 @@
         const zBodyFront = zBodyBack + bodyThick;
         const tNarrow = 0.90;
         const tWide = tNarrow + bodyThick;
-        const railWall = 1.50;
+        const railWall = 1.60;
+        const notchExtra = 0.65;
+        const flare = 0.90;
+        const railW = tWide + xyClear + flare + railWall;
         const gNarrow = tNarrow + xyClear;
         const gWide = tWide + xyClear;
-        const railW = gWide + railWall;
         const moduleGap = 0.30;
         const winW = Math.max(8.2, (p.pitch || 22.5) - moduleGap - 2 * railW);
         const winHalf = winW / 2;
         const zFloor = zBodyBack - zClear;
-        const zLipBot = zFloor + (gWide - gNarrow);
-        const zRailTop = zLipBot + 0.58;
+        const zLip = zBodyFront + zClear;
+        const zRailTop = zLip + 0.70;
         const yTail = contact + travel / 2 + reliefLen / 2 + 0.35;
         const shuttleHalf = yTail + 0.55;
-        let latchZone = 4.2;
-        const endBar = 2.5;
-        let tieLen = 2.4;
+        const stopLead = 0.8;
+        const stopLen = 3.4;
+        const endMargin = stopLead + stopLen + 2.4;
+        const endBar = 2.6;
+        const tieLen = 1.6;
+        const flareLen = 5.0;
         const rockerBoxH = Math.max(47.4, (p.modH || 45.2) + 2);
         const maxPocket = Math.max(rockerBoxH, (p.inH || 79.5) - 6.8);
-        let trackInnerHalf = shuttleHalf + travel / 2 + latchZone;
+        let trackInnerHalf = shuttleHalf + travel / 2 + endMargin;
         let trackOuter = trackInnerHalf * 2 + endBar + tieLen;
         let fitWarning = false;
-        if (trackOuter + 0.8 > maxPocket) {
-          const spare = maxPocket - 0.8 - (shuttleHalf + travel / 2) * 2 - endBar;
-          latchZone = Math.max(2.3, Math.min(4.2, spare * 0.55));
-          tieLen = Math.max(1.6, spare - latchZone);
-          trackInnerHalf = shuttleHalf + travel / 2 + latchZone;
-          trackOuter = trackInnerHalf * 2 + endBar + tieLen;
-          if (trackOuter + 0.8 > maxPocket + 0.2) fitWarning = true;
+        if (trackOuter > maxPocket + 0.2) {
+          fitWarning = true;
+          trackOuter = maxPocket;
+          trackInnerHalf = (trackOuter - endBar - tieLen) / 2;
         }
         const pocketH = Math.min(maxPocket, Math.max(rockerBoxH, trackOuter + 0.8));
         const cavityZ = Math.max(12.5, Math.round((zRailTop + 0.30 - p.rimD) * 10) / 10);
         const slotW = handleW + 1.05;
         const slotH = handleL + travel + 0.5;
-        const notchLen = 2.5;
-        const notchExtra = 0.70;
+        const notchLen = 2.6;
+        const normalGap = xyClear * Math.cos(Math.PI / 4);
         return {
           travel, rampH, contact, xyClear, zClear, handleL, handleW, activeLen, angleDeg,
           noseR, dwell, reliefLen, overtravel, parkClear, reliefDrop, halfRock, theta0,
           zFaceMid, zContactPressed, zContactRaised, zDwell, zNose, zBodyBack, bodyThick,
           zBodyFront, tNarrow, tWide, railWall, gNarrow, gWide, railW, winW, winHalf,
-          zFloor, zLipBot, zRailTop, shuttleHalf, latchZone, endBar, tieLen, trackInnerHalf,
-          trackOuter, pocketH, cavityZ, slotW, slotH, notchLen, notchExtra, fitWarning,
+          zFloor, zLip, zLipBot: zLip, zRailTop, shuttleHalf, endMargin, endBar, tieLen,
+          stopLead, stopLen, flare, flareLen, trackInnerHalf, trackOuter, pocketH, cavityZ,
+          slotW, slotH, notchLen, notchExtra, fitWarning, normalGap,
           outerW: winW + 2 * railW, detent: !!p.slideDetent, ptfe: !!p.slidePtfe && rampH >= 5.4
         };
       }
@@ -3600,20 +3607,41 @@
         return cursor - x;
       }
 
-      function rightRailPts(sm, extra) {
-        const add = extra || 0;
+      function rightRailPts(sm, extra, mode) {
+        const side = sm.xyClear + (extra || 0);
         const x0 = sm.winHalf;
         const xO = sm.winHalf + sm.railW;
-        const gN = sm.gNarrow + add;
-        const gW = sm.gWide + add;
-        const zBot = sm.zFloor - 0.8;
+        const zBot = sm.zFloor - 0.9;
+        const xMouth = x0 + sm.tNarrow + side;
+        const xRoot = x0 + sm.tWide + side;
+        if (mode === 'sole') {
+          return [
+            [x0, zBot],
+            [xO, zBot],
+            [xO, sm.zFloor],
+            [x0, sm.zFloor]
+          ];
+        }
+        if (mode === 'keeper') {
+          const xKeep = Math.min(xO - 0.8, xRoot + 0.35);
+          return [
+            [x0, zBot],
+            [xO, zBot],
+            [xO, sm.zRailTop],
+            [xKeep, sm.zRailTop],
+            [xKeep, sm.zFloor],
+            [x0, sm.zFloor]
+          ];
+        }
         return [
           [x0, zBot],
           [xO, zBot],
           [xO, sm.zRailTop],
-          [x0 + gN, sm.zRailTop],
-          [x0 + gN, sm.zLipBot],
-          [x0 + gW, sm.zFloor],
+          [xMouth, sm.zRailTop],
+          [xMouth, sm.zLip],
+          [xMouth, sm.zBodyFront],
+          [xRoot, sm.zBodyBack],
+          [xRoot, sm.zFloor],
           [x0, sm.zFloor]
         ];
       }
@@ -3711,51 +3739,71 @@
         addProfileYZ(group, pts, cx + x0, cx + x1, mat);
       }
 
-      function buildOneTrack(group, sm, cx, mat, withLatch) {
-        const spans = [];
+      function trackSpans(sm) {
         const y0 = -sm.trackInnerHalf;
         const y1 = sm.trackInnerHalf;
-        if (!sm.detent) {
-          spans.push([y0, y1, 0]);
-        } else {
-          const notches = [-sm.travel / 2, sm.travel / 2]
+        const slot0 = y0 + sm.stopLead;
+        const slot1 = slot0 + sm.stopLen;
+        const flare1 = Math.min(y1 - 1, slot1 + sm.flareLen);
+        const spans = [
+          { y0: y0, y1: slot0, mode: 'keeper', extra: 0 },
+          { y0: slot0, y1: slot1, mode: 'sole', extra: 0 },
+          { y0: slot1, y1: flare1, mode: 'full', extra: sm.flare }
+        ];
+        const notches = sm.detent
+          ? [-sm.travel / 2, sm.travel / 2]
             .map(yc => [yc - sm.notchLen / 2, yc + sm.notchLen / 2])
-            .filter(n => n[0] > y0 + 0.4 && n[1] < y1 - 0.4)
-            .sort((a, b) => a[0] - b[0]);
-          let cursor = y0;
-          notches.forEach(n => {
-            if (n[0] > cursor + 0.2) spans.push([cursor, n[0] + 0.12, 0]);
-            spans.push([n[0] + 0.12, n[1] - 0.12, sm.notchExtra]);
-            cursor = n[1] - 0.12;
-          });
-          if (y1 > cursor + 0.2) spans.push([cursor, y1, 0]);
-        }
-        spans.forEach(sp => {
-          const ptsR = rightRailPts(sm, sp[2]).map(pt => [pt[0] + cx, pt[1]]);
-          const ptsL = mirrorXPts(rightRailPts(sm, sp[2])).map(pt => [pt[0] + cx, pt[1]]);
-          addProfileXZ(group, ptsR, sp[0], sp[1], mat);
-          addProfileXZ(group, ptsL, sp[0], sp[1], mat);
+            .filter(n => n[0] > flare1 + 0.4 && n[1] < y1 - 0.4)
+            .sort((a, b) => a[0] - b[0])
+          : [];
+        let cursor = flare1;
+        notches.forEach(n => {
+          if (n[0] > cursor + 0.15) spans.push({ y0: cursor, y1: n[0], mode: 'full', extra: 0 });
+          spans.push({ y0: n[0], y1: n[1], mode: 'full', extra: sm.notchExtra });
+          cursor = n[1];
         });
-        const zBot = sm.zFloor - 0.8;
-        const railH = sm.zRailTop - zBot;
-        addBox(group, sm.outerW, sm.endBar, railH, cx, sm.trackInnerHalf + sm.endBar / 2, (sm.zRailTop + zBot) / 2, mat);
-        addBox(group, sm.outerW, sm.tieLen, 0.8, cx, -sm.trackInnerHalf - sm.tieLen / 2, sm.zFloor - 0.4, mat);
-        if (withLatch) {
-          const latchH = Math.max(3.2, sm.zBodyFront - sm.zFloor - 0.3);
-          addBox(group, 0.72, 2.05, latchH,
-            cx + sm.winHalf - 1.15,
-            -sm.trackInnerHalf + 1.15,
-            sm.zFloor + latchH / 2,
-            mat);
-          addBox(group, 0.72, 1.15, latchH * 0.55,
-            cx + sm.winHalf - 1.7,
-            -sm.trackInnerHalf + 0.35,
-            sm.zFloor + latchH * 0.72,
-            mat);
-        }
+        if (y1 > cursor + 0.15) spans.push({ y0: cursor, y1: y1, mode: 'full', extra: 0 });
+        return spans;
       }
 
-      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips) {
+      function buildOneTrack(group, sm, cx, mat) {
+        trackSpans(sm).forEach(sp => {
+          const ptsR = rightRailPts(sm, sp.extra, sp.mode).map(pt => [pt[0] + cx, pt[1]]);
+          const ptsL = mirrorXPts(rightRailPts(sm, sp.extra, sp.mode)).map(pt => [pt[0] + cx, pt[1]]);
+          addProfileXZ(group, ptsR, sp.y0, sp.y1, mat);
+          addProfileXZ(group, ptsL, sp.y0, sp.y1, mat);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        addBox(group, sm.outerW, sm.endBar, railH, cx, sm.trackInnerHalf + sm.endBar / 2, (sm.zRailTop + zBot) / 2, mat);
+        const tieY0 = -sm.trackInnerHalf - sm.tieLen;
+        const tieY1 = -sm.trackInnerHalf + sm.stopLead + sm.stopLen;
+        addBox(group, sm.outerW, tieY1 - tieY0, 0.9, cx, (tieY0 + tieY1) / 2, zBot + 0.45, mat);
+        const ax = cx - sm.winHalf + 1.2;
+        const ay = -sm.trackInnerHalf + sm.stopLead + sm.stopLen + 1.6;
+        addBox(group, 3.2, 0.7, 0.45, ax, ay, sm.zRailTop + 0.22, mat);
+        addBox(group, 1.6, 0.7, 0.45, ax - 0.8, ay - 1.3, sm.zRailTop + 0.22, mat);
+        addBox(group, 1.6, 0.7, 0.45, ax + 0.8, ay - 1.3, sm.zRailTop + 0.22, mat);
+      }
+
+      function buildOneStop(group, sm, cx, mat, label) {
+        const slot0 = -sm.trackInnerHalf + sm.stopLead;
+        const slot1 = slot0 + sm.stopLen;
+        const yC = (slot0 + slot1) / 2;
+        const footY = Math.max(1.2, sm.stopLen - 0.40);
+        const z0 = sm.zFloor + 0.15;
+        const z1 = sm.zRailTop - 0.20;
+        const xIn = sm.winHalf + 0.40;
+        const xOut = sm.winHalf + sm.railW - 0.40;
+        const footW = Math.max(0.8, xOut - xIn);
+        addBox(group, footW, footY, z1 - z0, cx + (xIn + xOut) / 2, yC, (z0 + z1) / 2, mat);
+        addBox(group, footW, footY, z1 - z0, cx - (xIn + xOut) / 2, yC, (z0 + z1) / 2, mat);
+        const bridgeW = (xIn + xOut);
+        addBox(group, bridgeW, footY, z1 - sm.zBodyBack, cx, yC, (sm.zBodyBack + z1) / 2, mat);
+        if (label) slideEmboss(group, label, cx - 3.4, yC + footY / 2 - 0.3, z1, mat, 0.46);
+      }
+
+      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips, label) {
         const y0 = -sm.shuttleHalf + shift;
         const y1 = sm.shuttleHalf + shift;
         const cross = shuttleCrossPts(sm).map(pt => [pt[0] + cx, pt[1]]);
@@ -3767,17 +3815,15 @@
         addProfileYZ(group, rampU, cx - rampW / 2, cx + rampW / 2, mat);
         if (sm.detent) {
           const compressed = Math.abs(pos) < 0.78;
-          const backOff = compressed ? 0.52 : 0;
-          const nubTip = cx + sm.winHalf + sm.gWide + sm.notchExtra - 0.16 - backOff;
-          const tongueHere = Math.max(1.1, sm.tWide - 1.0);
-          const beamOuter = cx + sm.winHalf + tongueHere - 0.20;
-          const rootX = cx + sm.winHalf + 0.30;
-          const beamZ = sm.zBodyBack + 0.95;
+          const nubReach = sm.xyClear + (compressed ? 0 : 0.40);
+          const nubTip = cx + sm.winHalf + sm.tWide + nubReach;
+          const rootX = cx + sm.winHalf + sm.tWide - 0.55;
+          const beamZ = sm.zBodyBack - 0.05;
           const nubY = shift;
-          addBox(group, Math.max(0.4, beamOuter - rootX), 10.2, 1.05,
-            (rootX + beamOuter) / 2, nubY - 5.4, beamZ, mat);
-          addBox(group, Math.max(0.35, nubTip - beamOuter), 1.65, 0.95,
-            (beamOuter + nubTip) / 2, nubY, beamZ, mat);
+          addBox(group, Math.max(0.35, nubTip - rootX - 0.55), 9.5, 0.30,
+            (rootX + nubTip - 0.55) / 2, nubY - 5.2, beamZ, mat);
+          addBox(group, Math.max(0.30, 0.70), 1.50, 0.30,
+            nubTip - 0.35, nubY, beamZ, mat);
         }
         const handleTopZ = (typeof sm.zHandleTop === 'number') ? sm.zHandleTop : (sm.zBodyFront + 6.2);
         const hCx = cx;
@@ -3789,13 +3835,14 @@
         addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy + 2.15, ridgeZ, mat);
         if (pips) {
           for (let i = 0; i < pips; i++) {
-            addBox(group, 0.7, 1.5, 1.5,
-              cx + sm.winHalf + sm.tWide + 0.35,
-              y1 - 2.2 - i * 2.3,
+            addBox(group, 1.15, 0.55, 1.05,
+              cx - 1.6 + i * 1.6,
+              y1 + 0.28,
               (sm.zBodyBack + sm.zBodyFront) / 2,
               mat);
           }
         }
+        if (label) slideEmboss(group, label, cx - 3.1, hCy + 1.2, handleTopZ, mat, 0.40);
       }
 
       function buildSlideMechanism(trackGroup, shuttleGroup, ghostGroup, p, sm, activeItems, matBase, matSlide, zFaceBack) {
@@ -3810,13 +3857,19 @@
         }
         switches.forEach(sw => {
           const local = new THREE.Group();
-          buildOneTrack(local, sm, 0, matBase, true);
+          buildOneTrack(local, sm, 0, matBase);
           local.position.x = sw.cx;
           trackGroup.add(local);
           const sh = new THREE.Group();
+          sh.userData.slidePart = 'shuttle';
           buildOneShuttle(sh, sm, 0, shift, pos, matSlide, 0);
           sh.position.x = sw.cx;
           shuttleGroup.add(sh);
+          const st = new THREE.Group();
+          st.userData.slidePart = 'stop';
+          buildOneStop(st, sm, 0, matSlide);
+          st.position.x = sw.cx;
+          slideStopGroup.add(st);
         });
         if (showSlideSection && switches.length) {
           const ghostUp = new THREE.MeshStandardMaterial({
@@ -3839,32 +3892,42 @@
         return clipCx;
       }
 
-      function buildSlideCoupon(p) {
+      function buildSlideCoupon(p, kind) {
         const group = new THREE.Group();
-        const variants = [
-          { xy: 0.15, ramp: 5.5, code: 'C15', rampCode: 'R55', pips: 1 },
-          { xy: 0.22, ramp: 6.0, code: 'C22', rampCode: 'R60', pips: 2 },
-          { xy: 0.30, ramp: 6.5, code: 'C30', rampCode: 'R65', pips: 3 }
-        ];
+        const fit = kind !== 'ramp';
+        const variants = fit
+          ? [
+            { xy: 0.40, ramp: 6.0, code: 'F40', pips: 1 },
+            { xy: 0.55, ramp: 6.0, code: 'F55', pips: 2 },
+            { xy: 0.70, ramp: 6.0, code: 'F70', pips: 3 }
+          ]
+          : [
+            { xy: 0.55, ramp: 5.5, code: 'R55', pips: 1 },
+            { xy: 0.55, ramp: 6.0, code: 'R60', pips: 2 },
+            { xy: 0.55, ramp: 6.5, code: 'R65', pips: 3 }
+          ];
         const mat = createGlossMat('#e2e8f0', false, 0.42, 0.04);
         const matS = createGlossMat('#38bdf8', false, 0.35, 0.05);
+        const matStop = createGlossMat('#fbbf24', false, 0.4, 0.04);
         variants.forEach((v, i) => {
           const vp = Object.assign({}, p, {
-            rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.20,
+            rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.30,
             slideTravel: 11, slideContact: 15, slideHandle: 12.5,
-            slideDetent: true, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
+            slideDetent: false, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
           });
           const sm = computeSlideMetrics(vp);
-          sm.zHandleTop = sm.zBodyFront + 3.6;
+          sm.zHandleTop = sm.zBodyFront + 3.2;
           const station = new THREE.Group();
-          buildOneTrack(station, sm, 0, mat, true);
-          const tabY = sm.trackInnerHalf + sm.endBar + 0.4;
-          const tabW = 16;
-          addBox(station, tabW, 11.2, 1.3, 0, tabY + 5.6, sm.zFloor + 0.5, mat);
-          slideEmboss(station, v.code, -7.2, tabY + 9.6, sm.zFloor + 1.25, mat, 0.62);
-          slideEmboss(station, v.rampCode, -7.2, tabY + 3.4, sm.zFloor + 1.25, mat, 0.62);
+          buildOneTrack(station, sm, 0, mat);
+          const tabY = sm.trackInnerHalf + sm.endBar + 0.3;
+          addBox(station, 18, 8.5, 1.2, 0, tabY + 4.2, sm.zFloor + 0.4, mat);
+          slideEmboss(station, v.code, -6.4, tabY + 7.2, sm.zFloor + 1.15, mat, 0.70);
+          slideEmboss(station, 'IN', -sm.winHalf + 0.4, -sm.trackInnerHalf + sm.stopLead + sm.stopLen + 3.2, sm.zRailTop, mat, 0.55);
+          const stop = new THREE.Group();
+          buildOneStop(stop, sm, 0, matStop, v.code);
+          stop.position.set(sm.outerW / 2 + 8, -sm.trackInnerHalf + 2, 0);
           const shuttle = new THREE.Group();
-          buildOneShuttle(shuttle, sm, 0, 0, 1, matS, v.pips);
+          buildOneShuttle(shuttle, sm, 0, 0, 1, matS, v.pips, v.code);
           shuttle.updateMatrixWorld(true);
           shuttle.traverse(ch => {
             if (ch.isMesh && ch.geometry) {
@@ -3883,16 +3946,137 @@
           shuttle.position.z = -sb.min.z;
           const bb = new THREE.Box3().setFromObject(station);
           station.position.z = -bb.min.z;
+          const stAfter = new THREE.Box3().setFromObject(station);
+          const stopBefore = new THREE.Box3().setFromObject(stop);
+          stop.position.z += stAfter.min.z - stopBefore.min.z;
           const stB = new THREE.Box3().setFromObject(station);
           const shB = new THREE.Box3().setFromObject(shuttle);
-          shuttle.position.y = stB.min.y - 6 - shB.max.y;
+          shuttle.position.y = stB.min.y - 8 - shB.max.y;
           const wrap = new THREE.Group();
           wrap.add(station);
+          wrap.add(stop);
           wrap.add(shuttle);
-          wrap.position.x = (i - 1) * 40;
+          wrap.position.x = (i - 1) * 48;
           group.add(wrap);
         });
         return group;
+      }
+
+      function auditSlideFit(sm) {
+        const mat = new THREE.MeshBasicMaterial();
+        const track = new THREE.Group();
+        const shuttle = new THREE.Group();
+        const stop = new THREE.Group();
+        buildOneTrack(track, sm, 0, mat);
+        buildOneShuttle(shuttle, sm, 0, 0, 1, mat, 0);
+        buildOneStop(stop, sm, 0, mat);
+        track.updateMatrixWorld(true);
+        shuttle.updateMatrixWorld(true);
+        stop.updateMatrixWorld(true);
+        const rails = [];
+        const tongues = [];
+        track.traverse(o => { if (o.isMesh) rails.push(o); });
+        shuttle.traverse(o => { if (o.isMesh) tongues.push(o); });
+        const rayHit = (meshes, x, y, z, dir) => {
+          const origin = new THREE.Vector3(x, y, z);
+          const ray = new THREE.Raycaster(origin, dir.clone().normalize(), 0, 40);
+          const hits = ray.intersectObjects(meshes, false);
+          return hits.length ? hits[0].point : null;
+        };
+        const xPos = new THREE.Vector3(1, 0, 0);
+        const xNeg = new THREE.Vector3(-1, 0, 0);
+        const gaps = [];
+        for (let i = 0; i <= 5; i++) {
+          const z = sm.zBodyBack + 0.12 + (sm.bodyThick - 0.30) * (i / 5);
+          const wall = rayHit(rails, 0.4, 0, z, xPos);
+          const tongue = rayHit(tongues, sm.winHalf + sm.railW + 1, 0, z, xNeg);
+          if (!wall || !tongue) {
+            gaps.push({ z: +z.toFixed(2), gap: null });
+          } else {
+            gaps.push({ z: +z.toFixed(2), wall: +wall.x.toFixed(3), tongue: +tongue.x.toFixed(3), gap: +(wall.x - tongue.x).toFixed(3) });
+          }
+        }
+        const finite = gaps.filter(g => g.gap != null).map(g => g.gap);
+        const minGap = finite.length ? Math.min.apply(null, finite) : null;
+        const maxGap = finite.length ? Math.max.apply(null, finite) : null;
+        const xRoot = sm.winHalf + sm.tWide + sm.xyClear;
+        const xMouth = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const zsNear = (x, tol) => {
+          const zs = [];
+          rails.forEach(mesh => {
+            const pos = mesh.geometry.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+              if (Math.abs(pos.getX(i) - x) < tol) zs.push(+pos.getZ(i).toFixed(3));
+            }
+          });
+          return Array.from(new Set(zs)).sort((a, b) => a - b);
+        };
+        const rootZ = zsNear(xRoot, 0.05);
+        const mouthZ = zsNear(xMouth, 0.05);
+        const zFloorGap = rootZ.length >= 2 ? +(rootZ[1] - rootZ[0]).toFixed(3) : null;
+        const lipAbove = mouthZ.filter(z => z > sm.zBodyFront + 0.02);
+        const zLipGap = lipAbove.length ? +(lipAbove[0] - sm.zBodyFront).toFixed(3) : null;
+        const insertion = [];
+        const yStart = -sm.trackInnerHalf - sm.shuttleHalf - 1;
+        for (let s = 0; s <= 16; s++) {
+          const y = yStart + (0 - yStart) * (s / 16);
+          shuttle.position.y = y;
+          shuttle.updateMatrixWorld(true);
+          let worst = 99;
+          let misses = 0;
+          for (let k = 0; k <= 4; k++) {
+            const z = sm.zBodyBack + sm.bodyThick * (k / 4);
+            const samples = [-sm.shuttleHalf * 0.7, 0, sm.shuttleHalf * 0.7].map(localY => localY + y);
+            samples.forEach(sy => {
+              if (sy < -sm.trackInnerHalf + sm.stopLead + sm.stopLen + sm.flareLen) return;
+              if (sy > sm.trackInnerHalf - 0.5) return;
+              const wall = rayHit(rails, 0.4, sy, z, xPos);
+              const tongue = rayHit(tongues, sm.winHalf + sm.railW + 1, sy, z, xNeg);
+              if (!wall || !tongue) { misses++; return; }
+              worst = Math.min(worst, wall.x - tongue.x);
+            });
+          }
+          insertion.push({ y: +y.toFixed(2), minGap: worst < 90 ? +worst.toFixed(3) : null, misses });
+        }
+        shuttle.position.y = 0;
+        shuttle.updateMatrixWorld(true);
+        const stopBox = new THREE.Box3().setFromObject(stop);
+        const seated = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = -sm.travel / 2;
+        shuttle.updateMatrixWorld(true);
+        const parkedOpen = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = -sm.travel / 2 - 8;
+        shuttle.updateMatrixWorld(true);
+        const exiting = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = 0;
+        const overlap = (a, b) => a.min.x < b.max.x - 0.05 && a.max.x > b.min.x + 0.05 && a.min.y < b.max.y - 0.05 && a.max.y > b.min.y + 0.05 && a.min.z < b.max.z - 0.05 && a.max.z > b.min.z + 0.05;
+        const spacing = [];
+        [-sm.trackInnerHalf + 1, 0, sm.trackInnerHalf - 1].forEach(y => {
+          const left = rayHit(rails, -40, y, sm.zFloor - 0.4, xPos);
+          const right = rayHit(rails, 40, y, sm.zFloor - 0.4, xNeg);
+          if (left && right) spacing.push(+((right.x - left.x)).toFixed(3));
+        });
+        const spacingSpread = spacing.length ? Math.max.apply(null, spacing) - Math.min.apply(null, spacing) : null;
+        [track, shuttle, stop].forEach(g => {
+          g.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+        });
+        return {
+          designedPerSide: sm.xyClear,
+          designedTotal: +(sm.xyClear * 2).toFixed(3),
+          designedNormal: +sm.normalGap.toFixed(3),
+          designedZ: sm.zClear,
+          xGaps: gaps,
+          minXGap: minGap == null ? null : +minGap.toFixed(3),
+          maxXGap: maxGap == null ? null : +maxGap.toFixed(3),
+          zFloorGap, zLipGap, rootZ, mouthZ,
+          insertion,
+          insertionMin: insertion.reduce((m, s) => s.minGap == null ? m : Math.min(m, s.minGap), 99),
+          stopClearsSeated: !overlap(seated, stopBox),
+          stopClearsParkedOpen: !overlap(parkedOpen, stopBox),
+          stopBlocksExit: overlap(exiting, stopBox),
+          railSpacing: spacing,
+          railSpacingSpread: spacingSpread == null ? null : +spacingSpread.toFixed(3)
+        };
       }
 
       function drawSlideSectionHUD(p, sm) {
@@ -4080,6 +4264,7 @@
         clearAndDisposeGroup(toggleStemGroup);
         clearAndDisposeGroup(toggleTipGroup);
         clearAndDisposeGroup(slideGroup);
+        clearAndDisposeGroup(slideStopGroup);
         clearAndDisposeGroup(slideGhostGroup);
 
         buildLegrandReferenceHardware(p, activeItems);
@@ -4513,12 +4698,12 @@
           const angOk = slideM.angleDeg >= 27 && slideM.angleDeg <= 30;
           angEl.textContent = slideM.angleDeg.toFixed(1) + '°';
           angEl.style.color = angOk ? '#4ade80' : '#fb923c';
-          slotEl.textContent = `slot ${slideM.slotW.toFixed(1)}×${slideM.slotH.toFixed(1)} mm`;
+          slotEl.textContent = `X ${slideM.xyClear.toFixed(2)}/side (${(slideM.xyClear * 2).toFixed(2)} total)  Z ${slideM.zClear.toFixed(2)}  slot ${slideM.slotW.toFixed(1)}×${slideM.slotH.toFixed(1)}`;
           slideBadge.textContent = angOk ? slideM.angleDeg.toFixed(0) + '°' : 'check °';
           const cavWarn = p.swClear + 0.05 < slideM.cavityZ ? ` Cavity Z is ${p.swClear.toFixed(1)} mm; the shuttle wants ${slideM.cavityZ.toFixed(1)} mm.` : '';
           const fitWarn = slideM.fitWarning ? ' Track is clamped by the inner frame height.' : '';
           const ptfeWarn = p.slidePtfe && !slideM.ptfe ? ' PTFE slot needs ramp ≥ 5.5 mm.' : '';
-          slideNote.textContent = `Active. Angle ${slideM.angleDeg.toFixed(1)}° (aim 27–30). Dwell then ${slideM.reliefDrop.toFixed(2)} mm relief. Cavity ${Math.max(p.swClear, slideM.cavityZ).toFixed(1)} mm.${cavWarn}${fitWarn}${ptfeWarn}`;
+          slideNote.textContent = `Active. Open end is the arrow (IN). Slide the shuttle in, then drop the stop into the slots. X gap ${slideM.xyClear.toFixed(2)} mm per side (${(slideM.xyClear * 2).toFixed(2)} total), Z gap ${slideM.zClear.toFixed(2)} mm. Angle ${slideM.angleDeg.toFixed(1)}°.${cavWarn}${fitWarn}${ptfeWarn}`;
         } else if (slideNote && slideBadge) {
           slideBadge.textContent = 'Off';
           if (angEl) { angEl.textContent = '—'; angEl.style.color = ''; }
@@ -4537,6 +4722,7 @@
         bubblesGroup.visible = !isKnobOnly;
         overlayGroup.visible = !isKnobOnly;
         slideGroup.visible = !isKnobOnly;
+        slideStopGroup.visible = !isKnobOnly;
         slideGhostGroup.visible = showSlideSection && !isKnobOnly;
         legrandRefGroup.visible = showWall && !isKnobOnly;
 
@@ -4552,12 +4738,13 @@
         const faceFrontLift = isExploded ? 24 : 0;
 
         if (isBackView) {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = Math.PI;
           });
           legrandRefGroup.position.z = totalDepth - wallBackShift;
           chassisGroup.position.z = totalDepth;
           slideGroup.position.z = totalDepth + (isExploded ? 10 : 0);
+          slideStopGroup.position.z = totalDepth + (isExploded ? 22 : 0);
           slideGhostGroup.position.z = totalDepth - wallBackShift;
           faceplateGroup.position.z = totalDepth - faceFrontLift;
           bubblesGroup.position.z = totalDepth - faceFrontLift;
@@ -4565,12 +4752,13 @@
           toggleStemGroup.position.z = totalDepth - wallBackShift;
           toggleTipGroup.position.z = totalDepth;
         } else {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideGhostGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = 0;
           });
           legrandRefGroup.position.z = wallBackShift;
           chassisGroup.position.z = 0;
           slideGroup.position.z = isExploded ? 10 : 0;
+          slideStopGroup.position.z = isExploded ? 22 : 0;
           slideGhostGroup.position.z = wallBackShift;
           faceplateGroup.position.z = faceFrontLift;
           bubblesGroup.position.z = faceFrontLift;
@@ -5177,6 +5365,7 @@
           const spin = new THREE.Matrix4().makeRotationY(rotY);
           const parts = clone.children.slice();
           parts.forEach(part => {
+            if (part.userData && part.userData.slidePart === 'stop') return;
             part.updateMatrixWorld(true);
             const inv = new THREE.Matrix4().copy(part.matrixWorld).invert();
             part.traverse(ch => {
@@ -5252,7 +5441,20 @@
         const p = getParams();
         if (p.swMode !== 'slide' || slideGroup.children.length === 0) { showStatusBanner('Set Switch Exposure to Slide switch before exporting the shuttle.'); return; }
         const n = getActiveModuleItems(p).filter(it => it.kind === 'switch').length;
-        downloadPrintReadySTL(slideGroup, `Arteor_${APP_VERSION}_Slide_Shuttle_x${n}.stl`, -Math.PI / 2);
+        const pack = new THREE.Group();
+        slideGroup.children.forEach((child, i) => {
+          const c = child.clone(true);
+          c.userData.slidePart = 'shuttle';
+          c.position.set(i * 30, 0, 0);
+          pack.add(c);
+        });
+        slideStopGroup.children.forEach((child, i) => {
+          const c = child.clone(true);
+          c.userData.slidePart = 'stop';
+          c.position.set(i * 30, 34, 0);
+          pack.add(c);
+        });
+        downloadPrintReadySTL(pack, `Arteor_${APP_VERSION}_Slide_Shuttle_and_Stop_x${n}.stl`, -Math.PI / 2);
       });
       document.getElementById('btn-exp-slide-cover').addEventListener('click', () => {
         const p = getParams();
@@ -5262,8 +5464,9 @@
         downloadPrintReadySTL(cover, `Arteor_${APP_VERSION}_Slide_Cover_${p.coverBuild}.stl`);
       });
       document.getElementById('btn-exp-slide-coupon').addEventListener('click', () => {
-        const coupon = buildSlideCoupon(getParams());
-        downloadPrintReadySTL(coupon, `Arteor_${APP_VERSION}_Slide_TestCoupon_3way.stl`);
+        const params = getParams();
+        downloadPrintReadySTL(buildSlideCoupon(params, 'fit'), `Arteor_${APP_VERSION}_Slide_Coupon_Fit_F40_F55_F70.stl`);
+        downloadPrintReadySTL(buildSlideCoupon(params, 'ramp'), `Arteor_${APP_VERSION}_Slide_Coupon_Ramp_R55_R60_R65.stl`);
       });
 
       let rebuildQueued = false;
@@ -5299,7 +5502,9 @@
       applyPreset('alublade');
       window.__arteor = {
         camera: camera, controls: controls, scene: scene, rebuild: rebuildModel, getParams: getParams,
-        groups: { chassisGroup, faceplateGroup, slideGroup, slideGhostGroup, overlayGroup, legrandRefGroup, bubblesGroup }
+        groups: { chassisGroup, faceplateGroup, slideGroup, slideStopGroup, slideGhostGroup, overlayGroup, legrandRefGroup, bubblesGroup },
+        auditSlideFit: auditSlideFit,
+        computeSlideMetrics: computeSlideMetrics
       };
 
       function animate() {

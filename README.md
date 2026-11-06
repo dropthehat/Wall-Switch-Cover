@@ -69,9 +69,10 @@ Each button downloads a binary STL and drops the mesh onto Z = 0. Names use `APP
 | STL: Tip (-Thread) | `Arteor_v25_Tip_<tip style>_<stud Ø + tolerance>mm_NegativeThread_READY.stl` |
 | Full Assembly STL | `Arteor_v25_FullAssembly_<coverBuild>.stl` |
 | Slide Base | `Arteor_v25_Slide_BaseTrack_<fixMode>.stl` |
-| Slide Shuttle | `Arteor_v25_Slide_Shuttle_x<count>.stl` |
+| Shuttle + Stop | `Arteor_v25_Slide_Shuttle_and_Stop_x<count>.stl` |
 | Slide Cover | `Arteor_v25_Slide_Cover_<coverBuild>.stl` |
-| Test Coupon | `Arteor_v25_Slide_TestCoupon_3way.stl` |
+| Fit coupon | `Arteor_v25_Slide_Coupon_Fit_F40_F55_F70.stl` |
+| Ramp coupon | `Arteor_v25_Slide_Coupon_Ramp_R55_R60_R65.stl` |
 
 - **Part 1** is the chassis (mount, base, and snap or magnet features).
 - **Bare cover** is the faceplate and any bubble geometry, without the 3D overlay, so the top stays flat for a separate overlay you glue on.
@@ -80,7 +81,7 @@ Each button downloads a binary STL and drops the mesh onto Z = 0. Names use `APP
 - **Full assembly** is the chassis, faceplate, bubbles, and overlay. It does not include the knob.
 - The stem name prints the stud diameter to one decimal place. The tip name prints stud diameter plus thread tolerance to two decimal places. Defaults are a 4.0 mm stud and 0.35 mm tolerance.
 - A screw joint adds a helical stud on the stem, except on the stadium blade and the bat stick. The matching tip bore is omitted for those two as well. A one-piece joint, or the bat stick, puts the tip mesh in the stem file.
-- **Slide Base** is the current chassis, including the H-pin bridge or the 83.5 mm screw ears, plus the dovetail track. **Slide Shuttle** is every module's shuttle in one file, already turned onto its side for printing. **Slide Cover** is the snap-on fascia and its vertical slots, without the overlay. **Test Coupon** is three single-module bases with three matching shuttles.
+- **Slide Base** is the current chassis, including the H-pin bridge or the 83.5 mm screw ears, plus the dovetail track with one open end. **Shuttle + Stop** is every module's shuttle, already turned onto its side, and the matching removable stops laid flat beside them. **Slide Cover** is the snap-on fascia and its vertical slots, without the overlay. The two coupon files are the fit ladder and the ramp ladder.
 
 The color palette is a viewport preview. STL files have no color. A plate STL/OBJ or a knob OBJ/STL imported in this session is part of the preview and of the STL you export afterward. Those meshes are not stored in a saved setup.
 
@@ -110,8 +111,8 @@ These are the measured rocker heights the ramps are built against, taken from th
 | Slide travel | 11 mm | 8–14 |
 | Ramp angle | `atan(ramp height / active slope length)`, about 29° at the defaults | readout; 27–30° is the aim |
 | Contact | 15 mm from the pivot | 12–18 |
-| Dovetail XY clearance | 0.25 mm per side | 0.10–0.45 |
-| Dovetail Z clearance | 0.20 mm | 0.08–0.40 |
+| Dovetail X clearance | 0.50 mm per side (1.00 mm total). The gap normal to the 45° face is this number times cos 45° (0.35 mm at the default) | 0.25–0.80 per side |
+| Dovetail Z clearance | 0.30 mm under the tongue and under the lip | 0.15–0.50 |
 | Grip length | 12.5 mm | 10–18 |
 | Cover slot | grip length + travel + 0.5 mm, by grip width + 1.05 mm | follows the sliders |
 | Detent | on | checkbox |
@@ -119,7 +120,11 @@ These are the measured rocker heights the ramps are built against, taken from th
 
 The active slope length is `max(5.5, travel × 0.96)` mm. The angle readout turns green inside 27–30°. The nose of each wedge is rounded to about 1.7 mm. **Side Section** clips the model through the middle module, draws both rocker states (orange raised-top, blue pressed-top), and switches the corner inspector to the same side view. **Rock Switch** parks the preview at the other end. The preview scrubber moves between them.
 
-The track is part of the base, not the cover. Rails flank each module window, the dovetail opens toward the room so a 45° undercut prints without support with the room side up, and a bar at the top end plus a sole at the bottom end tie the two rails together so they cannot spread and let the shuttle out. The bottom end is open: slide the shuttle in from there, past a short vertical finger. Nudge that finger aside to take the shuttle out again. H-pins and the 83.5 mm screw ears are unchanged. Existing overlay styles still cut around the slot. A monolithic cover is split into a snap-on fascia while slide mode is on, because the shuttle has to go in before the face does.
+The track is part of the base, not the cover. Rails flank each module window. The dovetail opens toward the room, so a 45° undercut prints without support with the room side up. The two rails stay a fixed distance apart: a sole runs under each rail, a cross-sole ties them at the loading end, and a full-height bar ties them at the other end. Nothing in that loop has to be cut or flexed to get the shuttle in.
+
+The loading end is the end with the arrow and the letters **IN**. That end of the dovetail is open. Slide the shuttle in from there, grip toward the room, until it is past the two slots. Then drop the removable stop into those slots. The stop is a separate piece. Lift it out to remove the shuttle. On the wall plate the fascia sits over the stop and keeps it from falling toward the room. H-pins and the 83.5 mm screw ears are unchanged. Existing overlay styles still cut around the slot. A monolithic cover is split into a snap-on fascia while slide mode is on, because the shuttle has to go in before the face does.
+
+The number in **X/side** is the horizontal gap between the tongue and the rail on each side, and it is the same at every height along the 45° face. Total horizontal clearance is twice that. It is not the gap measured perpendicular to the sloping face; that normal gap is X/side × cos 45°. **Z gap** is the separate vertical clearance under the tongue and under the lip.
 
 ### Print orientation
 
@@ -129,17 +134,25 @@ Print the **shuttle** on its side. The shuttle STL is already rotated that way: 
 
 The **cover** prints as a normal faceplate, slots up or down as you prefer, and snaps onto the base.
 
-### Test coupon
+### Test coupons
 
-**⬇ Test Coupon** writes `Arteor_v25_Slide_TestCoupon_3way.stl`: three single-module tracks and three shuttles, already separated on the bed. Shuttles are on their sides. Each pair is marked on the track tab and with raised pips on the shuttle.
+**⬇ Fit + Ramp** downloads two plates. Shuttles are already on their sides. Each station is a track, a stop, and a shuttle. The same ID is embossed on all three. An arrow and **IN** mark the open end of the track. Pips on the shuttle (1, 2, or 3) match the station order and sit on the closed end of the shuttle, off the dovetail.
 
-| Pips | Tab text | Rail clearance | Ramp height |
-| --- | --- | --- | --- |
-| 1 | C15 / R55 | 0.15 mm | 5.5 mm |
-| 2 | C22 / R60 | 0.22 mm | 6.0 mm |
-| 3 | C30 / R65 | 0.30 mm | 6.5 mm |
+The first printed set mixed a tight dovetail, a detent nub, and identification pips on the mating tongue, and one end of the frame was closed by a bar while the other end had a fixed finger in the channel. The mesh of that set also did not have the labelled 0.15 / 0.22 / 0.30 mm at the lip: the vertical clearance consumed the horizontal gap, so the minimum X gap per side on those three was about −0.05 / +0.02 / +0.10 mm. That is a description of the old model, not a measurement of how much the printed parts interfered. Carl's print of that plate could not be assembled without cutting a side, and all three fits were too tight. The revised plates separate those questions and open the loading end.
 
-Print the coupon in the same PETG and layer height you will use for the real plate. Slide each shuttle in from the open end and feel which clearance actually runs without slop or grit. Then hold the coupon over a real Arteor rocker (or drop it into one module of a frame) and try both directions. The ramp that clicks cleanly and then sits unloaded in the relief is the height to copy into **Ramp H**. The 6.0 mm shuttle matches the on-screen default; 5.5 and 6.5 are there because the contact is 15 mm from the pivot, where the rocker moves less than it does at the edge, and only a printed part will show which wedge height finishes the click without bottoming the mechanism.
+**Fit plate** `Arteor_v25_Slide_Coupon_Fit_F40_F55_F70.stl`. Ramp height is 6.0 mm on every station. Detent is off. Only the horizontal clearance changes.
+
+| ID | Pips | X gap per side | X gap total | Z gap | Normal-to-45° gap | Ramp |
+| --- | --- | --- | --- | --- | --- | --- |
+| F40 | 1 | 0.40 mm | 0.80 mm | 0.30 mm | 0.28 mm | 6.0 mm |
+| F55 | 2 | 0.55 mm | 1.10 mm | 0.30 mm | 0.39 mm | 6.0 mm |
+| F70 | 3 | 0.70 mm | 1.40 mm | 0.30 mm | 0.49 mm | 6.0 mm |
+
+**Ramp plate** `Arteor_v25_Slide_Coupon_Ramp_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
+
+Print the fit plate in PLA first, the same layer height you intend to use. For each ID: leave the stop out, slide the shuttle in from the **IN** end, then drop that station's stop into the two slots. The rails should not be cut or spread. Note which ID runs and which is sloppy. Then print the ramp plate at the clearance you chose and see which wedge clicks the real rocker (pressed edge 5.2 mm, raised edge 10.5 mm, 5.3 mm of edge travel) and sits in the relief afterward. Copy those two numbers into **X/side** and **Ramp H**. None of these clearances has been confirmed by a print of this revision.
+
+The stop on the coupon is meant to be lifted out by hand. On the full plate, export **Shuttle+Stop** with the base. The shuttles in that file are on their sides; the stops are beside them, flat, in the same order.
 
 ## Printing
 
