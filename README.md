@@ -69,10 +69,15 @@ Each button downloads a binary STL and drops the mesh onto Z = 0. Names use `APP
 | STL: Tip (-Thread) | `Arteor_v25_Tip_<tip style>_<stud Ø + tolerance>mm_NegativeThread_READY.stl` |
 | Full Assembly STL | `Arteor_v25_FullAssembly_<coverBuild>.stl` |
 | Slide Base | `Arteor_v25_Slide_BaseTrack_<fixMode>.stl` |
-| Shuttle + Stop | `Arteor_v25_Slide_Shuttle_and_Stop_x<count>.stl` |
+| Shuttles only | `Arteor_v25_Slide_Shuttles_x<count>.stl` |
+| Stops only | `Arteor_v25_Slide_Stops_x<count>.stl` |
 | Slide Cover | `Arteor_v25_Slide_Cover_<coverBuild>.stl` |
-| Fit coupon | `Arteor_v25_Slide_Coupon_Fit_F40_F55_F70.stl` |
-| Ramp coupon | `Arteor_v25_Slide_Coupon_Ramp_R55_R60_R65.stl` |
+| Fit tracks | `Arteor_v25_Slide_Fit_Tracks_F40_F55_F70.stl` |
+| Ramp tracks | `Arteor_v25_Slide_Ramp_Tracks_R55_R60_R65.stl` |
+| Fit shuttles | `Arteor_v25_Slide_Fit_Shuttles_F40_F55_F70.stl` |
+| Ramp shuttles | `Arteor_v25_Slide_Ramp_Shuttles_R55_R60_R65.stl` |
+| Fit stops | `Arteor_v25_Slide_Fit_Stops_F40_F55_F70.stl` |
+| Ramp stops | `Arteor_v25_Slide_Ramp_Stops_R55_R60_R65.stl` |
 
 - **Part 1** is the chassis (mount, base, and snap or magnet features).
 - **Bare cover** is the faceplate and any bubble geometry, without the 3D overlay, so the top stays flat for a separate overlay you glue on.
@@ -81,7 +86,7 @@ Each button downloads a binary STL and drops the mesh onto Z = 0. Names use `APP
 - **Full assembly** is the chassis, faceplate, bubbles, and overlay. It does not include the knob.
 - The stem name prints the stud diameter to one decimal place. The tip name prints stud diameter plus thread tolerance to two decimal places. Defaults are a 4.0 mm stud and 0.35 mm tolerance.
 - A screw joint adds a helical stud on the stem, except on the stadium blade and the bat stick. The matching tip bore is omitted for those two as well. A one-piece joint, or the bat stick, puts the tip mesh in the stem file.
-- **Slide Base** is the current chassis, including the H-pin bridge or the 83.5 mm screw ears, plus the dovetail track with one open end. **Shuttle + Stop** is every module's shuttle, already turned onto its side, and the matching removable stops laid flat beside them. **Slide Cover** is the snap-on fascia and its vertical slots, without the overlay. The two coupon files are the fit ladder and the ramp ladder.
+- **Slide Base** is the current chassis, including the H-pin bridge or the 83.5 mm screw ears, plus the dovetail track with one open end. It does not contain shuttles or stops. **Shuttles only** and **Stops only** are two separate files from the same button. **Slide Cover** is the snap-on fascia and its vertical slots, without the overlay. **Coupon parts** saves six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, and ramp stops. A track file contains only tracks.
 
 The color palette is a viewport preview. STL files have no color. A plate STL/OBJ or a knob OBJ/STL imported in this session is part of the preview and of the STL you export afterward. Those meshes are not stored in a saved setup.
 
@@ -136,11 +141,11 @@ The **cover** prints as a normal faceplate, slots up or down as you prefer, and 
 
 ### Test coupons
 
-**⬇ Fit + Ramp** downloads two plates. Shuttles are already on their sides. Each station is a track, a stop, and a shuttle. The same ID is embossed on all three. An arrow and **IN** mark the open end of the track. Pips on the shuttle (1, 2, or 3) match the station order and sit on the closed end of the shuttle, off the dovetail.
+**⬇ Coupon parts** saves six STLs. Tracks, shuttles, and stops are never in the same file, so supports can be enabled on the shuttle files only. Each part carries its ID sunk into a non-mating face: the closed-end tab on a track (with **IN** and an arrow toward the open end), the handle top on a shuttle, and the top of a stop. Pips (1, 2, or 3) are sunk into the closed end of the shuttle, off the dovetail.
 
 The first printed set mixed a tight dovetail, a detent nub, and identification pips on the mating tongue, and one end of the frame was closed by a bar while the other end had a fixed finger in the channel. The mesh of that set also did not have the labelled 0.15 / 0.22 / 0.30 mm at the lip: the vertical clearance consumed the horizontal gap, so the minimum X gap per side on those three was about −0.05 / +0.02 / +0.10 mm. That is a description of the old model, not a measurement of how much the printed parts interfered. Carl's print of that plate could not be assembled without cutting a side, and all three fits were too tight. The revised plates separate those questions and open the loading end.
 
-**Fit plate** `Arteor_v25_Slide_Coupon_Fit_F40_F55_F70.stl`. Ramp height is 6.0 mm on every station. Detent is off. Only the horizontal clearance changes.
+**Fit tracks** `Arteor_v25_Slide_Fit_Tracks_F40_F55_F70.stl`, with matching `Arteor_v25_Slide_Fit_Shuttles_F40_F55_F70.stl` and `Arteor_v25_Slide_Fit_Stops_F40_F55_F70.stl`. Ramp height is 6.0 mm on every station. Detent is off. Only the horizontal clearance changes.
 
 | ID | Pips | X gap per side | X gap total | Z gap | Normal-to-45° gap | Ramp |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -148,11 +153,11 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 | F55 | 2 | 0.55 mm | 1.10 mm | 0.30 mm | 0.39 mm | 6.0 mm |
 | F70 | 3 | 0.70 mm | 1.40 mm | 0.30 mm | 0.49 mm | 6.0 mm |
 
-**Ramp plate** `Arteor_v25_Slide_Coupon_Ramp_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
+**Ramp tracks** `Arteor_v25_Slide_Ramp_Tracks_R55_R60_R65.stl`, with matching `Arteor_v25_Slide_Ramp_Shuttles_R55_R60_R65.stl` and `Arteor_v25_Slide_Ramp_Stops_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
 
 Print the fit plate in PLA first, the same layer height you intend to use. For each ID: leave the stop out, slide the shuttle in from the **IN** end, then drop that station's stop into the two slots. The rails should not be cut or spread. Note which ID runs and which is sloppy. Then print the ramp plate at the clearance you chose and see which wedge clicks the real rocker (pressed edge 5.2 mm, raised edge 10.5 mm, 5.3 mm of edge travel) and sits in the relief afterward. Copy those two numbers into **X/side** and **Ramp H**. None of these clearances has been confirmed by a print of this revision.
 
-The stop on the coupon is meant to be lifted out by hand. On the full plate, export **Shuttle+Stop** with the base. The shuttles in that file are on their sides; the stops are beside them, flat, in the same order.
+The stop on the coupon is meant to be lifted out by hand. On the full plate, **Shuttles / Stops** writes the shuttles and the stops as two files. The shuttles are on their sides. The stops are flat.
 
 ## Printing
 

@@ -708,9 +708,9 @@
       </div>
       <div class="grid grid-cols-4 gap-1.5">
         <button id="btn-exp-slide-base" class="py-1.5 px-1 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded text-[10px] transition truncate" title="Base with the dovetail track, plus the current wall mount">⬇ Slide Base</button>
-        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Shuttles on their sides, plus the removable end stops">⬇ Shuttle+Stop</button>
+        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Two files: shuttles only, then stops only">⬇ Shuttles / Stops</button>
         <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
-        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Downloads two plates: fit clearances F40 F55 F70, and ramp heights R55 R60 R65">⬇ Fit + Ramp</button>
+        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops">⬇ Coupon parts</button>
       </div>
     </div>
   </aside>
@@ -3584,27 +3584,39 @@
         group.add(new THREE.Mesh(geo, mat));
       }
 
-      function slideEmboss(group, text, x, y, z, mat, cw) {
-        cw = cw || 0.70;
+      function slideEmboss(group, text, x, yTop, zSurface, mat, cw) {
+        cw = cw || 0.62;
         const ch = cw;
-        const depth = 0.50;
+        const embed = 0.35;
+        const proud = 0.40;
+        const depth = embed + proud;
+        const zCenter = zSurface - embed + depth / 2;
         let cursor = x;
-        const gap = cw * 0.45;
+        const gap = cw * 0.42;
+        const cols = 5;
         for (let i = 0; i < text.length; i++) {
           const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
           for (let r = 0; r < rows.length; r++) {
             for (let c = 0; c < rows[r].length; c++) {
               if (rows[r][c] !== '1') continue;
-              addBox(group, cw * 0.86, ch * 0.86, depth,
+              addBox(group, cw * 0.84, ch * 0.84, depth,
                 cursor + (c + 0.5) * cw,
-                y - (r + 0.5) * ch,
-                z + depth / 2,
+                yTop - (r + 0.5) * ch,
+                zCenter,
                 mat);
             }
           }
-          cursor += rows[0].length * cw + gap;
+          cursor += cols * cw + gap;
         }
-        return cursor - x;
+        return { width: Math.max(0, cursor - x - gap), height: 7 * ch };
+      }
+
+      function slideTextSize(text, cw) {
+        cw = cw || 0.62;
+        const cols = 5;
+        const gap = cw * 0.42;
+        const n = Math.max(1, text.length);
+        return { width: n * cols * cw + (n - 1) * gap, height: 7 * cw };
       }
 
       function rightRailPts(sm, extra, mode) {
@@ -3779,11 +3791,6 @@
         const tieY0 = -sm.trackInnerHalf - sm.tieLen;
         const tieY1 = -sm.trackInnerHalf + sm.stopLead + sm.stopLen;
         addBox(group, sm.outerW, tieY1 - tieY0, 0.9, cx, (tieY0 + tieY1) / 2, zBot + 0.45, mat);
-        const ax = cx - sm.winHalf + 1.2;
-        const ay = -sm.trackInnerHalf + sm.stopLead + sm.stopLen + 1.6;
-        addBox(group, 3.2, 0.7, 0.45, ax, ay, sm.zRailTop + 0.22, mat);
-        addBox(group, 1.6, 0.7, 0.45, ax - 0.8, ay - 1.3, sm.zRailTop + 0.22, mat);
-        addBox(group, 1.6, 0.7, 0.45, ax + 0.8, ay - 1.3, sm.zRailTop + 0.22, mat);
       }
 
       function buildOneStop(group, sm, cx, mat, label) {
@@ -3800,7 +3807,10 @@
         addBox(group, footW, footY, z1 - z0, cx - (xIn + xOut) / 2, yC, (z0 + z1) / 2, mat);
         const bridgeW = (xIn + xOut);
         addBox(group, bridgeW, footY, z1 - sm.zBodyBack, cx, yC, (sm.zBodyBack + z1) / 2, mat);
-        if (label) slideEmboss(group, label, cx - 3.4, yC + footY / 2 - 0.3, z1, mat, 0.46);
+        if (label) {
+          const mark = slideTextSize(label, 0.42);
+          slideEmboss(group, label, cx - mark.width / 2, yC + mark.height / 2, z1, mat, 0.42);
+        }
       }
 
       function buildOneShuttle(group, sm, cx, shift, pos, mat, pips, label) {
@@ -3835,14 +3845,17 @@
         addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy + 2.15, ridgeZ, mat);
         if (pips) {
           for (let i = 0; i < pips; i++) {
-            addBox(group, 1.15, 0.55, 1.05,
+            addBox(group, 1.15, 1.15, 1.05,
               cx - 1.6 + i * 1.6,
-              y1 + 0.28,
+              y1 - 0.05,
               (sm.zBodyBack + sm.zBodyFront) / 2,
               mat);
           }
         }
-        if (label) slideEmboss(group, label, cx - 3.1, hCy + 1.2, handleTopZ, mat, 0.40);
+        if (label) {
+          const mark = slideTextSize(label, 0.40);
+          slideEmboss(group, label, hCx - mark.width / 2, hCy + mark.height / 2 - 0.4, handleTopZ, mat, 0.40);
+        }
       }
 
       function buildSlideMechanism(trackGroup, shuttleGroup, ghostGroup, p, sm, activeItems, matBase, matSlide, zFaceBack) {
@@ -3892,74 +3905,101 @@
         return clipCx;
       }
 
-      function buildSlideCoupon(p, kind) {
-        const group = new THREE.Group();
-        const fit = kind !== 'ramp';
-        const variants = fit
+      function couponVariants(kind) {
+        return kind === 'ramp'
           ? [
-            { xy: 0.40, ramp: 6.0, code: 'F40', pips: 1 },
-            { xy: 0.55, ramp: 6.0, code: 'F55', pips: 2 },
-            { xy: 0.70, ramp: 6.0, code: 'F70', pips: 3 }
-          ]
-          : [
             { xy: 0.55, ramp: 5.5, code: 'R55', pips: 1 },
             { xy: 0.55, ramp: 6.0, code: 'R60', pips: 2 },
             { xy: 0.55, ramp: 6.5, code: 'R65', pips: 3 }
+          ]
+          : [
+            { xy: 0.40, ramp: 6.0, code: 'F40', pips: 1 },
+            { xy: 0.55, ramp: 6.0, code: 'F55', pips: 2 },
+            { xy: 0.70, ramp: 6.0, code: 'F70', pips: 3 }
           ];
+      }
+
+      function couponMetrics(p, v) {
+        const vp = Object.assign({}, p, {
+          rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.30,
+          slideTravel: 11, slideContact: 15, slideHandle: 12.5,
+          slideDetent: false, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
+        });
+        const sm = computeSlideMetrics(vp);
+        sm.zHandleTop = sm.zBodyFront + 3.2;
+        return sm;
+      }
+
+      function addTrackIdTab(track, sm, code, mat) {
+        const tabThick = 1.6;
+        const tabLen = 14;
+        const tabW = Math.min(20, sm.outerW);
+        const tabY0 = sm.trackInnerHalf + sm.endBar * 0.45;
+        const tabCenterZ = sm.zFloor + tabThick / 2;
+        const tabTop = sm.zFloor + tabThick;
+        addBox(track, tabW, tabLen, tabThick, 0, tabY0 + tabLen / 2, tabCenterZ, mat);
+        const id = slideTextSize(code, 0.62);
+        slideEmboss(track, code, -id.width / 2, tabY0 + tabLen - 1.2, tabTop, mat, 0.62);
+        const inn = slideTextSize('IN', 0.55);
+        slideEmboss(track, 'IN', -inn.width / 2, tabY0 + 6.6, tabTop, mat, 0.55);
+        const ay = tabY0 + 2.4;
+        addBox(track, 3.4, 0.7, 0.7, 0, ay, tabTop - 0.05, mat);
+        addBox(track, 1.5, 0.7, 0.7, -0.85, ay - 0.9, tabTop - 0.05, mat);
+        addBox(track, 1.5, 0.7, 0.7, 0.85, ay - 0.9, tabTop - 0.05, mat);
+      }
+
+      function layoutPrintRow(parts, gap) {
+        const row = new THREE.Group();
+        let cursor = 0;
+        parts.forEach(part => {
+          part.updateMatrixWorld(true);
+          const box = new THREE.Box3().setFromObject(part);
+          part.position.x += cursor - box.min.x;
+          part.position.y += -box.min.y;
+          part.position.z += -box.min.z;
+          part.updateMatrixWorld(true);
+          const placed = new THREE.Box3().setFromObject(part);
+          cursor = placed.max.x + gap;
+          row.add(part);
+        });
+        return row;
+      }
+
+      function buildSlideCoupon(p, kind, part) {
         const mat = createGlossMat('#e2e8f0', false, 0.42, 0.04);
         const matS = createGlossMat('#38bdf8', false, 0.35, 0.05);
         const matStop = createGlossMat('#fbbf24', false, 0.4, 0.04);
-        variants.forEach((v, i) => {
-          const vp = Object.assign({}, p, {
-            rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.30,
-            slideTravel: 11, slideContact: 15, slideHandle: 12.5,
-            slideDetent: false, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
-          });
-          const sm = computeSlideMetrics(vp);
-          sm.zHandleTop = sm.zBodyFront + 3.2;
-          const station = new THREE.Group();
-          buildOneTrack(station, sm, 0, mat);
-          const tabY = sm.trackInnerHalf + sm.endBar + 0.3;
-          addBox(station, 18, 8.5, 1.2, 0, tabY + 4.2, sm.zFloor + 0.4, mat);
-          slideEmboss(station, v.code, -6.4, tabY + 7.2, sm.zFloor + 1.15, mat, 0.70);
-          slideEmboss(station, 'IN', -sm.winHalf + 0.4, -sm.trackInnerHalf + sm.stopLead + sm.stopLen + 3.2, sm.zRailTop, mat, 0.55);
-          const stop = new THREE.Group();
-          buildOneStop(stop, sm, 0, matStop, v.code);
-          stop.position.set(sm.outerW / 2 + 8, -sm.trackInnerHalf + 2, 0);
+        const pieces = couponVariants(kind).map(v => {
+          const sm = couponMetrics(p, v);
+          if (part === 'track') {
+            const track = new THREE.Group();
+            buildOneTrack(track, sm, 0, mat);
+            addTrackIdTab(track, sm, v.code, mat);
+            return track;
+          }
+          if (part === 'stop') {
+            const stop = new THREE.Group();
+            buildOneStop(stop, sm, 0, matStop, v.code);
+            return stop;
+          }
           const shuttle = new THREE.Group();
           buildOneShuttle(shuttle, sm, 0, 0, 1, matS, v.pips, v.code);
           shuttle.updateMatrixWorld(true);
           shuttle.traverse(ch => {
-            if (ch.isMesh && ch.geometry) {
-              ch.geometry = ch.geometry.clone();
-              ch.geometry.applyMatrix4(ch.matrix);
-              ch.position.set(0, 0, 0);
-              ch.rotation.set(0, 0, 0);
-              ch.scale.set(1, 1, 1);
-              ch.updateMatrix();
-            }
+            if (!ch.isMesh || !ch.geometry) return;
+            ch.geometry = ch.geometry.clone();
+            ch.geometry.applyMatrix4(ch.matrixWorld);
+            ch.position.set(0, 0, 0);
+            ch.rotation.set(0, 0, 0);
+            ch.scale.set(1, 1, 1);
+            ch.updateMatrix();
           });
-          const rot = new THREE.Matrix4().makeRotationY(-Math.PI / 2);
-          shuttle.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(rot); });
-          shuttle.updateMatrixWorld(true);
-          const sb = new THREE.Box3().setFromObject(shuttle);
-          shuttle.position.z = -sb.min.z;
-          const bb = new THREE.Box3().setFromObject(station);
-          station.position.z = -bb.min.z;
-          const stAfter = new THREE.Box3().setFromObject(station);
-          const stopBefore = new THREE.Box3().setFromObject(stop);
-          stop.position.z += stAfter.min.z - stopBefore.min.z;
-          const stB = new THREE.Box3().setFromObject(station);
-          const shB = new THREE.Box3().setFromObject(shuttle);
-          shuttle.position.y = stB.min.y - 8 - shB.max.y;
-          const wrap = new THREE.Group();
-          wrap.add(station);
-          wrap.add(stop);
-          wrap.add(shuttle);
-          wrap.position.x = (i - 1) * 48;
-          group.add(wrap);
+          const spin = new THREE.Matrix4().makeRotationY(-Math.PI / 2);
+          shuttle.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          shuttle.position.set(0, 0, 0);
+          return shuttle;
         });
-        return group;
+        return layoutPrintRow(pieces, 8);
       }
 
       function auditSlideFit(sm) {
@@ -5441,20 +5481,23 @@
         const p = getParams();
         if (p.swMode !== 'slide' || slideGroup.children.length === 0) { showStatusBanner('Set Switch Exposure to Slide switch before exporting the shuttle.'); return; }
         const n = getActiveModuleItems(p).filter(it => it.kind === 'switch').length;
-        const pack = new THREE.Group();
+        const shuttles = new THREE.Group();
         slideGroup.children.forEach((child, i) => {
           const c = child.clone(true);
           c.userData.slidePart = 'shuttle';
           c.position.set(i * 30, 0, 0);
-          pack.add(c);
+          shuttles.add(c);
         });
+        const stops = new THREE.Group();
         slideStopGroup.children.forEach((child, i) => {
           const c = child.clone(true);
           c.userData.slidePart = 'stop';
-          c.position.set(i * 30, 34, 0);
-          pack.add(c);
+          c.position.set(i * 22, 0, 0);
+          stops.add(c);
         });
-        downloadPrintReadySTL(pack, `Arteor_${APP_VERSION}_Slide_Shuttle_and_Stop_x${n}.stl`, -Math.PI / 2);
+        downloadPrintReadySTL(shuttles, `Arteor_${APP_VERSION}_Slide_Shuttles_x${n}.stl`, -Math.PI / 2);
+        downloadPrintReadySTL(stops, `Arteor_${APP_VERSION}_Slide_Stops_x${n}.stl`);
+        showStatusBanner('Saved two files: shuttles only, then stops only.');
       });
       document.getElementById('btn-exp-slide-cover').addEventListener('click', () => {
         const p = getParams();
@@ -5465,8 +5508,16 @@
       });
       document.getElementById('btn-exp-slide-coupon').addEventListener('click', () => {
         const params = getParams();
-        downloadPrintReadySTL(buildSlideCoupon(params, 'fit'), `Arteor_${APP_VERSION}_Slide_Coupon_Fit_F40_F55_F70.stl`);
-        downloadPrintReadySTL(buildSlideCoupon(params, 'ramp'), `Arteor_${APP_VERSION}_Slide_Coupon_Ramp_R55_R60_R65.stl`);
+        const files = [
+          ['fit', 'track', `Arteor_${APP_VERSION}_Slide_Fit_Tracks_F40_F55_F70.stl`],
+          ['ramp', 'track', `Arteor_${APP_VERSION}_Slide_Ramp_Tracks_R55_R60_R65.stl`],
+          ['fit', 'shuttle', `Arteor_${APP_VERSION}_Slide_Fit_Shuttles_F40_F55_F70.stl`],
+          ['ramp', 'shuttle', `Arteor_${APP_VERSION}_Slide_Ramp_Shuttles_R55_R60_R65.stl`],
+          ['fit', 'stop', `Arteor_${APP_VERSION}_Slide_Fit_Stops_F40_F55_F70.stl`],
+          ['ramp', 'stop', `Arteor_${APP_VERSION}_Slide_Ramp_Stops_R55_R60_R65.stl`]
+        ];
+        files.forEach(entry => downloadPrintReadySTL(buildSlideCoupon(params, entry[0], entry[1]), entry[2]));
+        showStatusBanner('Saved 6 separate files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops.');
       });
 
       let rebuildQueued = false;
