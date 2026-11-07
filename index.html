@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ArteorCAD</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23182030'/%3E%3C/svg%3E" />
   <script>
     // Short product token. Title, STL names, JSON export, and the save-setup default use it as-is.
     // The header badge is this token plus ".0 Studio" (v25 → "v25.0 Studio").
@@ -16,6 +17,10 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script type="module">
+    import Module from 'https://cdn.jsdelivr.net/npm/manifold-3d@2.5.1/manifold.js';
+    window.ManifoldModule = Module;
+  </script>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #182030; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -93,6 +98,7 @@
       <div class="grid grid-cols-6 gap-1">
         <button id="pre-khatam" class="py-1 text-[10px] font-semibold rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-100 border border-amber-400/50 truncate" title="Limestone plate, turquoise khatam star field, gold centre gems">✦ Khatam</button>
         <button id="pre-mashrabiya" class="py-1 text-[10px] font-semibold rounded bg-teal-700/30 hover:bg-teal-700/45 text-teal-100 border border-teal-500/40 truncate" title="Pointed mihrab arch with a wood mashrabiya lattice">🕌 Mashrabiya</button>
+        <button id="pre-slide" class="py-1 text-[10px] font-semibold rounded bg-orange-500/25 hover:bg-orange-500/40 text-orange-100 border border-orange-400/50 truncate" title="Linear shuttle: opposing ramps drive the Arteor rocker">↕ Slide</button>
       </div>
     </div>
 
@@ -333,6 +339,7 @@
               <select id="inp-swmode" class="w-full bg-slate-950 border border-amber-500/50 rounded px-1.5 py-1 text-amber-100 font-semibold text-[11px]">
                 <option value="covered" selected>🕹️ Covered + Knobs</option>
                 <option value="uncovered">🔲 Uncovered (+0.43mm)</option>
+                <option value="slide">↕ Slide switch (ramps)</option>
               </select>
             </div>
             <div>
@@ -390,6 +397,72 @@
             </div>
           </div>
           <input id="inp-slotaxis" type="hidden" value="vert" />
+        </div>
+      </div>
+
+      <!-- SLIDE SWITCH -->
+      <div class="cat-card bg-slate-800/40 border border-orange-500/40 rounded-lg transition" data-cat="slide">
+        <div class="p-2.5 bg-slate-900/60 flex items-center justify-between cursor-pointer rounded-t-lg" onclick="toggleCat('slide', event)">
+          <div class="flex items-center gap-2">
+            <span class="cat-chevron text-[10px] text-orange-400 transition-transform">▼</span>
+            <span class="font-semibold text-orange-300 uppercase tracking-wider text-[11px]">3b. Slide Switch — Shuttle &amp; Ramps</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badge-slide" class="text-[10px] font-mono text-orange-300">Off</span>
+            <button class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-orange-300 border border-slate-700 transition" onclick="resetCat('slide', event)" title="Reset slide dimensions">↺ Reset</button>
+            <button class="lock-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700" onclick="toggleLock('slide', event)">🔓</button>
+          </div>
+        </div>
+        <div class="cat-body p-3 space-y-2.5 border-t border-slate-800">
+          <div id="slide-mode-note" class="text-[10px] font-mono text-orange-200/90 bg-orange-950/30 px-2 py-1.5 rounded border border-orange-500/20 leading-snug">
+            Set Switch Exposure to Slide switch. The shuttle rides a 45° dovetail. Up drives the lower ramp into the rocker's bottom half; down drives the upper ramp into the top half.
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <div class="flex justify-between mb-1"><span>Ramp H</span><span id="val-slide-ramph" class="font-mono text-orange-300">6.0</span></div>
+              <input id="inp-slide-ramph" type="range" min="4.5" max="7.5" step="0.1" value="6.0" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Travel</span><span id="val-slide-travel" class="font-mono text-orange-300">11.0</span></div>
+              <input id="inp-slide-travel" type="range" min="8" max="14" step="0.5" value="11" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>X/side</span><span id="val-slide-xy" class="font-mono text-orange-300">0.50</span></div>
+              <input id="inp-slide-xy" type="range" min="0.25" max="0.80" step="0.01" value="0.50" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Z gap</span><span id="val-slide-z" class="font-mono text-orange-300">0.30</span></div>
+              <input id="inp-slide-z" type="range" min="0.15" max="0.50" step="0.01" value="0.30" class="w-full" />
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <div class="flex justify-between mb-1"><span>Contact</span><span id="val-slide-contact" class="font-mono text-orange-300">15.0</span></div>
+              <input id="inp-slide-contact" type="range" min="12" max="18" step="0.5" value="15" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span>Grip L</span><span id="val-slide-handle" class="font-mono text-orange-300">12.5</span></div>
+              <input id="inp-slide-handle" type="range" min="10" max="18" step="0.5" value="12.5" class="w-full" />
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="text-[10px] text-orange-100 flex items-center gap-1.5 cursor-pointer">
+                <input id="inp-slide-detent" type="checkbox" checked class="accent-orange-400 rounded" /> Detent nub
+              </label>
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="text-[10px] text-orange-100 flex items-center gap-1.5 cursor-pointer" data-tip="Pocket for a short 4 mm PTFE tube on each ramp nose. Needs ramp height of at least 5.5 mm.">
+                <input id="inp-slide-ptfe" type="checkbox" class="accent-orange-400 rounded" /> PTFE slot
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-[10px] font-mono bg-slate-950/60 border border-slate-800 rounded px-2 py-1.5">
+            <span>Ramp angle <span id="slide-angle-readout" class="text-emerald-300 font-bold">29°</span></span>
+            <span id="slide-slot-readout" class="text-slate-400">slot —</span>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span>Preview position (up ← → down)</span><span id="val-slide-pos" class="font-mono text-orange-300">1.00</span></div>
+            <input id="inp-slide-pos" type="range" min="-1" max="1" step="0.05" value="1" class="w-full" />
+          </div>
         </div>
       </div>
 
@@ -637,6 +710,16 @@
         <button id="btn-exp-tip" class="py-1 px-2 bg-amber-300 hover:bg-amber-200 text-slate-950 font-semibold rounded text-[10px] transition truncate">⬇ STL: Tip (-Thread)</button>
         <button id="btn-exp-cover" class="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[10px] border border-slate-700 transition truncate">⬇ Full Assembly STL</button>
       </div>
+      <div class="grid grid-cols-4 gap-1.5">
+        <button id="btn-exp-slide-base" class="py-1.5 px-1 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded text-[10px] transition truncate" title="Base with the dovetail track, plus the current wall mount">⬇ Slide Base</button>
+        <button id="btn-exp-slide-shuttle" class="py-1.5 px-1 bg-orange-500 hover:bg-orange-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Two files: shuttles only, then stops only">⬇ Shuttles / Stops</button>
+        <button id="btn-exp-slide-cover" class="py-1.5 px-1 bg-orange-700 hover:bg-orange-600 text-white font-semibold rounded text-[10px] transition truncate" title="Snap-on fascia with one vertical grip slot per module">⬇ Slide Cover</button>
+        <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops. Fixed rails. Not the removable-rail fit test.">⬇ Coupon parts</button>
+      </div>
+      <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[10px] border border-slate-600 transition" title="Older test. Needs an M3 screw and nut. Not the current tool-free test.">Older: removable rail with a screw</button>
+      <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Saves only the clip stop for the track Carl already printed. Does not rewrite the track or shuttle.">⬇ Clip stop only — for the printed F55 track</button>
+      <button id="btn-exp-plate" class="w-full py-1.5 px-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded text-[10px] transition" title="One switch on the 83.5 mm screw ears. Cover keeps the shuttle in. Not the coupon and not an M3 fastener.">⬇ Plate test F55 — one switch, two wall screws</button>
+      <button id="btn-exp-tallgrip" class="w-full py-1.5 px-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold rounded text-[10px] transition" title="Replacement shuttle only. The grip stands about 5 mm above the cover. The plate and cover stay as they are.">⬇ Taller grip only — same plate and cover</button>
     </div>
   </aside>
 
@@ -657,6 +740,7 @@
         </div>
         <button id="btn-edges" class="px-2.5 py-1 rounded bg-sky-500/25 text-sky-300 border border-sky-500/40 transition">CAD Edges: ON</button>
         <button id="btn-rock-sim" class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition">Rock Switch</button>
+        <button id="btn-slide-section" class="px-2.5 py-1 rounded bg-slate-800 text-orange-200 border border-orange-500/30 hover:bg-orange-500/20 transition">Side Section</button>
         <button id="btn-wall" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wall Hardware Ref</button>
         <button id="btn-explode" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Explode All Layers</button>
         <button id="btn-wire" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wireframe</button>
@@ -681,7 +765,7 @@
   </main>
 
   <script>
-    const lockedCats = { fixation: false, chassis: false, modules: false, plate: false, overlay: false, knob: false, colors: false };
+    const lockedCats = { fixation: false, chassis: false, modules: false, slide: false, plate: false, overlay: false, knob: false, colors: false };
     let allCollapsed = false;
 
     const DEFAULT_CAT_VALUES = {
@@ -715,6 +799,15 @@
         'inp-wall': 2.5,
         'inp-face': 2.6,
         'inp-deckdrop': 5.0
+      },
+      slide: {
+        'inp-slide-ramph': 6.0,
+        'inp-slide-travel': 11,
+        'inp-slide-xy': 0.50,
+        'inp-slide-z': 0.30,
+        'inp-slide-contact': 15,
+        'inp-slide-handle': 12.5,
+        'inp-slide-pos': 1
       }
     };
 
@@ -805,6 +898,7 @@
       renderer.setSize(initW, initH);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.toneMapping = THREE.NoToneMapping;
+      renderer.localClippingEnabled = true;
       container.innerHTML = '';
       container.appendChild(renderer.domElement);
 
@@ -847,9 +941,12 @@
       const overlayGroup = new THREE.Group();
       const toggleStemGroup = new THREE.Group();
       const toggleTipGroup = new THREE.Group();
+      const slideGroup = new THREE.Group();
+      const slideStopGroup = new THREE.Group();
+      const slideGhostGroup = new THREE.Group();
       const edgesGroup = new THREE.Group();
 
-      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, edgesGroup);
+      scene.add(legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup, edgesGroup);
 
       let isExploded = false;
       let isWireframe = false;
@@ -859,8 +956,10 @@
       let isKnobCutaway = false;
       let showCadEdges = true;
       let showWall = false;
+      let showSlideSection = false;
       let rockPolarity = 1;
       let hudTabMode = 'side';
+      let savedSlideCam = null;
 
       let userPlateGeometry = null;
       let userKnobGeometry = null;
@@ -1822,12 +1921,13 @@
       function getActiveModuleItems(p) {
         const swCount = Math.max(0, Math.min(4, p.swCount));
         const isUncoveredSw = (p.swMode === 'uncovered');
+        const isSlideSw = (p.swMode === 'slide');
         const outletType = p.outletType, outletPos = p.outletPos;
-        const isCircleSlot = (!isUncoveredSw && p.slotShape === 'circle');
-        const effSlotW = isUncoveredSw ? (p.pitch + 0.2) : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotW);
-        const effSlotH = isUncoveredSw ? p.modH : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotH);
+        const isCircleSlot = (!isUncoveredSw && !isSlideSw && p.slotShape === 'circle');
+        const effSlotW = isUncoveredSw ? (p.pitch + 0.2) : (isSlideSw ? 9.25 : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotW));
+        const effSlotH = isUncoveredSw ? p.modH : (isSlideSw ? ((p.slideHandle || 12.5) + (p.slideTravel || 11) + 0.5) : (isCircleSlot ? Math.max(p.slotW, 9.5) : p.slotH));
         const swKind = isUncoveredSw ? 'switch_open' : 'switch';
-        const swSlotShape = isUncoveredSw ? 'rect' : p.slotShape;
+        const swSlotShape = (isUncoveredSw || isSlideSw) ? 'rect' : p.slotShape;
         const items = [], pitch = p.pitch;
 
         const makeSwItem = (cx, idx) => ({ kind: swKind, slotShape: swSlotShape, cx, cy: 0, w: effSlotW, h: effSlotH, cutW: effSlotW, cutH: effSlotH, isRoundCut: isCircleSlot, index: idx });
@@ -1997,7 +2097,15 @@
           colOv: str('inp-colov', '#f8fafc'),
           colD2: str('inp-cold2', '#e8c39e'),
           colT: str('inp-colt', '#5da9c4'),
-          colTip: str('inp-coltip', '#eab308')
+          colTip: str('inp-coltip', '#eab308'),
+          slideRampH: num('inp-slide-ramph', 6.0),
+          slideTravel: num('inp-slide-travel', 11),
+          slideXY: num('inp-slide-xy', 0.50),
+          slideZ: num('inp-slide-z', 0.30),
+          slideContact: num('inp-slide-contact', 15),
+          slideHandle: num('inp-slide-handle', 12.5),
+          slideDetent: bool('inp-slide-detent', true),
+          slidePtfe: bool('inp-slide-ptfe', false)
         };
       }
 
@@ -2090,7 +2198,7 @@
           collarGeo.translate(it.cx, it.cy, zSupportFront + 1.4);
           legrandRefGroup.add(new THREE.Mesh(collarGeo, bossMat));
 
-          if (it.kind === 'switch' || it.kind === 'switch_open') {
+          if ((it.kind === 'switch' || it.kind === 'switch_open') && p.swMode !== 'slide') {
             const rockerW = modW - 1.0;
             const rockerH = 43.8;
             const rShape = createRoundedRectShape(rockerW, rockerH, 1.2);
@@ -3307,7 +3415,7 @@
         const lineMat = new THREE.LineBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.36 });
         const targetGroups = isKnobOnly
           ? [toggleStemGroup, toggleTipGroup]
-          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup];
+          : [chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup];
 
         targetGroups.forEach(grp => {
           if (!grp.visible) return;
@@ -3323,6 +3431,873 @@
         });
       }
 
+      // --- Slide switch -------------------------------------------------------
+      // Linear shuttle in a 45° dovetail. Sliding up cams the lower ramp onto the
+      // bottom half of the rocker; sliding down cams the upper ramp onto the top
+      // half. A short dwell finishes the click, then a relief step parks clear of
+      // the rocker so the plastic is not held loaded. The rocker's own spring
+      // keeps the shuttle at that end of travel.
+      const SLIDE_GLYPH = {
+        '0': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+        '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+        '2': ['01110', '10001', '00001', '00110', '01000', '10000', '11111'],
+        '3': ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+        '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+        '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+        '6': ['01110', '10000', '11110', '10001', '10001', '10001', '01110'],
+        '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+        'F': ['11110', '10000', '11100', '10000', '10000', '10000', '10000'],
+        'I': ['11111', '00100', '00100', '00100', '00100', '00100', '11111'],
+        'N': ['10001', '11001', '10101', '10011', '10001', '10001', '10001'],
+        '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+        '9': ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
+        'C': ['01111', '10000', '10000', '10000', '10000', '10000', '01111'],
+        'R': ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+        '.': ['00000', '00000', '00000', '00000', '00000', '00110', '00110'],
+        ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
+        '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
+        'A': ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+        'B': ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+        'E': ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+        'L': ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
+        'O': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+        'P': ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
+        'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
+        'T': ['11111', '00100', '00100', '00100', '00100', '00100', '00100']
+      };
+
+      function slidePreviewPos() {
+        const el = document.getElementById('inp-slide-pos');
+        const v = el ? parseFloat(el.value) : 1;
+        return isNaN(v) ? 1 : Math.max(-1, Math.min(1, v));
+      }
+
+      function computeSlideMetrics(p) {
+        const travel = Math.max(8, Math.min(14, p.slideTravel || 11));
+        const rampH = Math.max(4.5, Math.min(7.5, p.slideRampH || 6));
+        const contact = Math.max(12, Math.min(18, p.slideContact || 15));
+        const xyClear = Math.max(0.20, Math.min(0.80, p.slideXY != null ? p.slideXY : 0.50));
+        const zClear = Math.max(0.10, Math.min(0.55, p.slideZ != null ? p.slideZ : 0.30));
+        const handleL = Math.max(10, Math.min(18, p.slideHandle || 12.5));
+        const handleW = 8.2;
+        const activeLen = Math.max(5.5, travel * 0.96);
+        const angleDeg = Math.atan(rampH / activeLen) * 180 / Math.PI;
+        const noseR = 1.7;
+        const dwell = 1.6;
+        const reliefLen = 1.4;
+        const overtravel = 0.40;
+        const parkClear = 0.30;
+        const reliefDrop = overtravel + parkClear;
+        const halfRock = 21.6;
+        const theta0 = Math.atan(2.65 / halfRock);
+        const zFaceMid = p.rimD + (5.2 + 10.5) / 2;
+        const zContactPressed = zFaceMid - Math.sin(theta0) * contact;
+        const zContactRaised = zFaceMid + Math.sin(theta0) * contact;
+        const zDwell = zContactPressed - overtravel;
+        const zNose = zDwell + rampH;
+        const zBodyBack = zNose + 0.30;
+        const bodyThick = 2.55;
+        const zBodyFront = zBodyBack + bodyThick;
+        const tNarrow = 0.90;
+        const tWide = tNarrow + bodyThick;
+        const railWall = 1.60;
+        const notchExtra = 0.65;
+        const flare = 0.90;
+        const railW = tWide + xyClear + flare + railWall;
+        const gNarrow = tNarrow + xyClear;
+        const gWide = tWide + xyClear;
+        const moduleGap = 0.30;
+        const winW = Math.max(8.2, (p.pitch || 22.5) - moduleGap - 2 * railW);
+        const winHalf = winW / 2;
+        const zFloor = zBodyBack - zClear;
+        const zLip = zBodyFront + zClear;
+        const zRailTop = zLip + 0.70;
+        const yTail = contact + travel / 2 + reliefLen / 2 + 0.35;
+        const shuttleHalf = yTail + 0.55;
+        const stopLead = 0.8;
+        const stopLen = 3.4;
+        const endMargin = stopLead + stopLen + 2.4;
+        const endBar = 2.6;
+        const tieLen = 1.6;
+        const flareLen = 5.0;
+        const rockerBoxH = Math.max(47.4, (p.modH || 45.2) + 2);
+        const maxPocket = Math.max(rockerBoxH, (p.inH || 79.5) - 6.8);
+        let trackInnerHalf = shuttleHalf + travel / 2 + endMargin;
+        let trackOuter = trackInnerHalf * 2 + endBar + tieLen;
+        let fitWarning = false;
+        if (trackOuter > maxPocket + 0.2) {
+          fitWarning = true;
+          trackOuter = maxPocket;
+          trackInnerHalf = (trackOuter - endBar - tieLen) / 2;
+        }
+        const pocketH = Math.min(maxPocket, Math.max(rockerBoxH, trackOuter + 0.8));
+        const cavityZ = Math.max(12.5, Math.round((zRailTop + 0.30 - p.rimD) * 10) / 10);
+        const slotW = handleW + 1.05;
+        const slotH = handleL + travel + 0.5;
+        const notchLen = 2.6;
+        const normalGap = xyClear * Math.cos(Math.PI / 4);
+        return {
+          travel, rampH, contact, xyClear, zClear, handleL, handleW, activeLen, angleDeg,
+          noseR, dwell, reliefLen, overtravel, parkClear, reliefDrop, halfRock, theta0,
+          zFaceMid, zContactPressed, zContactRaised, zDwell, zNose, zBodyBack, bodyThick,
+          zBodyFront, tNarrow, tWide, railWall, gNarrow, gWide, railW, winW, winHalf,
+          zFloor, zLip, zLipBot: zLip, zRailTop, shuttleHalf, endMargin, endBar, tieLen,
+          stopLead, stopLen, flare, flareLen, trackInnerHalf, trackOuter, pocketH, cavityZ,
+          slotW, slotH, notchLen, notchExtra, fitWarning, normalGap,
+          outerW: winW + 2 * railW, detent: !!p.slideDetent, ptfe: !!p.slidePtfe && rampH >= 5.4
+        };
+      }
+
+      function slideShape(pairs, sx, sy) {
+        const sp = pairs.map(p => [sx(p), sy(p)]);
+        let a = 0;
+        for (let i = 0; i < sp.length; i++) {
+          const p = sp[i], q = sp[(i + 1) % sp.length];
+          a += p[0] * q[1] - q[0] * p[1];
+        }
+        if (Math.abs(a) < 1e-4) return null;
+        if (a < 0) sp.reverse();
+        const shape = new THREE.Shape();
+        sp.forEach((p, i) => { if (i) shape.lineTo(p[0], p[1]); else shape.moveTo(p[0], p[1]); });
+        return shape;
+      }
+
+      function meshFromShape(shape, depth) {
+        if (!shape || depth < 0.08) return null;
+        try {
+          const geo = new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false, curveSegments: 2 });
+          geo.computeVertexNormals();
+          return geo;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function addProfileXZ(group, pts, y0, y1, mat) {
+        if (y1 < y0) { const t = y0; y0 = y1; y1 = t; }
+        const shape = slideShape(pts, p => p[0], p => -p[1]);
+        const geo = meshFromShape(shape, y1 - y0);
+        if (!geo) return;
+        geo.rotateX(-Math.PI / 2);
+        geo.translate(0, y0, 0);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function addProfileYZ(group, pts, x0, x1, mat) {
+        if (x1 < x0) { const t = x0; x0 = x1; x1 = t; }
+        const shape = slideShape(pts, p => p[1], p => p[0]);
+        const geo = meshFromShape(shape, x1 - x0);
+        if (!geo) return;
+        geo.rotateY(-Math.PI / 2);
+        geo.translate(x1, 0, 0);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function addBox(group, w, h, d, cx, cy, cz, mat) {
+        if (w < 0.08 || h < 0.08 || d < 0.08) return;
+        const geo = new THREE.BoxGeometry(w, h, d);
+        geo.translate(cx, cy, cz);
+        group.add(new THREE.Mesh(geo, mat));
+      }
+
+      function slideEmboss(group, text, x, yTop, zSurface, mat, cw) {
+        cw = cw || 0.62;
+        const ch = cw;
+        const embed = 0.35;
+        const proud = 0.40;
+        const depth = embed + proud;
+        const zCenter = zSurface - embed + depth / 2;
+        let cursor = x;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.84, ch * 0.84, depth,
+                cursor + (c + 0.5) * cw,
+                yTop - (r + 0.5) * ch,
+                zCenter,
+                mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+        return { width: Math.max(0, cursor - x - gap), height: 7 * ch };
+      }
+
+      function slideEmbossX(group, text, xSurface, yLeft, zTop, mat, cw) {
+        cw = cw || 0.48;
+        const embed = 0.30;
+        const proud = 0.45;
+        const depth = embed + proud;
+        const xCenter = xSurface + (proud - embed) / 2;
+        let cursor = yLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, depth, cw * 0.84, cw * 0.84,
+                xCenter,
+                cursor + (c + 0.5) * cw,
+                zTop - (r + 0.5) * cw,
+                mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
+      function slideEmbossPosY(group, text, ySurface, xLeft, zTop, mat, cw) {
+        cw = cw || 0.42;
+        const embed = 0.28;
+        const proud = 0.40;
+        const depth = embed + proud;
+        const yCenter = ySurface + (proud - embed) / 2;
+        let cursor = xLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.82, depth, cw * 0.82,
+                cursor + (c + 0.5) * cw, yCenter, zTop - (r + 0.5) * cw, mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
+      function slideEmbossNegY(group, text, ySurface, xLeft, zTop, mat, cw) {
+        cw = cw || 0.48;
+        const embed = 0.30;
+        const proud = 0.45;
+        const depth = embed + proud;
+        const yCenter = ySurface - (proud - embed) / 2;
+        let cursor = xLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.84, depth, cw * 0.84,
+                cursor + (c + 0.5) * cw,
+                yCenter,
+                zTop - (r + 0.5) * cw,
+                mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
+      function addVerticalCutter(group, radius, z0, z1, x, y) {
+        const h = Math.max(0.2, z1 - z0);
+        const geo = new THREE.CylinderGeometry(radius, radius, h, 24);
+        geo.rotateX(Math.PI / 2);
+        geo.translate(x, y, z0 + h / 2);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial());
+        mesh.userData.cutter = true;
+        group.add(mesh);
+      }
+
+      function addBoxCutter(group, w, h, d, cx, cy, cz) {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        geo.translate(cx, cy, cz);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial());
+        mesh.userData.cutter = true;
+        group.add(mesh);
+      }
+
+      function slideTextSize(text, cw) {
+        cw = cw || 0.62;
+        const cols = 5;
+        const gap = cw * 0.42;
+        const n = Math.max(1, text.length);
+        return { width: n * cols * cw + (n - 1) * gap, height: 7 * cw };
+      }
+
+      function rightRailPts(sm, extra, mode) {
+        const side = sm.xyClear + (extra || 0);
+        const x0 = sm.winHalf;
+        const xO = sm.winHalf + sm.railW;
+        const zBot = sm.zFloor - 0.9;
+        const xMouth = x0 + sm.tNarrow + side;
+        const xRoot = x0 + sm.tWide + side;
+        if (mode === 'sole') {
+          return [
+            [x0, zBot],
+            [xO, zBot],
+            [xO, sm.zFloor],
+            [x0, sm.zFloor]
+          ];
+        }
+        if (mode === 'keeper') {
+          const xKeep = Math.min(xO - 0.8, xRoot + 0.35);
+          return [
+            [x0, zBot],
+            [xO, zBot],
+            [xO, sm.zRailTop],
+            [xKeep, sm.zRailTop],
+            [xKeep, sm.zFloor],
+            [x0, sm.zFloor]
+          ];
+        }
+        return [
+          [x0, zBot],
+          [xO, zBot],
+          [xO, sm.zRailTop],
+          [xMouth, sm.zRailTop],
+          [xMouth, sm.zLip],
+          [xMouth, sm.zBodyFront],
+          [xRoot, sm.zBodyBack],
+          [xRoot, sm.zFloor],
+          [x0, sm.zFloor]
+        ];
+      }
+
+      function mirrorXPts(pts) {
+        return pts.map(p => [-p[0], p[1]]);
+      }
+
+      function lowerRampPts(sm) {
+        const yRel = -(sm.contact + sm.travel / 2);
+        const yTail = yRel - sm.reliefLen * 0.5 - 0.35;
+        const yRel0 = yRel - sm.reliefLen * 0.5;
+        const yRel1 = yRel + sm.reliefLen * 0.5;
+        const yDwell1 = yRel1 + sm.dwell;
+        const yNose = yDwell1 + sm.activeLen;
+        const zTop = sm.zBodyBack + 0.18;
+        const zDw = sm.zDwell;
+        const zRf = sm.zDwell + sm.reliefDrop;
+        const zNs = sm.zNose;
+        const r = sm.noseR;
+        const beta = Math.atan(sm.rampH / sm.activeLen);
+        const ySharp = yNose;
+        const inset = r * Math.tan(Math.max(0.15, beta) / 2);
+        const yFil = ySharp - inset;
+        const pts = [
+          [yTail, zTop],
+          [yTail, zRf],
+          [yRel0, zRf],
+          [yRel1, zRf],
+          [yRel1 + 0.38, zDw],
+          [yDwell1, zDw]
+        ];
+        if (sm.ptfe) {
+          const rTube = 2.10;
+          const proud = 0.50;
+          const dist = Math.hypot(yNose - yDwell1, zNs - zDw) || 1;
+          const dirY = (yNose - yDwell1) / dist;
+          const dirZ = (zNs - zDw) / dist;
+          const nY = dirZ;
+          const nZ = -dirY;
+          const t = 0.62;
+          const py = yDwell1 + (yNose - yDwell1) * t;
+          const pz = zDw + (zNs - zDw) * t;
+          const cy = py + nY * (rTube - proud);
+          const cz = pz + nZ * (rTube - proud);
+          pts.push([py - dirY * rTube * 0.92, pz - dirZ * rTube * 0.92]);
+          const a0 = Math.atan2(pz - dirZ * rTube * 0.92 - cz, py - dirY * rTube * 0.92 - cy);
+          const a1 = Math.atan2(pz + dirZ * rTube * 0.55 - cz, py + dirY * rTube * 0.15 - cy);
+          let sweep = a1 - a0;
+          if (sweep > 0) sweep -= Math.PI * 2;
+          if (sweep < -Math.PI * 1.7) sweep += Math.PI * 2;
+          for (let i = 1; i <= 8; i++) {
+            const a = a0 + sweep * (i / 8);
+            pts.push([cy + rTube * Math.cos(a), cz + rTube * Math.sin(a)]);
+          }
+          pts.push([yFil, zNs]);
+        } else {
+          pts.push([yFil, zNs]);
+        }
+        const cx = yFil;
+        const cz = zNs - r;
+        const aStart = Math.PI / 2;
+        const aEnd = beta;
+        for (let i = 0; i <= 6; i++) {
+          const a = aStart + (aEnd - aStart) * (i / 6);
+          pts.push([cx + r * Math.cos(a), cz + r * Math.sin(a)]);
+        }
+        const yLead = cx + r * Math.cos(aEnd);
+        pts.push([yLead + 0.15, zTop]);
+        return pts;
+      }
+
+      function upperRampPts(sm) {
+        return lowerRampPts(sm).map(p => [-p[0], p[1]]).reverse();
+      }
+
+      function shuttleCrossPts(sm) {
+        const xR = sm.winHalf;
+        return [
+          [-xR - sm.tNarrow, sm.zBodyFront],
+          [-xR - sm.tWide, sm.zBodyBack],
+          [xR + sm.tWide, sm.zBodyBack],
+          [xR + sm.tNarrow, sm.zBodyFront]
+        ];
+      }
+
+      function addMeasuredRocker(group, p, sm, cx, state, mat, x0, x1) {
+        const half = sm.halfRock;
+        const theta = sm.theta0 * state;
+        const c = Math.cos(theta), s = Math.sin(theta);
+        const zMid = sm.zFaceMid;
+        const t = 1.7;
+        const corners = [[-half, t / 2], [half, t / 2], [half, -t / 2], [-half, -t / 2]];
+        const pts = corners.map(([y, zl]) => [y * c - zl * s, zMid + y * s + zl * c]);
+        addProfileYZ(group, pts, cx + x0, cx + x1, mat);
+      }
+
+      function trackSpans(sm) {
+        const y0 = -sm.trackInnerHalf;
+        const y1 = sm.trackInnerHalf;
+        const slot0 = y0 + sm.stopLead;
+        const slot1 = slot0 + sm.stopLen;
+        const flare1 = Math.min(y1 - 1, slot1 + sm.flareLen);
+        const spans = [
+          { y0: y0, y1: slot0, mode: 'keeper', extra: 0 },
+          { y0: slot0, y1: slot1, mode: 'sole', extra: 0 },
+          { y0: slot1, y1: flare1, mode: 'full', extra: sm.flare }
+        ];
+        const notches = sm.detent
+          ? [-sm.travel / 2, sm.travel / 2]
+            .map(yc => [yc - sm.notchLen / 2, yc + sm.notchLen / 2])
+            .filter(n => n[0] > flare1 + 0.4 && n[1] < y1 - 0.4)
+            .sort((a, b) => a[0] - b[0])
+          : [];
+        let cursor = flare1;
+        notches.forEach(n => {
+          if (n[0] > cursor + 0.15) spans.push({ y0: cursor, y1: n[0], mode: 'full', extra: 0 });
+          spans.push({ y0: n[0], y1: n[1], mode: 'full', extra: sm.notchExtra });
+          cursor = n[1];
+        });
+        if (y1 > cursor + 0.15) spans.push({ y0: cursor, y1: y1, mode: 'full', extra: 0 });
+        return spans;
+      }
+
+      function buildOneTrack(group, sm, cx, mat) {
+        const spans = trackSpans(sm);
+        spans.forEach((sp, i) => {
+          const y0 = sp.y0 - (i > 0 ? 0.22 : 0);
+          const y1 = sp.y1 + (i < spans.length - 1 ? 0.22 : 0);
+          const ptsR = rightRailPts(sm, sp.extra, sp.mode).map(pt => [pt[0] + cx, pt[1]]);
+          const ptsL = mirrorXPts(rightRailPts(sm, sp.extra, sp.mode)).map(pt => [pt[0] + cx, pt[1]]);
+          addProfileXZ(group, ptsR, y0, y1, mat);
+          addProfileXZ(group, ptsL, y0, y1, mat);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        const barLen = sm.endBar + 0.45;
+        addBox(group, sm.outerW, barLen, railH, cx, sm.trackInnerHalf - 0.4 + barLen / 2, (sm.zRailTop + zBot) / 2, mat);
+        const tieY0 = -sm.trackInnerHalf - sm.tieLen;
+        const tieY1 = -sm.trackInnerHalf + sm.stopLead + sm.stopLen;
+        addBox(group, sm.outerW, tieY1 - tieY0, 0.9, cx, (tieY0 + tieY1) / 2, zBot + 0.45, mat);
+      }
+
+      function buildOneStop(group, sm, cx, mat, label) {
+        const slot0 = -sm.trackInnerHalf + sm.stopLead;
+        const slot1 = slot0 + sm.stopLen;
+        const yC = (slot0 + slot1) / 2;
+        const footY = Math.max(1.2, sm.stopLen - 0.40);
+        const z0 = sm.zFloor + 0.15;
+        const z1 = sm.zRailTop - 0.20;
+        const xIn = sm.winHalf + 0.40;
+        const xOut = sm.winHalf + sm.railW - 0.40;
+        const footW = Math.max(0.8, xOut - xIn);
+        addBox(group, footW, footY, z1 - z0, cx + (xIn + xOut) / 2, yC, (z0 + z1) / 2, mat);
+        addBox(group, footW, footY, z1 - z0, cx - (xIn + xOut) / 2, yC, (z0 + z1) / 2, mat);
+        const bridgeW = (xIn + xOut);
+        addBox(group, bridgeW, footY, z1 - sm.zBodyBack, cx, yC, (sm.zBodyBack + z1) / 2, mat);
+        if (label) {
+          const mark = slideTextSize(label, 0.42);
+          slideEmboss(group, label, cx - mark.width / 2, yC + mark.height / 2, z1, mat, 0.42);
+        }
+      }
+
+      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips, label, gripExtra) {
+        const y0 = -sm.shuttleHalf + shift;
+        const y1 = sm.shuttleHalf + shift;
+        const cross = shuttleCrossPts(sm).map(pt => [pt[0] + cx, pt[1]]);
+        addProfileXZ(group, cross, y0, y1, mat);
+        const rampW = Math.min(7.2, sm.winW - 1.3);
+        const ramp = lowerRampPts(sm).map(pt => [pt[0] + shift, pt[1]]);
+        const rampU = upperRampPts(sm).map(pt => [pt[0] + shift, pt[1]]);
+        addProfileYZ(group, ramp, cx - rampW / 2, cx + rampW / 2, mat);
+        addProfileYZ(group, rampU, cx - rampW / 2, cx + rampW / 2, mat);
+        if (sm.detent) {
+          const compressed = Math.abs(pos) < 0.78;
+          const nubReach = sm.xyClear + (compressed ? 0 : 0.40);
+          const nubTip = cx + sm.winHalf + sm.tWide + nubReach;
+          const rootX = cx + sm.winHalf + sm.tWide - 0.55;
+          const beamZ = sm.zBodyBack - 0.05;
+          const nubY = shift;
+          addBox(group, Math.max(0.35, nubTip - rootX - 0.55), 9.5, 0.30,
+            (rootX + nubTip - 0.55) / 2, nubY - 5.2, beamZ, mat);
+          addBox(group, Math.max(0.30, 0.70), 1.50, 0.30,
+            nubTip - 0.35, nubY, beamZ, mat);
+        }
+        const handleTopZ = ((typeof sm.zHandleTop === 'number') ? sm.zHandleTop : (sm.zBodyFront + 6.2)) + (gripExtra || 0);
+        const hCx = cx;
+        const hCy = shift;
+        addBox(group, sm.handleW, sm.handleL, Math.max(0.8, handleTopZ - (sm.zBodyFront - 0.25)),
+          hCx, hCy, (sm.zBodyFront - 0.25 + handleTopZ) / 2, mat);
+        const ridgeZ = handleTopZ + 0.20;
+        addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy - 2.15, ridgeZ, mat);
+        addBox(group, sm.handleW + 0.15, 1.35, 1.15, hCx, hCy + 2.15, ridgeZ, mat);
+        if (pips) {
+          for (let i = 0; i < pips; i++) {
+            addBox(group, 1.15, 1.15, 1.05,
+              cx - 1.6 + i * 1.6,
+              y1 - 0.05,
+              (sm.zBodyBack + sm.zBodyFront) / 2,
+              mat);
+          }
+        }
+        if (label) {
+          const mark = slideTextSize(label, 0.40);
+          slideEmboss(group, label, hCx - mark.width / 2, hCy + mark.height / 2 - 0.4, handleTopZ, mat, 0.40);
+        }
+      }
+
+      function buildSlideMechanism(trackGroup, shuttleGroup, ghostGroup, p, sm, activeItems, matBase, matSlide, zFaceBack) {
+        const faceFront = zFaceBack + p.face;
+        sm.zHandleTop = faceFront + 3.3;
+        const pos = slidePreviewPos();
+        const shift = pos * (sm.travel / 2);
+        const switches = activeItems.filter(it => it.kind === 'switch' || it.kind === 'switch_open');
+        let clipCx = 0;
+        if (switches.length) {
+          clipCx = switches.slice().sort((a, b) => Math.abs(a.cx) - Math.abs(b.cx))[0].cx;
+        }
+        switches.forEach(sw => {
+          const local = new THREE.Group();
+          buildOneTrack(local, sm, 0, matBase);
+          local.position.x = sw.cx;
+          trackGroup.add(local);
+          const sh = new THREE.Group();
+          sh.userData.slidePart = 'shuttle';
+          buildOneShuttle(sh, sm, 0, shift, pos, matSlide, 0);
+          sh.position.x = sw.cx;
+          shuttleGroup.add(sh);
+          const st = new THREE.Group();
+          st.userData.slidePart = 'stop';
+          buildOneStop(st, sm, 0, matSlide);
+          st.position.x = sw.cx;
+          slideStopGroup.add(st);
+        });
+        if (showSlideSection && switches.length) {
+          const ghostUp = new THREE.MeshStandardMaterial({
+            color: 0xfb923c, transparent: true, opacity: 0.55, roughness: 0.4, metalness: 0.0,
+            side: THREE.DoubleSide, depthWrite: false
+          });
+          const ghostDn = ghostUp.clone();
+          ghostDn.color = new THREE.Color(0x38bdf8);
+          ghostDn.opacity = 0.40;
+          addMeasuredRocker(ghostGroup, p, sm, clipCx, 1, ghostUp, -1.15, -0.55);
+          addMeasuredRocker(ghostGroup, p, sm, clipCx, -1, ghostDn, -1.15, -0.55);
+        }
+        switches.forEach(sw => {
+          const state = pos >= 0 ? 1 : -1;
+          const rockMat = new THREE.MeshStandardMaterial({
+            color: 0xf8fafc, roughness: 0.32, metalness: 0.04, side: THREE.DoubleSide, wireframe: isWireframe
+          });
+          addMeasuredRocker(legrandRefGroup, p, sm, sw.cx, state, rockMat, -((Math.min(p.pitch, sm.outerW) - 1.2) / 2), (Math.min(p.pitch, sm.outerW) - 1.2) / 2);
+        });
+        return clipCx;
+      }
+
+      function couponVariants(kind) {
+        return kind === 'ramp'
+          ? [
+            { xy: 0.55, ramp: 5.5, code: 'R55', pips: 1 },
+            { xy: 0.55, ramp: 6.0, code: 'R60', pips: 2 },
+            { xy: 0.55, ramp: 6.5, code: 'R65', pips: 3 }
+          ]
+          : [
+            { xy: 0.40, ramp: 6.0, code: 'F40', pips: 1 },
+            { xy: 0.55, ramp: 6.0, code: 'F55', pips: 2 },
+            { xy: 0.70, ramp: 6.0, code: 'F70', pips: 3 }
+          ];
+      }
+
+      function couponMetrics(p, v) {
+        const vp = Object.assign({}, p, {
+          rimD: 0, slideXY: v.xy, slideRampH: v.ramp, slideZ: 0.30,
+          slideTravel: 11, slideContact: 15, slideHandle: 12.5,
+          slideDetent: false, slidePtfe: false, pitch: 22.5, modH: 45.2, inH: 79.5, face: 2.6
+        });
+        const sm = computeSlideMetrics(vp);
+        sm.zHandleTop = sm.zBodyFront + 3.2;
+        return sm;
+      }
+
+      function addTrackIdTab(track, sm, code, mat) {
+        const tabThick = 1.6;
+        const tabLen = 14;
+        const tabW = Math.min(20, sm.outerW);
+        const tabY0 = sm.trackInnerHalf + sm.endBar * 0.45;
+        const tabCenterZ = sm.zFloor + tabThick / 2;
+        const tabTop = sm.zFloor + tabThick;
+        addBox(track, tabW, tabLen, tabThick, 0, tabY0 + tabLen / 2, tabCenterZ, mat);
+        const id = slideTextSize(code, 0.62);
+        slideEmboss(track, code, -id.width / 2, tabY0 + tabLen - 1.2, tabTop, mat, 0.62);
+        const inn = slideTextSize('IN', 0.55);
+        slideEmboss(track, 'IN', -inn.width / 2, tabY0 + 6.6, tabTop, mat, 0.55);
+        const ay = tabY0 + 2.4;
+        addBox(track, 3.4, 0.7, 0.7, 0, ay, tabTop - 0.05, mat);
+        addBox(track, 1.5, 0.7, 0.7, -0.85, ay - 0.9, tabTop - 0.05, mat);
+        addBox(track, 1.5, 0.7, 0.7, 0.85, ay - 0.9, tabTop - 0.05, mat);
+      }
+
+      function layoutPrintRow(parts, gap) {
+        const row = new THREE.Group();
+        let cursor = 0;
+        parts.forEach(part => {
+          part.updateMatrixWorld(true);
+          const box = new THREE.Box3().setFromObject(part);
+          part.position.x += cursor - box.min.x;
+          part.position.y += -box.min.y;
+          part.position.z += -box.min.z;
+          part.updateMatrixWorld(true);
+          const placed = new THREE.Box3().setFromObject(part);
+          cursor = placed.max.x + gap;
+          row.add(part);
+        });
+        return row;
+      }
+
+      function buildSlideCoupon(p, kind, part) {
+        const mat = createGlossMat('#e2e8f0', false, 0.42, 0.04);
+        const matS = createGlossMat('#38bdf8', false, 0.35, 0.05);
+        const matStop = createGlossMat('#fbbf24', false, 0.4, 0.04);
+        const pieces = couponVariants(kind).map(v => {
+          const sm = couponMetrics(p, v);
+          if (part === 'track') {
+            const track = new THREE.Group();
+            buildOneTrack(track, sm, 0, mat);
+            addTrackIdTab(track, sm, v.code, mat);
+            return track;
+          }
+          if (part === 'stop') {
+            const stop = new THREE.Group();
+            buildOneStop(stop, sm, 0, matStop, v.code);
+            return stop;
+          }
+          const shuttle = new THREE.Group();
+          buildOneShuttle(shuttle, sm, 0, 0, 1, matS, v.pips, v.code);
+          shuttle.updateMatrixWorld(true);
+          shuttle.traverse(ch => {
+            if (!ch.isMesh || !ch.geometry) return;
+            ch.geometry = ch.geometry.clone();
+            ch.geometry.applyMatrix4(ch.matrixWorld);
+            ch.position.set(0, 0, 0);
+            ch.rotation.set(0, 0, 0);
+            ch.scale.set(1, 1, 1);
+            ch.updateMatrix();
+          });
+          const spin = new THREE.Matrix4().makeRotationY(-Math.PI / 2);
+          shuttle.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          shuttle.position.set(0, 0, 0);
+          return shuttle;
+        });
+        return layoutPrintRow(pieces, 8);
+      }
+
+      function auditSlideFit(sm) {
+        const mat = new THREE.MeshBasicMaterial();
+        const track = new THREE.Group();
+        const shuttle = new THREE.Group();
+        const stop = new THREE.Group();
+        buildOneTrack(track, sm, 0, mat);
+        buildOneShuttle(shuttle, sm, 0, 0, 1, mat, 0);
+        buildOneStop(stop, sm, 0, mat);
+        track.updateMatrixWorld(true);
+        shuttle.updateMatrixWorld(true);
+        stop.updateMatrixWorld(true);
+        const rails = [];
+        const tongues = [];
+        track.traverse(o => { if (o.isMesh) rails.push(o); });
+        shuttle.traverse(o => { if (o.isMesh) tongues.push(o); });
+        const rayHit = (meshes, x, y, z, dir) => {
+          const origin = new THREE.Vector3(x, y, z);
+          const ray = new THREE.Raycaster(origin, dir.clone().normalize(), 0, 40);
+          const hits = ray.intersectObjects(meshes, false);
+          return hits.length ? hits[0].point : null;
+        };
+        const xPos = new THREE.Vector3(1, 0, 0);
+        const xNeg = new THREE.Vector3(-1, 0, 0);
+        const gaps = [];
+        for (let i = 0; i <= 5; i++) {
+          const z = sm.zBodyBack + 0.12 + (sm.bodyThick - 0.30) * (i / 5);
+          const wall = rayHit(rails, 0.4, 0, z, xPos);
+          const tongue = rayHit(tongues, sm.winHalf + sm.railW + 1, 0, z, xNeg);
+          if (!wall || !tongue) {
+            gaps.push({ z: +z.toFixed(2), gap: null });
+          } else {
+            gaps.push({ z: +z.toFixed(2), wall: +wall.x.toFixed(3), tongue: +tongue.x.toFixed(3), gap: +(wall.x - tongue.x).toFixed(3) });
+          }
+        }
+        const finite = gaps.filter(g => g.gap != null).map(g => g.gap);
+        const minGap = finite.length ? Math.min.apply(null, finite) : null;
+        const maxGap = finite.length ? Math.max.apply(null, finite) : null;
+        const xRoot = sm.winHalf + sm.tWide + sm.xyClear;
+        const xMouth = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const zsNear = (x, tol) => {
+          const zs = [];
+          rails.forEach(mesh => {
+            const pos = mesh.geometry.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+              if (Math.abs(pos.getX(i) - x) < tol) zs.push(+pos.getZ(i).toFixed(3));
+            }
+          });
+          return Array.from(new Set(zs)).sort((a, b) => a - b);
+        };
+        const rootZ = zsNear(xRoot, 0.05);
+        const mouthZ = zsNear(xMouth, 0.05);
+        const zFloorGap = rootZ.length >= 2 ? +(rootZ[1] - rootZ[0]).toFixed(3) : null;
+        const lipAbove = mouthZ.filter(z => z > sm.zBodyFront + 0.02);
+        const zLipGap = lipAbove.length ? +(lipAbove[0] - sm.zBodyFront).toFixed(3) : null;
+        const insertion = [];
+        const yStart = -sm.trackInnerHalf - sm.shuttleHalf - 1;
+        for (let s = 0; s <= 16; s++) {
+          const y = yStart + (0 - yStart) * (s / 16);
+          shuttle.position.y = y;
+          shuttle.updateMatrixWorld(true);
+          let worst = 99;
+          let misses = 0;
+          for (let k = 0; k <= 4; k++) {
+            const z = sm.zBodyBack + sm.bodyThick * (k / 4);
+            const samples = [-sm.shuttleHalf * 0.7, 0, sm.shuttleHalf * 0.7].map(localY => localY + y);
+            samples.forEach(sy => {
+              if (sy < -sm.trackInnerHalf + sm.stopLead + sm.stopLen + sm.flareLen) return;
+              if (sy > sm.trackInnerHalf - 0.5) return;
+              const wall = rayHit(rails, 0.4, sy, z, xPos);
+              const tongue = rayHit(tongues, sm.winHalf + sm.railW + 1, sy, z, xNeg);
+              if (!wall || !tongue) { misses++; return; }
+              worst = Math.min(worst, wall.x - tongue.x);
+            });
+          }
+          insertion.push({ y: +y.toFixed(2), minGap: worst < 90 ? +worst.toFixed(3) : null, misses });
+        }
+        shuttle.position.y = 0;
+        shuttle.updateMatrixWorld(true);
+        const stopBox = new THREE.Box3().setFromObject(stop);
+        const seated = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = -sm.travel / 2;
+        shuttle.updateMatrixWorld(true);
+        const parkedOpen = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = -sm.travel / 2 - 8;
+        shuttle.updateMatrixWorld(true);
+        const exiting = new THREE.Box3().setFromObject(shuttle);
+        shuttle.position.y = 0;
+        const overlap = (a, b) => a.min.x < b.max.x - 0.05 && a.max.x > b.min.x + 0.05 && a.min.y < b.max.y - 0.05 && a.max.y > b.min.y + 0.05 && a.min.z < b.max.z - 0.05 && a.max.z > b.min.z + 0.05;
+        const spacing = [];
+        [-sm.trackInnerHalf + 1, 0, sm.trackInnerHalf - 1].forEach(y => {
+          const left = rayHit(rails, -40, y, sm.zFloor - 0.4, xPos);
+          const right = rayHit(rails, 40, y, sm.zFloor - 0.4, xNeg);
+          if (left && right) spacing.push(+((right.x - left.x)).toFixed(3));
+        });
+        const spacingSpread = spacing.length ? Math.max.apply(null, spacing) - Math.min.apply(null, spacing) : null;
+        [track, shuttle, stop].forEach(g => {
+          g.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+        });
+        return {
+          designedPerSide: sm.xyClear,
+          designedTotal: +(sm.xyClear * 2).toFixed(3),
+          designedNormal: +sm.normalGap.toFixed(3),
+          designedZ: sm.zClear,
+          xGaps: gaps,
+          minXGap: minGap == null ? null : +minGap.toFixed(3),
+          maxXGap: maxGap == null ? null : +maxGap.toFixed(3),
+          zFloorGap, zLipGap, rootZ, mouthZ,
+          insertion,
+          insertionMin: insertion.reduce((m, s) => s.minGap == null ? m : Math.min(m, s.minGap), 99),
+          stopClearsSeated: !overlap(seated, stopBox),
+          stopClearsParkedOpen: !overlap(parkedOpen, stopBox),
+          stopBlocksExit: overlap(exiting, stopBox),
+          railSpacing: spacing,
+          railSpacingSpread: spacingSpread == null ? null : +spacingSpread.toFixed(3)
+        };
+      }
+
+      function drawSlideSectionHUD(p, sm) {
+        const canvas = document.getElementById('hud-canvas');
+        const ctx = canvas.getContext('2d');
+        const cw = canvas.width, ch = canvas.height;
+        ctx.clearRect(0, 0, cw, ch);
+        const pos = slidePreviewPos();
+        const shift = pos * (sm.travel / 2);
+        const yLo = -(sm.halfRock + 6);
+        const yHi = -yLo;
+        const zHandle = (p.rimD + p.swClear) + p.face + 4.2;
+        const zLo = p.rimD - 1.2;
+        const zHi = Math.max(zHandle, sm.zRailTop + 1);
+        const padL = 16, padR = 10, padT = 16, padB = 16;
+        const sx = (cw - padL - padR) / (yHi - yLo);
+        const sy = (ch - padT - padB) / (zHi - zLo);
+        const sc = Math.min(sx, sy);
+        const X = y => padL + (y - yLo) * sc;
+        const Y = z => ch - padB - (z - zLo) * sc;
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.strokeStyle = '#334155';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(8, Y(p.rimD));
+        ctx.lineTo(cw - 8, Y(p.rimD));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px monospace';
+        ctx.fillText('frame face', 8, Y(p.rimD) - 3);
+
+        function poly(pts, stroke, fill) {
+          ctx.beginPath();
+          pts.forEach((pt, i) => { if (i) ctx.lineTo(X(pt[0]), Y(pt[1])); else ctx.moveTo(X(pt[0]), Y(pt[1])); });
+          ctx.closePath();
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        [1, -1].forEach(state => {
+          const th = sm.theta0 * state;
+          const c = Math.cos(th), s = Math.sin(th);
+          const t = 1.5;
+          const corners = [[-sm.halfRock, t / 2], [sm.halfRock, t / 2], [sm.halfRock, -t / 2], [-sm.halfRock, -t / 2]];
+          const pts = corners.map(([y, zl]) => [y * c - zl * s, sm.zFaceMid + y * s + zl * c]);
+          poly(pts, state > 0 ? '#fb923c' : '#38bdf8', state > 0 ? 'rgba(251,146,60,0.18)' : 'rgba(56,189,248,0.12)');
+        });
+        const body = [
+          [-sm.shuttleHalf + shift, sm.zBodyBack],
+          [sm.shuttleHalf + shift, sm.zBodyBack],
+          [sm.shuttleHalf + shift, sm.zBodyFront],
+          [-sm.shuttleHalf + shift, sm.zBodyFront]
+        ];
+        poly(body, '#e2e8f0', 'rgba(226,232,240,0.16)');
+        poly(lowerRampPts(Object.assign({}, sm, { ptfe: false })).map(pt => [pt[0] + shift, pt[1]]), '#fbbf24', 'rgba(251,191,36,0.35)');
+        poly(upperRampPts(Object.assign({}, sm, { ptfe: false })).map(pt => [pt[0] + shift, pt[1]]), '#fbbf24', 'rgba(251,191,36,0.35)');
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '9px monospace';
+        const angOk = sm.angleDeg >= 27 && sm.angleDeg <= 30;
+        ctx.fillStyle = angOk ? '#4ade80' : '#fb923c';
+        ctx.fillText(sm.angleDeg.toFixed(1) + '°  ramp ' + sm.rampH.toFixed(1) + ' / ' + sm.activeLen.toFixed(1) + ' mm', 8, ch - 6);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('5.2 pressed', 8, 22);
+        ctx.fillText('10.5 raised', 78, 22);
+        ctx.fillText(pos >= 0.2 ? 'parked UP' : (pos <= -0.2 ? 'parked DOWN' : 'mid travel'), cw - 78, 22);
+      }
+
+      // --- end slide switch ---
       // --- MAIN REBUILD ---
       let lastAutoModeState = '';
       function rebuildModel() {
@@ -3333,11 +4308,20 @@
         const outCount = activeItems.filter(it => it.kind !== 'switch' && it.kind !== 'switch_open').length;
 
         const isOnTopOutlet = (outCount > 0 && p.outletStyle === 'cover_holes');
-        const curModeState = `${coveredSwCount > 0 ? 'cov11' : (isOnTopOutlet ? 'top56' : 'flush043')}`;
+        const isSlideMode = p.swMode === 'slide';
+        let slideM = null;
+        if (isSlideMode) {
+          try { slideM = computeSlideMetrics(p); }
+          catch (err) { console.error(err); }
+        }
+        const curModeState = slideM
+          ? `slide-${slideM.rampH.toFixed(2)}-${slideM.contact.toFixed(1)}-${p.rimD.toFixed(1)}`
+          : `${coveredSwCount > 0 ? 'cov11' : (isOnTopOutlet ? 'top56' : 'flush043')}`;
         if (curModeState !== lastAutoModeState && !lockedCats.chassis) {
           lastAutoModeState = curModeState;
           let targetClear = 11.0;
-          if (coveredSwCount === 0) targetClear = isOnTopOutlet ? 5.6 : Math.max(2.4, Number((5.2 + 0.43 - p.face).toFixed(2)));
+          if (slideM) targetClear = Math.max(12.5, slideM.cavityZ);
+          else if (coveredSwCount === 0) targetClear = isOnTopOutlet ? 5.6 : Math.max(2.4, Number((5.2 + 0.43 - p.face).toFixed(2)));
           document.getElementById('inp-swclear').value = targetClear;
           p.swClear = targetClear;
         }
@@ -3396,6 +4380,13 @@
         setBadgeVal('val-tlen', p.tLen.toFixed(1));
         setBadgeVal('val-tbase', p.tBase.toFixed(1));
         setBadgeVal('val-vroof', p.vRoof.toFixed(1));
+        setBadgeVal('val-slide-ramph', p.slideRampH.toFixed(1));
+        setBadgeVal('val-slide-travel', p.slideTravel.toFixed(1));
+        setBadgeVal('val-slide-xy', p.slideXY.toFixed(2));
+        setBadgeVal('val-slide-z', p.slideZ.toFixed(2));
+        setBadgeVal('val-slide-contact', p.slideContact.toFixed(1));
+        setBadgeVal('val-slide-handle', p.slideHandle.toFixed(1));
+        setBadgeVal('val-slide-pos', slidePreviewPos().toFixed(2));
 
         const isSlipOver = (p.fixMode === 'slipover');
         const isScrewTabs = (p.fixMode === 'screwtabs');
@@ -3403,6 +4394,7 @@
         const isFullTopSwap = (p.coverBuild === 'fulltop_snaps' || p.coverBuild === 'fulltop_magnets') && p.silhouette !== 'open_frame';
         const isTwoPart = isInlaySwap || isFullTopSwap;
         const isSkeletonBase = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap') && !isSlipOver;
+        const slideSplit = !!(slideM && !isTwoPart && p.silhouette !== 'open_frame');
 
         const innerWallCornerR = isSlipOver ? 0.4 : 1.2;
         const cornerExtra = isSlipOver ? 0 : Math.max(0, (p.corner - innerWallCornerR) * 0.415);
@@ -3411,7 +4403,8 @@
 
         document.getElementById('hud-outer-dims').textContent = `${outerW.toFixed(1)} × ${outerH.toFixed(1)} mm`;
         document.getElementById('badge-fixation').textContent = `${isSlipOver ? 'Slip-Over' : (isScrewTabs ? '2-Screw' : 'H-Pins')} • ${isSkeletonBase ? 'Skeleton 2-Pc' : (isInlaySwap ? 'Inlay 2-Pc' : (isFullTopSwap ? 'Full-Top 2-Pc' : '1-Pc'))}`;
-        document.getElementById('badge-modules').textContent = `${coveredSwCount + uncoveredSwCount}×Sw (${p.swMode === 'uncovered' ? 'Open' : p.slotShape}) | ${outCount}×Out`;
+        const swLabel = p.swMode === 'slide' ? 'Slide' : (p.swMode === 'uncovered' ? 'Open' : p.slotShape);
+        document.getElementById('badge-modules').textContent = `${coveredSwCount + uncoveredSwCount}×Sw (${swLabel}) | ${outCount}×Out`;
         document.getElementById('hud-throw-status').textContent = `${p.chassisType}M • ${isSkeletonBase ? 'Skeleton Swap' : (isInlaySwap ? 'Inlay Swap' : 'Full-Top')}`;
 
         clearAndDisposeGroup(chassisGroup);
@@ -3420,6 +4413,9 @@
         clearAndDisposeGroup(overlayGroup);
         clearAndDisposeGroup(toggleStemGroup);
         clearAndDisposeGroup(toggleTipGroup);
+        clearAndDisposeGroup(slideGroup);
+        clearAndDisposeGroup(slideStopGroup);
+        clearAndDisposeGroup(slideGhostGroup);
 
         buildLegrandReferenceHardware(p, activeItems);
 
@@ -3433,6 +4429,7 @@
 
         const rockerBoxW = (p.chassisType === 4 ? 92.3 : 69.8); // +1.2mm for free rocking
         const rockerBoxH = Math.max(47.4, p.modH + 2.0);
+        const pocketH = slideM ? slideM.pocketH : rockerBoxH;
 
         const lugThickness = isScrewTabs ? p.screwTabZ : p.lugT;
         const zLugTop = p.rimD + lugThickness;
@@ -3440,7 +4437,9 @@
         const totalDepth = p.silhouette === 'open_frame' ? (isSlipOver ? zFaceBack : zLugTop) : (zFaceBack + p.face);
 
         const deckNoteEl = document.getElementById('deck-mode-note');
-        if (isSkeletonBase) {
+        if (slideM) {
+          deckNoteEl.textContent = `↕ Slide track: pocket ${rockerBoxW.toFixed(1)}×${pocketH.toFixed(1)} mm, cavity target ${slideM.cavityZ.toFixed(1)} mm.`;
+        } else if (isSkeletonBase) {
           deckNoteEl.textContent = `🦴 Minimalist Skeleton Base: 1.4mm flat plate + 1.8mm thin central snap turret (saves ~65% base filament, zero outer wall duplication!).`;
         } else if (isInlaySwap) {
           deckNoteEl.textContent = 'ℹ️ In 2-Part Inlay mode, the outer collar is open so the inlay plate can drop in.';
@@ -3489,7 +4488,7 @@
 
         const upperRiserH = zFaceBack - zLugTop;
         const turretOuterW = rockerBoxW + p.wall * 2.2;
-        const turretOuterH = rockerBoxH + p.wall * 2.2;
+        const turretOuterH = pocketH + p.wall * 2.2;
         const effectiveDeckDrop = (!isTwoPart && !isSlipOver && !isAnyStripes && p.deckMode === 'compact_turret' && p.silhouette !== 'custom_plate_mesh')
           ? Math.min(p.deckDrop, Math.max(0, upperRiserH - 0.2))
           : 0.0;
@@ -3497,7 +4496,7 @@
 
         const collarTopZ = isInlaySwap ? totalDepth : zFaceBack;
         const centralHoleW = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayW + 0.35) : rockerBoxW;
-        const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : rockerBoxH;
+        const centralHoleH = (isInlaySwap || p.deckMode === 'full_hollow') ? (inlayH + 0.35) : pocketH;
 
         // --- PART 1: CONNECTED 1-PIECE SKELETON SUB-FRAME OR STANDARD BASE ---
         const skelTurretWall = 2.8; // stiffened from 2.2mm
@@ -3505,7 +4504,7 @@
           const skelClearW = p.inW - 0.8;
           const skelClearH = p.inH - 0.8;
           const skelInnerW = rockerBoxW;
-          const skelInnerH = rockerBoxH;
+          const skelInnerH = pocketH;
           const skelTurretOuterW = skelInnerW + skelTurretWall * 2;
           const skelTurretOuterH = skelInnerH + skelTurretWall * 2;
 
@@ -3546,7 +4545,7 @@
 
             const cutW = Math.max(16.0, skelInnerW - 22.0);
             const cutH = Math.max(4.5, (skelClearH - skelTurretOuterH) * 0.5 - 5.5);
-            if (cutH > 2.5) {
+            if (cutH > 2.5 && (skelClearH - skelTurretOuterH) > 14) {
               const yCut = (skelTurretOuterH / 2) + 2.0 + cutH / 2;
               skelPlateShape.holes.push(createTranslatedRectHolePath(0, yCut, cutW, cutH, 1.5));
               skelPlateShape.holes.push(createTranslatedRectHolePath(0, -yCut, cutW, cutH, 1.5));
@@ -3644,8 +4643,35 @@
           if (isTwoPart) chassisGroup.add(buildOuterCollarRetentionFeatures(p, centralHoleW, centralHoleH, skelTurretWall, zFaceBack, matBase));
         }
 
+        if (slideSplit) {
+          const pRet = Object.assign({}, p, { coverBuild: 'fulltop_snaps', sideSkirt: 'float_top' });
+          chassisGroup.add(buildOuterCollarRetentionFeatures(pRet, rockerBoxW, pocketH, skelTurretWall, zFaceBack, matBase));
+        }
+
+        if (slideM) {
+          try {
+            const matSlide = createGlossMat(p.colT, isWireframe, 0.34, 0.06);
+            const clipCx = buildSlideMechanism(chassisGroup, slideGroup, slideGhostGroup, p, slideM, activeItems, matBase, matSlide, zFaceBack);
+            if (showSlideSection) {
+              // Keep a slab through the ramp so the outer wall does not hide the cut.
+              renderer.clippingPlanes = [
+                new THREE.Plane(new THREE.Vector3(-1, 0, 0), clipCx + 0.45),
+                new THREE.Plane(new THREE.Vector3(1, 0, 0), -(clipCx - 16))
+              ];
+            } else {
+              renderer.clippingPlanes = [];
+            }
+          } catch (err) {
+            console.error(err);
+            renderer.clippingPlanes = [];
+            showStatusBanner('Slide geometry error: ' + err.message);
+          }
+        } else {
+          renderer.clippingPlanes = [];
+        }
+
         // --- PART 2: SWAPPABLE FACEPLATE (INLAY OR FULL-TOP) OR MONOLITHIC FRONT ---
-        const targetGroup = isTwoPart ? faceplateGroup : chassisGroup;
+        const targetGroup = (isTwoPart || slideSplit) ? faceplateGroup : chassisGroup;
         const mergedCutouts = getExpandedCutouts(activeItems);
 
         const hasSideWrapSkirt = isFullTopSwap && (p.sideSkirt === 'skeleton_wrap' || p.sideSkirt === 'wrap_sides') && p.silhouette !== 'bubble_rim' && p.silhouette !== 'custom_plate_mesh';
@@ -3716,7 +4742,7 @@
           } else {
             if (!isTwoPart && !isSlipOver && effectiveDeckDrop > 0.05 && p.deckMode === 'compact_turret') {
               const lowFaceShape = new THREE.Shape(faceOutlinePts);
-              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, rockerBoxH, 1.8));
+              lowFaceShape.holes.push(createRoundedRectPath(rockerBoxW, pocketH, 1.8));
               const lowFaceGeo = new THREE.ExtrudeGeometry(lowFaceShape, { depth: p.face, bevelEnabled: false });
               lowFaceGeo.translate(0, 0, zFaceBack - effectiveDeckDrop);
               targetGroup.add(new THREE.Mesh(lowFaceGeo, matA));
@@ -3776,10 +4802,11 @@
             }
           }
 
-          if (isTwoPart) {
+          if (isTwoPart || slideSplit) {
             const snapPocketW = isSkeletonBase ? rockerBoxW : centralHoleW;
-            const snapPocketH = isSkeletonBase ? rockerBoxH : centralHoleH;
-            faceplateGroup.add(buildDropInFaceplateBackFeatures(p, snapPocketW, snapPocketH, skelTurretWall, zFaceBack, matA));
+            const snapPocketH = isSkeletonBase ? pocketH : centralHoleH;
+            const pFace = slideSplit ? Object.assign({}, p, { coverBuild: 'fulltop_snaps' }) : p;
+            faceplateGroup.add(buildDropInFaceplateBackFeatures(pFace, snapPocketW, snapPocketH, skelTurretWall, zFaceBack, matA));
           }
         }
 
@@ -3813,6 +4840,27 @@
           });
         }
 
+        const slideNote = document.getElementById('slide-mode-note');
+        const slideBadge = document.getElementById('badge-slide');
+        const angEl = document.getElementById('slide-angle-readout');
+        const slotEl = document.getElementById('slide-slot-readout');
+        if (slideM && slideNote && angEl && slotEl && slideBadge) {
+          const angOk = slideM.angleDeg >= 27 && slideM.angleDeg <= 30;
+          angEl.textContent = slideM.angleDeg.toFixed(1) + '°';
+          angEl.style.color = angOk ? '#4ade80' : '#fb923c';
+          slotEl.textContent = `X ${slideM.xyClear.toFixed(2)}/side (${(slideM.xyClear * 2).toFixed(2)} total)  Z ${slideM.zClear.toFixed(2)}  slot ${slideM.slotW.toFixed(1)}×${slideM.slotH.toFixed(1)}`;
+          slideBadge.textContent = angOk ? slideM.angleDeg.toFixed(0) + '°' : 'check °';
+          const cavWarn = p.swClear + 0.05 < slideM.cavityZ ? ` Cavity Z is ${p.swClear.toFixed(1)} mm; the shuttle wants ${slideM.cavityZ.toFixed(1)} mm.` : '';
+          const fitWarn = slideM.fitWarning ? ' Track is clamped by the inner frame height.' : '';
+          const ptfeWarn = p.slidePtfe && !slideM.ptfe ? ' PTFE slot needs ramp ≥ 5.5 mm.' : '';
+          slideNote.textContent = `Active. Open end is the arrow (IN). Slide the shuttle in, then drop the stop into the slots. X gap ${slideM.xyClear.toFixed(2)} mm per side (${(slideM.xyClear * 2).toFixed(2)} total), Z gap ${slideM.zClear.toFixed(2)} mm. Angle ${slideM.angleDeg.toFixed(1)}°.${cavWarn}${fitWarn}${ptfeWarn}`;
+        } else if (slideNote && slideBadge) {
+          slideBadge.textContent = 'Off';
+          if (angEl) { angEl.textContent = '—'; angEl.style.color = ''; }
+          if (slotEl) slotEl.textContent = 'slot —';
+          slideNote.textContent = 'Set Switch Exposure to Slide switch. Up drives the lower ramp into the bottom half of the rocker; down drives the upper ramp into the top half. A dwell then a relief parks the ramp unloaded.';
+        }
+
         updateTransforms(totalDepth);
         rebuildEdgesOverlay();
         drawMultiModeTechnicalHUD(p, outerW, outerH, zFaceBack, totalDepth, effectiveDeckDrop, mergedCutouts, rockerBoxW, rockerBoxH, coveredSwCount, isSkeletonBase);
@@ -3823,6 +4871,9 @@
         faceplateGroup.visible = !isKnobOnly;
         bubblesGroup.visible = !isKnobOnly;
         overlayGroup.visible = !isKnobOnly;
+        slideGroup.visible = !isKnobOnly;
+        slideStopGroup.visible = !isKnobOnly;
+        slideGhostGroup.visible = showSlideSection && !isKnobOnly;
         legrandRefGroup.visible = showWall && !isKnobOnly;
 
         if (isKnobOnly) {
@@ -3837,22 +4888,28 @@
         const faceFrontLift = isExploded ? 24 : 0;
 
         if (isBackView) {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = Math.PI;
           });
           legrandRefGroup.position.z = totalDepth - wallBackShift;
           chassisGroup.position.z = totalDepth;
+          slideGroup.position.z = totalDepth + (isExploded ? 10 : 0);
+          slideStopGroup.position.z = totalDepth + (isExploded ? 22 : 0);
+          slideGhostGroup.position.z = totalDepth - wallBackShift;
           faceplateGroup.position.z = totalDepth - faceFrontLift;
           bubblesGroup.position.z = totalDepth - faceFrontLift;
           overlayGroup.position.z = totalDepth - faceFrontLift;
           toggleStemGroup.position.z = totalDepth - wallBackShift;
           toggleTipGroup.position.z = totalDepth;
         } else {
-          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup].forEach(g => {
+          [legrandRefGroup, chassisGroup, faceplateGroup, bubblesGroup, overlayGroup, toggleStemGroup, toggleTipGroup, slideGroup, slideStopGroup, slideGhostGroup].forEach(g => {
             g.rotation.y = 0;
           });
           legrandRefGroup.position.z = wallBackShift;
           chassisGroup.position.z = 0;
+          slideGroup.position.z = isExploded ? 10 : 0;
+          slideStopGroup.position.z = isExploded ? 22 : 0;
+          slideGhostGroup.position.z = wallBackShift;
           faceplateGroup.position.z = faceFrontLift;
           bubblesGroup.position.z = faceFrontLift;
           overlayGroup.position.z = faceFrontLift;
@@ -3868,6 +4925,11 @@
         ctx.clearRect(0, 0, cw, ch);
         const isTwoPart = (p.coverBuild !== 'monolithic');
 
+        if (hudTabMode === 'side' && p.swMode === 'slide') {
+          try { drawSlideSectionHUD(p, computeSlideMetrics(p)); }
+          catch (err) { console.error(err); }
+          return;
+        }
         if (hudTabMode === 'side') {
           const scale = 3.1, originX = 85, originY = ch / 2 + 8;
           ctx.strokeStyle = '#334155'; ctx.setLineDash([3, 3]);
@@ -3973,6 +5035,7 @@
         'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz',
         'inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop',
         'inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis',
+        'inp-slide-ramph', 'inp-slide-travel', 'inp-slide-xy', 'inp-slide-z', 'inp-slide-contact', 'inp-slide-handle',
         'inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows',
         'inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount',
         'inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz',
@@ -3984,6 +5047,7 @@
         fixation: ['inp-fixmode', 'inp-coverbuild', 'inp-sideskirt', 'inp-pindia', 'inp-pinl', 'inp-pinribs', 'inp-ribdepth', 'inp-pinx', 'inp-piny', 'inp-lugt', 'inp-hweb', 'inp-lipbite', 'inp-liph', 'inp-lipedges', 'inp-screwx', 'inp-screwdia', 'inp-screwtabz'],
         chassis: ['inp-chassistype', 'inp-deckmode', 'inp-inw', 'inp-inh', 'inp-rimd', 'inp-swclear', 'inp-corner', 'inp-wall', 'inp-face', 'inp-deckdrop'],
         modules: ['inp-swcount', 'inp-swmode', 'inp-slotshape', 'inp-outlettype', 'inp-outletpos', 'inp-outletstyle', 'inp-pitch', 'inp-modh', 'inp-slotw', 'inp-sloth', 'inp-slotaxis'],
+        slide: ['inp-slide-ramph', 'inp-slide-travel', 'inp-slide-xy', 'inp-slide-z', 'inp-slide-contact', 'inp-slide-handle'],
         plate: ['inp-silhouette', 'inp-stripes', 'inp-bubbledia', 'inp-bubblecols', 'inp-bubblerows'],
         overlay: ['inp-overlay', 'inp-ovheight', 'inp-ovwidth', 'inp-ovcount'],
         knob: ['inp-tipstyle', 'inp-tipjoint', 'inp-curotx', 'inp-curoty', 'inp-curotz', 'inp-cuoffx', 'inp-cuoffy', 'inp-cuoffz', 'inp-tipdia', 'inp-tiplen', 'inp-pegdia', 'inp-threadtol', 'inp-foott', 'inp-footw', 'inp-footh', 'inp-tlen', 'inp-tbase', 'inp-vroof'],
@@ -4010,6 +5074,8 @@
         const data = {};
         PARAM_IDS.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
         data['inp-multicolorknobs'] = document.getElementById('inp-multicolorknobs').checked;
+        data['inp-slide-detent'] = document.getElementById('inp-slide-detent').checked;
+        data['inp-slide-ptfe'] = document.getElementById('inp-slide-ptfe').checked;
         return data;
       }
 
@@ -4022,6 +5088,10 @@
         });
         if (!lockedCats.colors && data['inp-multicolorknobs'] !== undefined) {
           document.getElementById('inp-multicolorknobs').checked = !!data['inp-multicolorknobs'];
+        }
+        if (!lockedCats.slide) {
+          if (data['inp-slide-detent'] !== undefined) document.getElementById('inp-slide-detent').checked = !!data['inp-slide-detent'];
+          if (data['inp-slide-ptfe'] !== undefined) document.getElementById('inp-slide-ptfe').checked = !!data['inp-slide-ptfe'];
         }
         rebuildModel();
       }
@@ -4306,8 +5376,24 @@
           setIfUnlocked('colors', 'inp-colt', '#3f2a22');
           setIfUnlocked('colors', 'inp-coltip', '#d4a054');
           showStatusBanner('🕌 Mashrabiya Active: pointed mihrab crown + octagon-and-square jaali');
+
+        } else if (name === 'slide') {
+          setIfUnlocked('modules', 'inp-swcount', 3);
+          setIfUnlocked('modules', 'inp-swmode', 'slide');
+          setIfUnlocked('modules', 'inp-outlettype', 'none');
+          setIfUnlocked('plate', 'inp-silhouette', 'pillow_rect');
+          setIfUnlocked('chassis', 'inp-corner', 6);
+          setIfUnlocked('overlay', 'inp-overlay', 'none');
+          showWall = true;
+          document.getElementById('btn-wall').classList.add('bg-sky-500/25');
+          showStatusBanner('↕ Slide switch: dovetail shuttle, opposing ramps, snap-on slotted fascia');
         }
         rebuildModel();
+        if (name === 'slide') {
+          controls.target.set(0, 0, 10);
+          camera.position.set(88, -72, 138);
+          controls.update();
+        }
       }
 
       document.getElementById('pre-alublade').addEventListener('click', () => applyPreset('alublade'));
@@ -4324,6 +5410,7 @@
       document.getElementById('pre-twopart-swap').addEventListener('click', () => applyPreset('twopart_swap'));
       document.getElementById('pre-khatam').addEventListener('click', () => applyPreset('khatam'));
       document.getElementById('pre-mashrabiya').addEventListener('click', () => applyPreset('mashrabiya'));
+      document.getElementById('pre-slide').addEventListener('click', () => applyPreset('slide'));
 
       document.getElementById('btn-knob-only').addEventListener('click', (e) => {
         isKnobOnly = !isKnobOnly;
@@ -4372,7 +5459,42 @@
         controls.update();
       });
 
-      document.getElementById('btn-rock-sim').addEventListener('click', () => { rockPolarity *= -1; rebuildModel(); });
+      document.getElementById('btn-rock-sim').addEventListener('click', () => {
+        rockPolarity *= -1;
+        if (getParams().swMode === 'slide') {
+          const el = document.getElementById('inp-slide-pos');
+          el.value = parseFloat(el.value) >= 0 ? -1 : 1;
+        }
+        rebuildModel();
+      });
+      document.getElementById('btn-slide-section').addEventListener('click', (e) => {
+        showSlideSection = !showSlideSection;
+        e.target.classList.toggle('bg-orange-500/30', showSlideSection);
+        e.target.classList.toggle('text-orange-100', showSlideSection);
+        if (showSlideSection) {
+          if (!showWall) {
+            showWall = true;
+            document.getElementById('btn-wall').classList.add('bg-sky-500/25');
+          }
+          isBackView = false;
+          document.getElementById('btn-flip').textContent = 'Inspect Back';
+          savedSlideCam = { pos: camera.position.clone(), tgt: controls.target.clone() };
+          const p = getParams();
+          controls.target.set(0, 0, p.rimD + 12);
+          camera.position.set(-78, -48, p.rimD + 48);
+          hudTabMode = 'side';
+          ['side', 'thread', 'pin'].forEach(t => {
+            document.getElementById('hud-tab-' + t).className = (t === 'side')
+              ? 'px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-600 text-white'
+              : 'px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700';
+          });
+        } else if (savedSlideCam) {
+          camera.position.copy(savedSlideCam.pos);
+          controls.target.copy(savedSlideCam.tgt);
+        }
+        controls.update();
+        rebuildModel();
+      });
       document.getElementById('btn-wall').addEventListener('click', (e) => { showWall = !showWall; e.target.classList.toggle('bg-sky-500/25', showWall); rebuildModel(); });
       document.getElementById('btn-explode').addEventListener('click', (e) => { isExploded = !isExploded; e.target.classList.toggle('bg-rose-500/25', isExploded); rebuildModel(); });
       document.getElementById('btn-wire').addEventListener('click', (e) => { isWireframe = !isWireframe; e.target.classList.toggle('bg-rose-500/25', isWireframe); rebuildModel(); });
@@ -4384,9 +5506,151 @@
       });
 
       const stlExporter = new THREE.STLExporter();
-      function downloadPrintReadySTL(object3D, filename) {
+
+      let manifoldPromise = null;
+      function ensureManifold() {
+        if (!manifoldPromise) {
+          manifoldPromise = (async () => {
+            const start = Date.now();
+            while (!window.ManifoldModule) {
+              if (Date.now() - start > 20000) throw new Error('Solid kernel failed to load');
+              await new Promise(r => setTimeout(r, 40));
+            }
+            const api = await window.ManifoldModule();
+            api.setup();
+            return api;
+          })();
+        }
+        return manifoldPromise;
+      }
+
+      function weldMeshData(geo) {
+        const pos = geo.attributes.position;
+        const idx = geo.index ? geo.index.array : null;
+        const map = new Map();
+        const verts = [];
+        const tris = [];
+        const keyOf = (x, y, z) => `${Math.round(x * 10000)},${Math.round(y * 10000)},${Math.round(z * 10000)}`;
+        const add = (i) => {
+          const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+          const k = keyOf(x, y, z);
+          if (map.has(k)) return map.get(k);
+          const id = verts.length / 3;
+          verts.push(x, y, z);
+          map.set(k, id);
+          return id;
+        };
+        const n = idx ? idx.length : pos.count;
+        for (let t = 0; t < n; t += 3) {
+          const ia = add(idx ? idx[t] : t);
+          const ib = add(idx ? idx[t + 1] : t + 1);
+          const ic = add(idx ? idx[t + 2] : t + 2);
+          if (ia !== ib && ib !== ic && ic !== ia) tris.push(ia, ib, ic);
+        }
+        return { numProp: 3, vertProperties: new Float32Array(verts), triVerts: new Uint32Array(tris) };
+      }
+
+      function solidifyGroup(group, Manifold, mat) {
+        group.updateMatrixWorld(true);
+        const pieces = [];
+        const cutters = [];
+        group.traverse(obj => {
+          if (!obj.isMesh || !obj.geometry) return;
+          const g = obj.geometry.clone();
+          g.applyMatrix4(obj.matrixWorld);
+          const solid = Manifold.ofMesh(weldMeshData(g));
+          g.dispose();
+          if (obj.userData && obj.userData.cutter) cutters.push(solid);
+          else pieces.push(solid);
+        });
+        if (!pieces.length) throw new Error('Empty solid');
+        let united = pieces.length === 1 ? pieces[0] : Manifold.union(pieces);
+        if (cutters.length) {
+          const cut = cutters.length === 1 ? cutters[0] : Manifold.union(cutters);
+          const opened = Manifold.difference(united, cut);
+          if (united !== pieces[0] || pieces.length > 1) united.delete();
+          else if (pieces.length === 1 && united === pieces[0]) united.delete();
+          cut.delete();
+          united = opened;
+        }
+        const shells = united.decompose();
+        const shellCount = shells.length;
+        shells.forEach(s => s.delete());
+        const volume = united.getProperties().volume;
+        const mesh = united.getMesh();
+        const numProp = mesh.numProp || 3;
+        const src = mesh.vertProperties;
+        const posArr = new Float32Array((src.length / numProp) * 3);
+        for (let i = 0, j = 0; i < src.length; i += numProp, j += 3) {
+          posArr[j] = src[i];
+          posArr[j + 1] = src[i + 1];
+          posArr[j + 2] = src[i + 2];
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        geo.setIndex(new THREE.BufferAttribute(mesh.triVerts, 1));
+        geo.computeVertexNormals();
+        while (group.children.length) {
+          const ch = group.children[0];
+          group.remove(ch);
+          if (ch.geometry) ch.geometry.dispose();
+        }
+        group.position.set(0, 0, 0);
+        group.rotation.set(0, 0, 0);
+        group.scale.set(1, 1, 1);
+        group.add(new THREE.Mesh(geo, mat || new THREE.MeshStandardMaterial({ color: 0xd5dbe3, roughness: 0.5, metalness: 0.05 })));
+        if (pieces.length > 1) pieces.forEach(p => p.delete());
+        united.delete();
+        return { shells: shellCount, volume: volume };
+      }
+
+      async function solidifyDirectChildren(row) {
+        const api = await ensureManifold();
+        const info = [];
+        for (let i = 0; i < row.children.length; i++) {
+          const child = row.children[i];
+          const result = solidifyGroup(child, api.Manifold);
+          if (result.shells !== 1 || !(result.volume > 0)) {
+            throw new Error('Part ' + (i + 1) + ' is ' + result.shells + ' shells, volume ' + result.volume);
+          }
+          info.push(result);
+        }
+        return info;
+      }
+
+      function downloadPrintReadySTL(object3D, filename, rotY) {
         const clone = object3D.clone(true);
         clone.rotation.set(0, 0, 0); clone.position.set(0, 0, 0); clone.updateMatrixWorld(true);
+        if (rotY) {
+          // Spin each direct child around its own origin so a gang of shuttles
+          // stays side by side on the bed, slide axis horizontal.
+          const spin = new THREE.Matrix4().makeRotationY(rotY);
+          const parts = clone.children.slice();
+          parts.forEach(part => {
+            if (part.userData && part.userData.slidePart === 'stop') return;
+            part.updateMatrixWorld(true);
+            const inv = new THREE.Matrix4().copy(part.matrixWorld).invert();
+            part.traverse(ch => {
+              if (!ch.isMesh || !ch.geometry) return;
+              const g = ch.geometry.clone();
+              g.applyMatrix4(ch.matrixWorld);
+              g.applyMatrix4(inv);
+              g.applyMatrix4(spin);
+              ch.geometry = g;
+              ch.position.set(0, 0, 0);
+              ch.rotation.set(0, 0, 0);
+              ch.scale.set(1, 1, 1);
+              ch.updateMatrix();
+            });
+            part.traverse(ch => {
+              if (ch === part) return;
+              ch.position.set(0, 0, 0);
+              ch.rotation.set(0, 0, 0);
+              ch.scale.set(1, 1, 1);
+            });
+          });
+          clone.updateMatrixWorld(true);
+        }
         const box = new THREE.Box3().setFromObject(clone);
         if (isFinite(box.min.z)) { clone.position.z = -box.min.z; clone.updateMatrixWorld(true); }
         const result = stlExporter.parse(clone, { binary: true });
@@ -4430,6 +5694,1016 @@
       });
       document.getElementById('btn-exp-ov').addEventListener('click', () => downloadPrintReadySTL(overlayGroup, `Arteor_${APP_VERSION}_AMS_Overlay_${document.getElementById('inp-overlay').value}_READY.stl`));
 
+      document.getElementById('btn-exp-slide-base').addEventListener('click', () => {
+        const p = getParams();
+        if (p.swMode !== 'slide') { showStatusBanner('Set Switch Exposure to Slide switch before exporting the track.'); return; }
+        downloadPrintReadySTL(chassisGroup, `Arteor_${APP_VERSION}_Slide_BaseTrack_${p.fixMode}.stl`);
+      });
+      document.getElementById('btn-exp-slide-shuttle').addEventListener('click', async () => {
+        const p = getParams();
+        if (p.swMode !== 'slide' || slideGroup.children.length === 0) { showStatusBanner('Set Switch Exposure to Slide switch before exporting the shuttle.'); return; }
+        const n = getActiveModuleItems(p).filter(it => it.kind === 'switch').length;
+        showStatusBanner('Unioning shuttles and stops into closed solids…');
+        try {
+          const shuttles = new THREE.Group();
+          slideGroup.children.forEach(child => {
+            const c = child.clone(true);
+            c.userData.slidePart = 'shuttle';
+            shuttles.add(c);
+          });
+          const stops = new THREE.Group();
+          slideStopGroup.children.forEach(child => {
+            const c = child.clone(true);
+            c.userData.slidePart = 'stop';
+            stops.add(c);
+          });
+          await solidifyDirectChildren(shuttles);
+          await solidifyDirectChildren(stops);
+          let x = 0;
+          shuttles.children.forEach(child => {
+            child.updateMatrixWorld(true);
+            const box = new THREE.Box3().setFromObject(child);
+            child.position.set(x - box.min.x, -box.min.y, -box.min.z);
+            child.updateMatrixWorld(true);
+            x = new THREE.Box3().setFromObject(child).max.x + 8;
+          });
+          x = 0;
+          stops.children.forEach(child => {
+            child.updateMatrixWorld(true);
+            const box = new THREE.Box3().setFromObject(child);
+            child.position.set(x - box.min.x, -box.min.y, -box.min.z);
+            child.updateMatrixWorld(true);
+            x = new THREE.Box3().setFromObject(child).max.x + 8;
+          });
+          downloadPrintReadySTL(shuttles, `Arteor_${APP_VERSION}_Slide_Shuttles_x${n}.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(stops, `Arteor_${APP_VERSION}_Slide_Stops_x${n}.stl`);
+          showStatusBanner('Saved two closed solids files: shuttles only, then stops only.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Solid union failed: ' + err.message);
+        }
+      });
+      document.getElementById('btn-exp-slide-cover').addEventListener('click', () => {
+        const p = getParams();
+        if (p.swMode !== 'slide') { showStatusBanner('Set Switch Exposure to Slide switch before exporting the fascia.'); return; }
+        const cover = new THREE.Group();
+        cover.add(faceplateGroup.clone(true), bubblesGroup.clone(true));
+        downloadPrintReadySTL(cover, `Arteor_${APP_VERSION}_Slide_Cover_${p.coverBuild}.stl`);
+      });
+      document.getElementById('btn-exp-slide-coupon').addEventListener('click', async () => {
+        const params = getParams();
+        const files = [
+          ['fit', 'track', `Arteor_${APP_VERSION}_Slide_Fit_Tracks_F40_F55_F70.stl`],
+          ['ramp', 'track', `Arteor_${APP_VERSION}_Slide_Ramp_Tracks_R55_R60_R65.stl`],
+          ['fit', 'shuttle', `Arteor_${APP_VERSION}_Slide_Fit_Shuttles_F40_F55_F70.stl`],
+          ['ramp', 'shuttle', `Arteor_${APP_VERSION}_Slide_Ramp_Shuttles_R55_R60_R65.stl`],
+          ['fit', 'stop', `Arteor_${APP_VERSION}_Slide_Fit_Stops_F40_F55_F70.stl`],
+          ['ramp', 'stop', `Arteor_${APP_VERSION}_Slide_Ramp_Stops_R55_R60_R65.stl`]
+        ];
+        showStatusBanner('Unioning each track, shuttle, and stop into one closed solid…');
+        try {
+          for (let i = 0; i < files.length; i++) {
+            const row = buildSlideCoupon(params, files[i][0], files[i][1]);
+            await solidifyDirectChildren(row);
+            downloadPrintReadySTL(row, files[i][2]);
+          }
+          showStatusBanner('Saved 6 files. Each of the 3 parts in a file is one closed solid.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Solid union failed: ' + err.message);
+        }
+      });
+
+      function buildRemovableRailFit(sm) {
+        const matB = createGlossMat('#cbd5e1', false, 0.45, 0.04);
+        const matR = createGlossMat('#5eead4', false, 0.4, 0.05);
+        const matS = createGlossMat('#fde68a', false, 0.4, 0.05);
+        const tongueHalf = 16;
+        const yTongue0 = -tongueHalf;
+        const yTongue1 = tongueHalf;
+        const yNeed0 = yTongue0 - sm.travel / 2;
+        const yNeed1 = yTongue1 + sm.travel / 2;
+        const yYoke0 = yNeed0 - 14;
+        const yStop = yNeed0 - 2.4;
+        const yGroove0 = yStop + 0.20;
+        const yGroove1 = yNeed1 + 2.4;
+        const yTab1 = yGroove1 + 8;
+        const yChan1 = yTab1 + 6;
+        const yFixed1 = yNeed1 + 8;
+        const footX0 = sm.winHalf + 2.55;
+        const footX1 = sm.winHalf + sm.railW - 0.15;
+        const seatIn = 0.20;
+        const seatOut = 0.28;
+        const xO = sm.winHalf + sm.railW;
+        const xLeft = -xO;
+        const floorTop = sm.zFloor - 3.5;
+        const footZ0 = floorTop + 0.15;
+        const slotH = 2.8;
+        const floorWeb = 2.0;
+        const bedSkin = 1.4;
+        const slotZ1 = floorTop - floorWeb;
+        const slotZ0 = slotZ1 - slotH;
+        const floorBottom = slotZ0 - bedSkin;
+        const wallInX1 = footX0 - seatIn;
+        const wallInX0 = wallInX1 - 2.2;
+        const wallOutX0 = footX1 + seatOut;
+        const wallOutX1 = wallOutX0 + 2.4;
+        const screwX = (footX0 + footX1) / 2;
+        const slabX0 = wallInX0;
+        const slabX1 = wallOutX1;
+        const screwY = yGroove1 + 4.2;
+        const tabTop = sm.zFloor + 5.2;
+
+        const base = new THREE.Group();
+        const fixedSpans = [
+          { y0: yYoke0, y1: yFixed1 - 5, extra: 0 },
+          { y0: yFixed1 - 5, y1: yFixed1, extra: 0.55 }
+        ];
+        fixedSpans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.2 : 0);
+          const yB = sp.y1 + (i < fixedSpans.length - 1 ? 0.2 : 0);
+          const pts = mirrorXPts(rightRailPts(sm, sp.extra, 'full'));
+          addProfileXZ(base, pts, yA, yB, matB);
+        });
+        addBox(base, Math.max(wallOutX1, slabX1) - xLeft, yStop - yYoke0, sm.zFloor - floorBottom,
+          (xLeft + Math.max(wallOutX1, slabX1)) / 2, (yYoke0 + yStop) / 2, (floorBottom + sm.zFloor) / 2, matB);
+        addBox(base, slabX1 - slabX0, yChan1 - yYoke0, floorTop - floorBottom,
+          (slabX0 + slabX1) / 2, (yYoke0 + yChan1) / 2, (floorBottom + floorTop) / 2, matB);
+        addBox(base, wallInX1 - wallInX0, yChan1 - yStop, sm.zFloor - (floorTop - 0.3),
+          (wallInX0 + wallInX1) / 2, (yStop + yChan1) / 2, ((floorTop - 0.3) + sm.zFloor) / 2, matB);
+        addBox(base, wallOutX1 - wallOutX0, yChan1 - yStop, sm.zFloor - (floorTop - 0.3),
+          (wallOutX0 + wallOutX1) / 2, (yStop + yChan1) / 2, ((floorTop - 0.3) + sm.zFloor) / 2, matB);
+        const baseId = slideTextSize('F55', 0.62);
+        slideEmboss(base, 'F55', -baseId.width / 2, yYoke0 + baseId.height + 1.1, sm.zFloor, matB, 0.62);
+        slideEmbossX(base, 'OPEN', wallOutX1, yChan1 - 12, sm.zFloor - 0.4, matB, 0.46);
+        addBoxCutter(base, 6.3, (yChan1 + 1.4) - (screwY - 2.6), slotZ1 - slotZ0,
+          screwX, ((screwY - 2.6) + (yChan1 + 1.4)) / 2, (slotZ0 + slotZ1) / 2);
+        addVerticalCutter(base, 1.7, slotZ0 - 0.2, floorTop + 0.5, screwX, screwY);
+
+        const rail = new THREE.Group();
+        const head = (extra) => {
+          const side = sm.xyClear + (extra || 0);
+          const xMouth = sm.winHalf + sm.tNarrow + side;
+          const xRoot = sm.winHalf + sm.tWide + side;
+          return [
+            [xO, sm.zFloor - 0.25],
+            [xO, sm.zRailTop],
+            [xMouth, sm.zRailTop],
+            [xMouth, sm.zLip],
+            [xMouth, sm.zBodyFront],
+            [xRoot, sm.zBodyBack],
+            [xRoot, sm.zFloor],
+            [footX0, sm.zFloor],
+            [footX0, sm.zFloor - 0.25]
+          ];
+        };
+        addProfileXZ(rail, head(0.45), yGroove0, yGroove0 + 1.8, matR);
+        addProfileXZ(rail, head(0), yGroove0 + 1.55, yGroove1, matR);
+        addBox(rail, footX1 - footX0, yTab1 - yGroove0, (sm.zFloor + 0.2) - footZ0,
+          (footX0 + footX1) / 2, (yGroove0 + yTab1) / 2, (footZ0 + sm.zFloor + 0.2) / 2, matR);
+        addBox(rail, footX1 - footX0 - 0.5, yTab1 - yGroove1 + 0.4, tabTop - sm.zFloor,
+          screwX, (yGroove1 - 0.2 + yTab1) / 2, (sm.zFloor + tabTop) / 2, matR);
+        const railMark = slideTextSize('RAIL', 0.42);
+        slideEmbossX(rail, 'RAIL', xO, -railMark.width / 2, sm.zLip, matR, 0.42);
+        addVerticalCutter(rail, 1.7, footZ0 - 0.3, tabTop + 0.6, screwX, screwY);
+
+        const slider = new THREE.Group();
+        const cross = shuttleCrossPts(sm);
+        addProfileXZ(slider, cross, yTongue0, yTongue1, matS);
+        addBox(slider, 6.8, 14, 4.6, 0, 0, sm.zBodyFront + 1.9, matS);
+        const id = slideTextSize('F55', 0.48);
+        slideEmboss(slider, 'F55', -id.width / 2, id.height / 2, sm.zBodyFront + 4.2, matS, 0.48);
+
+        return {
+          base, rail, slider, sm,
+          seat: {
+            tongueHalf, yStop, yGroove0, yGroove1, yNeed0, yNeed1,
+            footX0, footX1, seatIn, seatOut, screwX, screwY,
+            floorTop, footZ0, slotZ0, slotZ1, floorBottom, tabTop,
+            wallInX0, wallInX1, wallOutX0, wallOutX1, xO
+          }
+        };
+      }
+
+      function railFitSolid(group, Manifold) {
+        const mesh = group.children.find(ch => ch.isMesh && ch.geometry);
+        const g = mesh.geometry.clone();
+        g.applyMatrix4(mesh.matrixWorld);
+        const solid = Manifold.ofMesh(weldMeshData(g));
+        g.dispose();
+        return solid;
+      }
+
+      function railFitOverlap(Manifold, a, b) {
+        const hit = Manifold.intersection(a, b);
+        const volume = hit.getProperties().volume;
+        hit.delete();
+        return volume;
+      }
+
+      function auditRemovableRailFit(built, Manifold) {
+        const sm = built.sm;
+        const seat = built.seat;
+        const base = railFitSolid(built.base, Manifold);
+        const rail0 = railFitSolid(built.rail, Manifold);
+        const slider0 = railFitSolid(built.slider, Manifold);
+        const report = {
+          ok: true, steps: [], hardware: 'M3x12 screw and M3 nut',
+          baseBox: base.boundingBox(), railBox: rail0.boundingBox(), sliderBox: slider0.boundingBox(),
+          lipExpect: {
+            x: sm.winHalf + sm.tNarrow + sm.xyClear,
+            zFront: sm.zBodyFront, zLip: sm.zLip, zTop: sm.zRailTop, zFloor: sm.zFloor
+          }
+        };
+        const fail = (name, detail) => {
+          report.ok = false;
+          report.steps.push({ name, ok: false, detail });
+        };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const place = (solid, y) => {
+          const mesh = solid.getMesh();
+          let copy = Manifold.ofMesh(mesh);
+          if (y) copy = copy.translate([0, y, 0]);
+          return copy;
+        };
+        let worst = 0;
+        for (let y = 46; y >= 0; y -= 2) {
+          const slider = place(slider0, y);
+          const hit = railFitOverlap(Manifold, base, slider);
+          slider.delete();
+          worst = Math.max(worst, hit);
+        }
+        if (worst > 0.05) fail('slider onto fixed rail', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else pass('slider onto fixed rail', 'clear from 46 mm out to seated');
+        worst = 0;
+        const sliderSeated = place(slider0, 0);
+        for (let y = 52; y >= 0; y -= 2) {
+          const rail = place(rail0, y);
+          const hitB = railFitOverlap(Manifold, base, rail);
+          const hitS = railFitOverlap(Manifold, sliderSeated, rail);
+          rail.delete();
+          worst = Math.max(worst, hitB, hitS);
+        }
+        if (worst > 0.05) fail('rail slides on', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else pass('rail slides on', 'clear of the base and the seated slider');
+        worst = 0;
+        let captured = true;
+        const probes = [];
+        const railSeated = place(rail0, 0);
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        for (let y = -sm.travel / 2; y <= sm.travel / 2 + 0.01; y += sm.travel / 2) {
+          const slider = place(slider0, y);
+          worst = Math.max(worst, railFitOverlap(Manifold, base, slider), railFitOverlap(Manifold, railSeated, slider));
+          const yTip0 = -seat.tongueHalf + y;
+          const yTip1 = seat.tongueHalf + y;
+          [yTip0 + 0.6, yTip1 - 0.6].forEach(yy => {
+            let probe = Manifold.cube([0.4, 0.4, 0.4], true);
+            probe = probe.translate([-(lipX + 0.8), yy, lipZ]);
+            const left = railFitOverlap(Manifold, base, probe);
+            probe.delete();
+            let probeR = Manifold.cube([0.4, 0.4, 0.4], true);
+            probeR = probeR.translate([lipX + 0.8, yy, lipZ]);
+            const right = railFitOverlap(Manifold, railSeated, probeR);
+            probeR.delete();
+            probes.push({ y: +yy.toFixed(2), left: +left.toFixed(3), right: +right.toFixed(3) });
+            if (left < 0.002 || right < 0.002) captured = false;
+          });
+          slider.delete();
+        }
+        report.probes = probes;
+        const hitAt = (solid, x, y, z) => {
+          let probe = Manifold.cube([0.5, 0.5, 0.5], true);
+          probe = probe.translate([x, y, z]);
+          const volume = railFitOverlap(Manifold, solid, probe);
+          probe.delete();
+          return +volume.toFixed(3);
+        };
+        report.railVol = rail0.getProperties().volume;
+        report.baseVol = base.getProperties().volume;
+        report.samples = {
+          railOuter: hitAt(rail0, 10.4, 0, 14.8),
+          railLip: hitAt(rail0, lipX + 0.9, 0, lipZ),
+          railLow: hitAt(rail0, 9.2, 0, sm.zFloor + 0.4),
+          baseOuter: hitAt(base, -10.2, 0, 14.8),
+          baseLip: hitAt(base, -(lipX + 0.9), 0, lipZ)
+        };
+        if (worst > 0.05) fail('11 mm travel', 'intersection ' + worst.toFixed(3) + ' mm3');
+        else if (!captured) fail('11 mm travel', 'a lip does not cover the tongue at an end of travel');
+        else pass('11 mm travel', 'both lips cover the tongue at both ends');
+        let cam = Manifold.cube([6.4, seat.tongueHalf * 2, 6.2], true);
+        cam = cam.translate([0, 0, sm.zFloor - 3.3]);
+        const camHit = railFitOverlap(Manifold, base, cam);
+        cam.delete();
+        if (camHit > 0.05) fail('cam space', 'base enters the center void by ' + camHit.toFixed(2) + ' mm3');
+        else pass('cam space', 'center under the slider is open for 6 mm below the rail floor');
+        let web = Manifold.cylinder(Math.max(0.4, seat.floorTop - seat.slotZ1 - 0.5), 1.4, 1.4, 16);
+        web = web.translate([seat.screwX, seat.screwY, seat.slotZ1 + 0.25]);
+        let tabHole = Manifold.cylinder(Math.max(0.4, seat.tabTop - seat.footZ0 - 0.8), 1.4, 1.4, 16);
+        tabHole = tabHole.translate([seat.screwX, seat.screwY, seat.footZ0 + 0.4]);
+        let pocket = Manifold.cube([4.0, 3.2, Math.max(0.4, seat.slotZ1 - seat.slotZ0 - 0.6)], true);
+        pocket = pocket.translate([seat.screwX, seat.screwY + 1.5, (seat.slotZ0 + seat.slotZ1) / 2]);
+        const screwRail = railFitOverlap(Manifold, railSeated, tabHole);
+        const screwBase = railFitOverlap(Manifold, base, web);
+        const pocketHit = railFitOverlap(Manifold, base, pocket);
+        web.delete(); tabHole.delete(); pocket.delete();
+        if (screwRail > 0.15 || screwBase > 0.15 || pocketHit > 0.15) {
+          fail('screw hole', 'tab ' + screwRail.toFixed(2) + ' web ' + screwBase.toFixed(2) + ' nut slot ' + pocketHit.toFixed(2));
+        } else pass('screw hole', 'M3 hole is open through the tab and the floor, and the nut slot is open');
+        [base, rail0, slider0, sliderSeated, railSeated].forEach(m => m.delete());
+        return report;
+      }
+
+      document.getElementById('btn-exp-rail-fit').addEventListener('click', async () => {
+        showStatusBanner('Building the removable-rail fit test…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildRemovableRailFit(sm);
+          const api = await ensureManifold();
+          const baseInfo = solidifyGroup(built.base, api.Manifold);
+          const railInfo = solidifyGroup(built.rail, api.Manifold);
+          const sliderInfo = solidifyGroup(built.slider, api.Manifold);
+          [baseInfo, railInfo, sliderInfo].forEach((info, i) => {
+            if (info.shells !== 1 || !(info.volume > 0)) {
+              throw new Error('Part ' + (i + 1) + ' is ' + info.shells + ' shells, volume ' + info.volume);
+            }
+          });
+          const report = auditRemovableRailFit(built, api.Manifold);
+          window.__arteor.railFitAudit = report;
+          if (!report.ok) {
+            const bad = report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; ');
+            throw new Error(bad);
+          }
+          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_RailFit_F55_Base.stl`);
+          downloadPrintReadySTL(built.rail, `Arteor_${APP_VERSION}_RailFit_F55_Rail.stl`);
+          downloadPrintReadySTL(built.slider, `Arteor_${APP_VERSION}_RailFit_F55_Slider.stl`, -Math.PI / 2);
+          showStatusBanner('Saved 3 files: base, loose rail, slider. Hardware: one M3×12 screw and one M3 nut. Not the fixed-rail coupons.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Rail fit test failed: ' + err.message);
+        }
+      });
+
+      function buildToolFreeF55(sm) {
+        const matT = createGlossMat('#e2e8f0', false, 0.45, 0.04);
+        const matS = createGlossMat('#fde68a', false, 0.38, 0.05);
+        const matP = createGlossMat('#86efac', false, 0.4, 0.04);
+        const track = new THREE.Group();
+        const yRail0 = -sm.trackInnerHalf;
+        const yRail1 = sm.trackInnerHalf;
+        const slot0 = yRail0 + sm.stopLead;
+        const slotLen = 4.8;
+        const slot1 = slot0 + slotLen;
+        const flare1 = Math.min(yRail1 - 1, slot1 + sm.flareLen);
+        const spans = [
+          { y0: yRail0, y1: slot0, mode: 'keeper', extra: 0 },
+          { y0: slot0, y1: slot1, mode: 'sole', extra: 0 },
+          { y0: slot1, y1: flare1, mode: 'full', extra: sm.flare },
+          { y0: flare1, y1: yRail1, mode: 'full', extra: 0 }
+        ];
+        spans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.22 : 0);
+          const yB = sp.y1 + (i < spans.length - 1 ? 0.22 : 0);
+          const ptsR = rightRailPts(sm, sp.extra, sp.mode);
+          addProfileXZ(track, ptsR, yA, yB, matT);
+          addProfileXZ(track, mirrorXPts(ptsR), yA, yB, matT);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        const barLen = sm.endBar + 0.45;
+        addBox(track, sm.outerW, barLen, railH, 0, sm.trackInnerHalf - 0.4 + barLen / 2, (sm.zRailTop + zBot) / 2, matT);
+        const tieY0 = yRail0 - sm.tieLen;
+        const tieY1 = slot1;
+        const tieH = 0.9;
+        addBox(track, sm.railW, tieY1 - tieY0, tieH, sm.winHalf + sm.railW / 2, (tieY0 + tieY1) / 2, zBot + tieH / 2, matT);
+        addBox(track, sm.railW, tieY1 - tieY0, tieH, -(sm.winHalf + sm.railW / 2), (tieY0 + tieY1) / 2, zBot + tieH / 2, matT);
+        const tabThick = 1.6;
+        const tabLen = 12;
+        const tabW = Math.min(18, sm.outerW);
+        const tabY0 = sm.trackInnerHalf + sm.endBar * 0.45;
+        const tabTop = sm.zFloor + tabThick;
+        addBox(track, tabW, tabLen, tabThick, 0, tabY0 + tabLen / 2, sm.zFloor + tabThick / 2, matT);
+        const farId = slideTextSize('F55', 0.55);
+        slideEmboss(track, 'F55', -farId.width / 2, tabY0 + tabLen - 1.0, tabTop, matT, 0.55);
+        const openMark = slideTextSize('OPEN', 0.46);
+        slideEmbossX(track, 'OPEN', sm.winHalf + sm.railW, slot1 + 0.6, sm.zRailTop - 0.5, matT, 0.46);
+
+        const shuttle = new THREE.Group();
+        buildOneShuttle(shuttle, sm, 0, 0, 1, matS, 0, 'F55');
+
+        const stop = new THREE.Group();
+        const yC = (slot0 + slot1) / 2;
+        const footY = 3.4;
+        const xIn = sm.winHalf + 0.25;
+        const xOut = sm.winHalf + sm.railW - 0.25;
+        const footW = Math.max(1.2, xOut - xIn);
+        const zFoot0 = sm.zFloor + 0.20;
+        const zFoot1 = sm.zRailTop - 0.15;
+        addBox(stop, footW, footY, zFoot1 - zFoot0, (xIn + xOut) / 2, yC, (zFoot0 + zFoot1) / 2, matP);
+        addBox(stop, footW, footY, zFoot1 - zFoot0, -(xIn + xOut) / 2, yC, (zFoot0 + zFoot1) / 2, matP);
+        const bridgeZ0 = sm.zBodyBack + 0.55;
+        const bridgeZ1 = zFoot1;
+        addBox(stop, xOut * 2, footY, bridgeZ1 - bridgeZ0, 0, yC, (bridgeZ0 + bridgeZ1) / 2, matP);
+        const stopMark = slideTextSize('STOP', 0.36);
+        slideEmbossPosY(stop, 'STOP', yC + footY / 2, -stopMark.width / 2, bridgeZ1 - 0.15, matP, 0.36);
+        // The open-end posts are plain rectangles. These arms squeeze them.
+        // There is no head to snap under. 0.30 mm of squeeze is friction, not a lock.
+        const xO = sm.winHalf + sm.railW;
+        const xKeep = Math.min(xO - 0.8, sm.winHalf + sm.tWide + sm.xyClear + 0.35);
+        const pinY0 = -sm.trackInnerHalf;
+        const pinY1 = pinY0 + sm.stopLead + 0.20;
+        const grip = 0.25;
+        const leafT = 1.6;
+        const leafZ0 = bridgeZ1 - 1.7;
+        const leafZ1 = bridgeZ1;
+        [1, -1].forEach(side => {
+          const pinIn = side * xKeep;
+          const pinOut = side * xO;
+          const padFace = pinIn - side * 0.12;
+          const padX0 = Math.min(padFace, padFace - side * 2.0);
+          const padX1 = Math.max(padFace, padFace - side * 2.0);
+          addBox(stop, padX1 - padX0, (yC - footY / 2 + 0.4) - (pinY0 - 0.05), leafZ1 - (sm.zFloor + 0.8),
+            (padX0 + padX1) / 2, ((pinY0 - 0.05) + (yC - footY / 2 + 0.4)) / 2,
+            ((sm.zFloor + 0.8) + leafZ1) / 2, matP);
+          const leafIn = pinOut + side * 0.70;
+          const leafX0 = Math.min(leafIn, leafIn + side * leafT);
+          const leafX1 = Math.max(leafIn, leafIn + side * leafT);
+          const leafY0 = pinY0 + 0.05;
+          const leafY1 = pinY1 + 8.2;
+          addBox(stop, leafX1 - leafX0, leafY1 - leafY0, leafZ1 - leafZ0,
+            (leafX0 + leafX1) / 2, (leafY0 + leafY1) / 2, (leafZ0 + leafZ1) / 2, matP);
+          const bite = pinOut - side * grip;
+          const biteX0 = Math.min(bite, leafIn);
+          const biteX1 = Math.max(bite, leafIn);
+          addBox(stop, biteX1 - biteX0, (pinY1 - 0.05) - (pinY0 + 0.08), 1.35,
+            (biteX0 + biteX1) / 2, ((pinY0 + 0.08) + (pinY1 - 0.05)) / 2, leafZ1 - 0.85, matP);
+          const rootX0 = Math.min(padX0, leafX0, side * (xOut - 0.4));
+          const rootX1 = Math.max(padX1, leafX1, side * (xOut - 0.4));
+          addBox(stop, rootX1 - rootX0, (yC + 0.2) - (pinY1 + 0.15), leafZ1 - leafZ0,
+            (rootX0 + rootX1) / 2, ((pinY1 + 0.15) + (yC + 0.2)) / 2, (leafZ0 + leafZ1) / 2, matP);
+        });
+
+        return {
+          track, shuttle, stop, sm,
+          meta: {
+            slot0, slot1, yC, footY, zBot, tieY0, tieY1,
+            bridgeZ0, bridgeZ1, zFoot0, zFoot1, xIn, xOut,
+            openMarkWidth: openMark.width
+          }
+        };
+      }
+
+      function toolFreeSolid(group, Manifold) {
+        group.updateMatrixWorld(true);
+        const mesh = group.children.find(ch => ch.isMesh && ch.geometry && !(ch.userData && ch.userData.cutter));
+        const g = mesh.geometry.clone();
+        g.applyMatrix4(mesh.matrixWorld);
+        const solid = Manifold.ofMesh(weldMeshData(g));
+        g.dispose();
+        return solid;
+      }
+
+      function toolFreeOverlap(Manifold, a, b) {
+        const hit = Manifold.intersection(a, b);
+        const volume = hit.getProperties().volume;
+        hit.delete();
+        return volume;
+      }
+
+      function toolFreeMoved(Manifold, solid, y, z) {
+        let copy = Manifold.ofMesh(solid.getMesh());
+        if (y || z) copy = copy.translate([0, y || 0, z || 0]);
+        return copy;
+      }
+
+      function auditToolFreeSweep(built, Manifold) {
+        const sm = built.sm;
+        const track = toolFreeSolid(built.track, Manifold);
+        const shuttle0 = toolFreeSolid(built.shuttle, Manifold);
+        const stop0 = toolFreeSolid(built.stop, Manifold);
+        const report = { ok: true, maxTrack: 0, maxStopTravel: 0, steps: [] };
+        const fail = (name, detail) => { report.ok = false; report.steps.push({ name, ok: false, detail }); };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const yStart = -(sm.shuttleHalf + sm.trackInnerHalf + 8);
+        const yEnd = sm.travel / 2;
+        const step = 1;
+        for (let shift = yStart; shift <= yEnd + 1e-6; shift += step) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > report.maxTrack) report.maxTrack = hit;
+        }
+        if (report.maxTrack > 0.05) fail('insertion and travel', 'track intersection ' + report.maxTrack.toFixed(3) + ' mm3');
+        else pass('insertion and travel', 'no track intersection from fully outside through +' + (sm.travel / 2) + ' mm, ' + step + ' mm steps');
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        let captured = true;
+        const lipNotes = [];
+        [-sm.travel / 2, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > 0.05) captured = false;
+          const yLo = -sm.shuttleHalf + shift;
+          const yHi = sm.shuttleHalf + shift;
+          // Stay out of the flared mouth so the probe sits in the running lip.
+          [Math.max(yLo + 4, -18), Math.min(yHi - 4, 18)].forEach(yy => {
+            let probe = Manifold.cube([0.45, 0.6, 0.45], true).translate([-(lipX + 0.55), yy, lipZ]);
+            const left = toolFreeOverlap(Manifold, track, probe);
+            probe.delete();
+            probe = Manifold.cube([0.45, 0.6, 0.45], true).translate([lipX + 0.55, yy, lipZ]);
+            const right = toolFreeOverlap(Manifold, track, probe);
+            probe.delete();
+            lipNotes.push({ shift, y: +yy.toFixed(1), left: +left.toFixed(3), right: +right.toFixed(3) });
+            if (left < 0.002 || right < 0.002) captured = false;
+          });
+        });
+        report.lips = lipNotes;
+        if (!captured) fail('retained at both ends', 'a lip does not cover the tongue, or the shuttle hits the track');
+        else pass('retained at both ends', 'both lips cover the tongue at +/- ' + (sm.travel / 2) + ' mm');
+        [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, stop0, shuttle);
+          shuttle.delete();
+          if (hit > report.maxStopTravel) report.maxStopTravel = hit;
+        });
+        if (report.maxStopTravel > 0.05) fail('stop during travel', 'intersection ' + report.maxStopTravel.toFixed(3) + ' mm3');
+        else pass('stop during travel', 'stop misses the shuttle, including both cams, at both ends and the middle');
+        let dropHit = 0;
+        for (let z = 18; z >= 0; z -= 1) {
+          const stop = toolFreeMoved(Manifold, stop0, 0, z);
+          const shuttle = toolFreeMoved(Manifold, shuttle0, 0, 0);
+          const hit = toolFreeOverlap(Manifold, stop, shuttle);
+          stop.delete();
+          shuttle.delete();
+          if (hit > dropHit) dropHit = hit;
+        }
+        if (dropHit > 0.05) fail('stop drop and lift', 'hits the shuttle, ' + dropHit.toFixed(3) + ' mm3');
+        else pass('stop drop and lift', 'the stop moves straight down and back up clear of the seated shuttle');
+        let clearLift = 0;
+        let seatedGrip = 0;
+        for (let z = 12; z >= 0; z -= 0.5) {
+          const stop = toolFreeMoved(Manifold, stop0, 0, z);
+          const hit = toolFreeOverlap(Manifold, track, stop);
+          stop.delete();
+          if (z >= 2.5) clearLift = Math.max(clearLift, hit);
+          if (z < 0.01) seatedGrip = hit;
+        }
+        report.gripVolume = +seatedGrip.toFixed(3);
+        if (clearLift > 0.05) fail('stop approach', 'hits the posts before the grip, ' + clearLift.toFixed(3) + ' mm3');
+        else if (seatedGrip < 0.15) fail('grip', 'the arms do not reach the posts');
+        else pass('grip', 'arms clear the posts until the last 2 mm, then squeeze them by ' + seatedGrip.toFixed(2) + ' mm3. Friction, not a snap');
+        let blocked = false;
+        let blockShift = null;
+        for (let shift = -sm.travel / 2; shift >= -sm.travel / 2 - 12; shift -= 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, stop0, shuttle);
+          const trackHit = toolFreeOverlap(Manifold, track, shuttle);
+          shuttle.delete();
+          if (hit > 0.2 && trackHit < 0.05) { blocked = true; blockShift = shift; break; }
+        }
+        if (!blocked) fail('pull-out', 'the shuttle did not meet the stop before hitting the track');
+        else pass('pull-out', 'the stop stops the shuttle at shift ' + blockShift.toFixed(1) + ' mm, before the rails do');
+        const plate = Manifold.cube([7.2, (built.meta.tieY1 - built.meta.tieY0) + 1, 6.2], true)
+          .translate([0, (built.meta.tieY0 + built.meta.tieY1) / 2, sm.zDwell + 3.0]);
+        const plateHit = toolFreeOverlap(Manifold, track, plate);
+        plate.delete();
+        const foot = Manifold.cube([3, 2, 0.6], true)
+          .translate([sm.winHalf + sm.railW / 2, (built.meta.tieY0 + built.meta.tieY1) / 2, sm.zFloor - 0.45]);
+        const footHit = toolFreeOverlap(Manifold, track, foot);
+        foot.delete();
+        if (plateHit > 0.05) fail('open middle', 'entrance plate still crosses the cam path, ' + plateHit.toFixed(2) + ' mm3');
+        else if (footHit < 0.05) fail('rail feet', 'the entrance foot under the rail is missing');
+        else pass('open middle', 'the 7.2 mm cam path is open and both rail feet remain');
+        [track, shuttle0, stop0].forEach(m => m.delete());
+        report.maxTrack = +report.maxTrack.toFixed(4);
+        report.maxStopTravel = +report.maxStopTravel.toFixed(4);
+        return report;
+      }
+
+      document.getElementById('btn-exp-toolfree').addEventListener('click', async () => {
+        showStatusBanner('Checking the full cam path, then saving the tool-free F55 test…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildToolFreeF55(sm);
+          const api = await ensureManifold();
+          const infos = [
+            solidifyGroup(built.track, api.Manifold),
+            solidifyGroup(built.shuttle, api.Manifold),
+            solidifyGroup(built.stop, api.Manifold)
+          ];
+          infos.forEach((info, i) => {
+            if (info.shells !== 1 || !(info.volume > 0)) {
+              throw new Error('Part ' + (i + 1) + ' is ' + info.shells + ' shells, volume ' + info.volume);
+            }
+          });
+          const report = auditToolFreeSweep(built, api.Manifold);
+          window.__arteor.toolFreeAudit = report;
+          if (!report.ok) {
+            const bad = report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; ');
+            throw new Error(bad);
+          }
+          const spin = new THREE.Matrix4().makeRotationX(Math.PI);
+          built.stop.updateMatrixWorld(true);
+          built.stop.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          downloadPrintReadySTL(built.stop, `Arteor_${APP_VERSION}_ToolFree_F55_Stop_Clip.stl`);
+          showStatusBanner('Saved the clip stop only. The printed track and shuttle stay as they are. The arms squeeze the two posts; they do not lock under a head.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Tool-free test failed: ' + err.message);
+        }
+      });
+
+      function buildPlateTest(sm) {
+        const matB = createGlossMat('#e7edf3', false, 0.46, 0.04);
+        const matS = createGlossMat('#f6d86a', false, 0.38, 0.05);
+        const matC = createGlossMat('#bae6fd', false, 0.4, 0.04);
+        const base = new THREE.Group();
+        const yBot = -sm.trackInnerHalf;
+        const yTop = sm.trackInnerHalf;
+        const flare0 = yTop - sm.flareLen;
+        const spans = [
+          { y0: yBot, y1: flare0, mode: 'full', extra: 0 },
+          { y0: flare0, y1: yTop, mode: 'full', extra: sm.flare }
+        ];
+        spans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.2 : 0);
+          const yB = sp.y1 + (i < spans.length - 1 ? 0.2 : 0);
+          const pts = rightRailPts(sm, sp.extra, sp.mode);
+          addProfileXZ(base, pts, yA, yB, matB);
+          addProfileXZ(base, mirrorXPts(pts), yA, yB, matB);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        const barLen = sm.endBar + 0.5;
+        const yBar1 = yBot + 0.45;
+        const yBar0 = yBar1 - barLen;
+        addBox(base, sm.outerW, barLen, railH, 0, (yBar0 + yBar1) / 2, (zBot + sm.zRailTop) / 2, matB);
+        const tieH = 0.9;
+        const tieY0 = yTop - 6;
+        const tieY1 = yTop + sm.tieLen;
+        addBox(base, sm.railW, tieY1 - tieY0, tieH, sm.winHalf + sm.railW / 2, (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
+        addBox(base, sm.railW, tieY1 - tieY0, tieH, -(sm.winHalf + sm.railW / 2), (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
+        // 3-module support frame the screw ears are drawn against (buildLegrandReferenceHardware):
+        // outer is the chassis inner size minus 0.8 mm, front face at the rocker datum, 2.2 mm thick behind it.
+        // 114.5 x 79.5 is that chassis inner size, not a measured plate exterior.
+        const deckT = 2.4;
+        const plateW = 114.5 - 0.8;
+        const plateH = 79.5 - 0.8;
+        const frameWinH = 45.4;
+        const deckGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(plateW, plateH, 2.5), { depth: deckT, bevelEnabled: false });
+        base.add(new THREE.Mesh(deckGeo, matB));
+        addBoxCutter(base, 22.5, frameWinH, deckT + 0.8, 0, 0, deckT / 2);
+        const screwX = 83.5 / 2;
+        [-screwX, screwX].forEach(x => {
+          addBoxCutter(base, 4.2, 3.2, deckT + 0.8, x, 0, deckT / 2);
+          addVerticalCutter(base, 2.1, -0.4, deckT + 0.4, x, 1.6);
+          addVerticalCutter(base, 2.1, -0.4, deckT + 0.4, x, -1.6);
+        });
+        const wallZ1 = zBot + 0.3;
+        [-1, 1].forEach(side => {
+          [-1, 1].forEach(end => {
+            const yLim = plateH / 2 - 1.6;
+            const yOpen = frameWinH / 2 + 0.45;
+            const y0 = end < 0 ? -yLim : yOpen;
+            const y1 = end < 0 ? -yOpen : yLim;
+            const cx = side * (sm.winHalf + sm.railW / 2);
+            addBox(base, sm.railW, y1 - y0, wallZ1 - (deckT - 0.35), cx, (y0 + y1) / 2, ((deckT - 0.35) + wallZ1) / 2, matB);
+          });
+        });
+        const zR = sm.zRailTop;
+        const shelfW = 8.0;
+        const shelfY0 = yBar1 - 0.40;
+        const shelfY1 = yBar1 + 1.05;
+        const shelfZ0 = zBot - 2.55;
+        const shelfZ1 = zBot - 1.25;
+        addBox(base, shelfW, 0.70, (zBot + 0.40) - shelfZ0, 0, yBar1 - 0.20, (shelfZ0 + zBot + 0.40) / 2, matB);
+        addBox(base, shelfW, shelfY1 - shelfY0, shelfZ1 - shelfZ0, 0, (shelfY0 + shelfY1) / 2, (shelfZ0 + shelfZ1) / 2, matB);
+        const beamZ0 = zR + 0.40;
+        const beamZ1 = zR + 1.70;
+        const hoodZ0 = beamZ1 + 0.30;
+        const hoodZ1 = hoodZ0 + 1.15;
+        [-1, 1].forEach(side => {
+          addBox(base, 3.0, 2.8, hoodZ1 - (zR - 0.35), side * 9.0, yTop - 2.75, ((zR - 0.35) + hoodZ1) / 2, matB);
+          addBox(base, 1.75, 1.40, hoodZ1 - hoodZ0, side * 7.425, yTop - 2.85, (hoodZ0 + hoodZ1) / 2, matB);
+        });
+        slideEmboss(base, 'TOP', -5.2, 36.4, deckT, matB, 0.55);
+        slideEmboss(base, 'F55', -4.8, 31.6, deckT, matB, 0.48);
+
+        const shuttle = new THREE.Group();
+        buildOneShuttle(shuttle, sm, 0, 0, 1, matS, 0, 'F55');
+
+        const faceT = 1.8;
+        const faceZ0 = zR + 2.50;
+        const coverW = 22.4;
+        const coverY0 = yBar0 + 0.35;
+        const coverY1 = yTop - 4.70;
+        const slotW = 9.4;
+        const slotL = sm.handleL + sm.travel + 1.4;
+        const noseZ0 = shelfZ0 - 1.15;
+        const noseZ1 = shelfZ0 - 0.28;
+        function addCoverBody(target, flexY, flexX) {
+          addBox(target, coverW, coverY1 - coverY0, faceT, 0, (coverY0 + coverY1) / 2, faceZ0 + faceT / 2, matC);
+          const collarZ0 = zR + 0.55;
+          addBox(target, 13.6, slotL + 3.6, (faceZ0 + 0.25) - collarZ0, 0, 0, (collarZ0 + faceZ0 + 0.25) / 2, matC);
+          addBoxCutter(target, slotW, slotL, (faceZ0 + faceT + 0.45) - (collarZ0 - 0.2), 0, 0, ((collarZ0 - 0.2) + faceZ0 + faceT + 0.45) / 2);
+          const bridgeY0 = yBar1 + 0.40 + flexY;
+          const fingerY0 = yBar1 + 1.20 + flexY;
+          const fingerT = 1.05;
+          addBox(target, 6.0, (fingerY0 + fingerT) - bridgeY0, noseZ1 - noseZ0, 0, (bridgeY0 + fingerY0 + fingerT) / 2, (noseZ0 + noseZ1) / 2, matC);
+          addBox(target, 6.0, fingerT, (faceZ0 + 0.30) - noseZ0, 0, fingerY0 + fingerT / 2, (noseZ0 + faceZ0 + 0.30) / 2, matC);
+          [-1, 1].forEach(side => {
+            const dodge = side > 0 ? -flexX : flexX;
+            const x0 = side * 5.35 + dodge;
+            const x1 = side * 6.50 + dodge;
+            const yA = yTop - 14.4;
+            const yB = yTop - 2.15;
+            addBox(target, Math.abs(x1 - x0), yB - yA, beamZ1 - beamZ0, (x0 + x1) / 2, (yA + yB) / 2, (beamZ0 + beamZ1) / 2, matC);
+            const n0 = side * 6.25 + dodge;
+            const n1 = side * 7.20 + dodge;
+            addBox(target, Math.abs(n1 - n0), 1.35, (beamZ1 - 0.08) - beamZ0, (n0 + n1) / 2, yTop - 2.875, (beamZ0 + beamZ1 - 0.08) / 2, matC);
+            const r0 = side * 5.15;
+            const r1 = side * 6.70;
+            addBox(target, Math.abs(r1 - r0), 1.7, (faceZ0 + 0.25) - beamZ0, (r0 + r1) / 2, yTop - 13.30, (beamZ0 + faceZ0 + 0.25) / 2, matC);
+          });
+          slideEmboss(target, 'F55', -3.4, 18, faceZ0 + faceT, matC, 0.42);
+        }
+        const cover = new THREE.Group();
+        addCoverBody(cover, 0, 0);
+        const coverFlex = new THREE.Group();
+        addCoverBody(coverFlex, 0.85, 0.85);
+
+        return {
+          base, shuttle, cover, coverFlex, sm,
+          meta: {
+            yBot, yTop, yBar0, yBar1, zBot, faceZ0, faceT, coverW, slotW, slotL,
+            shelfZ0, shelfZ1, noseZ0, noseZ1, screwPitch: 83.5, limit: 22.5,
+            plateW, plateH, frameWinH, deckT, flex: 0.85, zGap: 0.28
+          }
+        };
+      }
+
+      function plateWidthAbove(group, zMin) {
+        let maxAbs = 0;
+        group.updateMatrixWorld(true);
+        group.traverse(ch => {
+          if (!ch.isMesh || !ch.geometry || (ch.userData && ch.userData.cutter)) return;
+          const p = ch.geometry.attributes.position;
+          for (let i = 0; i < p.count; i++) {
+            if (p.getZ(i) > zMin) maxAbs = Math.max(maxAbs, Math.abs(p.getX(i)));
+          }
+        });
+        return maxAbs * 2;
+      }
+
+      function auditPlateTest(built, Manifold) {
+        const sm = built.sm;
+        const base = toolFreeSolid(built.base, Manifold);
+        const shuttle0 = toolFreeSolid(built.shuttle, Manifold);
+        const cover0 = toolFreeSolid(built.cover, Manifold);
+        const report = { ok: true, steps: [], maxTrack: 0 };
+        const fail = (name, detail) => { report.ok = false; report.steps.push({ name, ok: false, detail }); };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const yStart = sm.shuttleHalf + sm.trackInnerHalf + 8;
+        for (let shift = yStart; shift >= -sm.travel / 2 - 1e-6; shift -= 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, base, shuttle);
+          shuttle.delete();
+          if (hit > report.maxTrack) { report.maxTrack = hit; report.worstShift = +shift.toFixed(2); }
+          if (hit > 1) report.hits = (report.hits || []).concat([{ shift: +shift.toFixed(1), hit: +hit.toFixed(2) }]);
+        }
+        if (report.maxTrack > 0.05) fail('load and travel', 'track hit ' + report.maxTrack.toFixed(3) + ' mm3');
+        else pass('load and travel', 'both cams clear from outside the top through +5.5 mm');
+        let gripHit = 0;
+        [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          gripHit = Math.max(gripHit, toolFreeOverlap(Manifold, cover0, shuttle));
+          shuttle.delete();
+        });
+        if (gripHit > 0.05) fail('cover during travel', 'cover hits the shuttle by ' + gripHit.toFixed(3) + ' mm3');
+        else pass('cover during travel', 'the grip stays inside the slot for the full 11 mm');
+        let escapeBlocked = false;
+        for (let shift = sm.travel / 2; shift <= sm.travel / 2 + 8; shift += 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const coverHit = toolFreeOverlap(Manifold, cover0, shuttle);
+          const railHit = toolFreeOverlap(Manifold, base, shuttle);
+          shuttle.delete();
+          if (coverHit > 0.3 && railHit < 0.05) { escapeBlocked = true; break; }
+        }
+        if (!escapeBlocked) fail('top escape', 'the cover does not stop the shuttle before the rails do');
+        else pass('top escape', 'the slot end stops the shuttle while the dovetail is still engaged');
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        let held = true;
+        [sm.travel / 2, -sm.travel / 2].forEach(shift => {
+          [-12, 12].forEach(yy0 => {
+            const yy = yy0 + shift * 0 + (yy0 < 0 ? Math.max(-sm.shuttleHalf + shift + 3, -16) : Math.min(sm.shuttleHalf + shift - 3, 16));
+            let probe = Manifold.cube([0.4, 0.5, 0.4], true).translate([-(lipX + 0.5), yy, lipZ]);
+            const left = toolFreeOverlap(Manifold, base, probe);
+            probe.delete();
+            probe = Manifold.cube([0.4, 0.5, 0.4], true).translate([lipX + 0.5, yy, lipZ]);
+            const right = toolFreeOverlap(Manifold, base, probe);
+            probe.delete();
+            if (left < 0.002 || right < 0.002) held = false;
+          });
+        });
+        if (!held) fail('lips', 'a tongue end is not under both lips');
+        else pass('lips', 'both lips still cover the tongue at both ends of travel');
+        const flex0 = toolFreeSolid(built.coverFlex, Manifold);
+        let flexHit = 0;
+        for (let z = 8; z >= 0; z -= 0.5) {
+          const cover = toolFreeMoved(Manifold, flex0, 0, z);
+          const shuttle = toolFreeMoved(Manifold, shuttle0, 0, 0);
+          flexHit = Math.max(flexHit, toolFreeOverlap(Manifold, base, cover), toolFreeOverlap(Manifold, shuttle, cover));
+          cover.delete();
+          shuttle.delete();
+        }
+        const seated = toolFreeOverlap(Manifold, base, cover0);
+        const seatedShuttle = toolFreeOverlap(Manifold, shuttle0, cover0);
+        let liftHit = 0;
+        [0.45, 0.7].forEach(z => {
+          const cover = toolFreeMoved(Manifold, cover0, 0, z);
+          liftHit = Math.max(liftHit, toolFreeOverlap(Manifold, base, cover));
+          cover.delete();
+        });
+        report.coverSeat = +seated.toFixed(3);
+        report.liftHit = +liftHit.toFixed(3);
+        report.flexHit = +flexHit.toFixed(3);
+        if (flexHit > 0.08) fail('cover on', 'pinching the fingers 0.85 mm still hits by ' + flexHit.toFixed(3) + ' mm3');
+        else if (seated > 0.08 || seatedShuttle > 0.08) fail('cover seat', 'seated cover intersects the plate by ' + seated.toFixed(3) + ' or the shuttle by ' + seatedShuttle.toFixed(3));
+        else if (liftHit < 0.4) fail('cover catch', 'a straight lift is not blocked, overlap ' + liftHit.toFixed(3) + ' mm3');
+        else pass('cover on', 'grip passes the slot. Seated gap is clear. A straight lift hits the undercuts by ' + liftHit.toFixed(2) + ' mm3. Pinching the fingers 0.85 mm clears the whole path.');
+        flex0.delete();
+        let escapeZ = true;
+        [0.6, 1.2].forEach(z => {
+          [-1, 1].forEach(dir => {
+            const shuttle = toolFreeMoved(Manifold, shuttle0, dir * (sm.travel / 2 + 1.4), z);
+            const coverHit = toolFreeOverlap(Manifold, cover0, shuttle);
+            const railHit = toolFreeOverlap(Manifold, base, shuttle);
+            shuttle.delete();
+            if (coverHit < 0.3 && railHit < 0.3) escapeZ = false;
+          });
+        });
+        const lifted = toolFreeMoved(Manifold, shuttle0, 0, 0.85);
+        const lipHold = toolFreeOverlap(Manifold, base, lifted);
+        lifted.delete();
+        const pressed = toolFreeMoved(Manifold, shuttle0, 0, -0.50);
+        const soleHold = toolFreeOverlap(Manifold, base, pressed);
+        pressed.delete();
+        if (!escapeZ) fail('diagonal', 'the shuttle can pass a travel end while raised');
+        else if (lipHold < 0.3) fail('lips out of plane', 'raising the shuttle 0.85 mm does not meet the lips, hit ' + lipHold.toFixed(3));
+        else if (soleHold < 0.3) fail('sole', 'pressing the shuttle 0.50 mm does not meet the floor, hit ' + soleHold.toFixed(3));
+        else pass('diagonal', 'slot ends still stop a raised shuttle. The 45 degree lips meet a 0.85 mm lift by ' + lipHold.toFixed(1) + ' mm3, and the floor meets a 0.50 mm press by ' + soleHold.toFixed(1) + ' mm3');
+        let screwOpen = true;
+        [-41.75, 41.75].forEach(x => {
+          const probe = Manifold.cube([3.0, 6.0, 3.2], true).translate([x, 0, 1.6]);
+          if (toolFreeOverlap(Manifold, base, probe) > 0.05) screwOpen = false;
+          probe.delete();
+        });
+        if (!screwOpen) fail('screws', 'a screw slot is closed');
+        else pass('screws', 'both 83.5 mm slots are open');
+        let outside = 0;
+        built.base.updateMatrixWorld(true);
+        built.base.traverse(ch => {
+          if (!ch.isMesh || !ch.geometry || (ch.userData && ch.userData.cutter)) return;
+          const p = ch.geometry.attributes.position;
+          for (let i = 0; i < p.count; i++) {
+            if (Math.abs(p.getX(i)) > built.meta.plateW / 2 + 0.05 || Math.abs(p.getY(i)) > built.meta.plateH / 2 + 0.05) outside++;
+          }
+        });
+        report.plate = { w: built.meta.plateW, h: built.meta.plateH };
+        if (outside) fail('envelope', outside + ' vertices sit outside the 3-module frame face');
+        else pass('envelope', 'the plate is the 3-module frame face, ' + built.meta.plateW.toFixed(1) + ' x ' + built.meta.plateH.toFixed(1) + ' mm');
+        const channelW = plateWidthAbove(built.base, 3);
+        const coverW = plateWidthAbove(built.cover, -100);
+        const shuttleW = plateWidthAbove(built.shuttle, -100);
+        report.widths = {
+          channel: +channelW.toFixed(2),
+          cover: +coverW.toFixed(2),
+          shuttle: +shuttleW.toFixed(2)
+        };
+        if (channelW > 22.5 || coverW > 22.5 || shuttleW > 22.5) {
+          fail('width', 'channel ' + channelW.toFixed(2) + ' cover ' + coverW.toFixed(2) + ' shuttle ' + shuttleW.toFixed(2));
+        } else {
+          pass('width', 'channel ' + channelW.toFixed(2) + ' mm, cover ' + coverW.toFixed(2) + ' mm, shuttle ' + shuttleW.toFixed(2) + ' mm, all within 22.5');
+        }
+        [base, shuttle0, cover0].forEach(m => m.delete());
+        report.maxTrack = +report.maxTrack.toFixed(4);
+        return report;
+      }
+
+      document.getElementById('btn-exp-plate').addEventListener('click', async () => {
+        showStatusBanner('Checking the plate, then saving base, shuttle, and cover…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildPlateTest(sm);
+          const api = await ensureManifold();
+          [built.base, built.shuttle, built.cover, built.coverFlex].forEach(group => {
+            const info = solidifyGroup(group, api.Manifold);
+            if (info.shells !== 1 || !(info.volume > 0)) throw new Error('A plate part is not one solid');
+          });
+          const report = auditPlateTest(built, api.Manifold);
+          window.__arteor.plateAudit = report;
+          if (!report.ok) {
+            throw new Error(report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; '));
+          }
+          const spin = new THREE.Matrix4().makeRotationX(Math.PI);
+          built.cover.updateMatrixWorld(true);
+          built.cover.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_Plate3M_F55_Base.stl`);
+          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_Plate3M_F55_Shuttle.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(built.cover, `Arteor_${APP_VERSION}_Plate3M_F55_Cover.stl`);
+          showStatusBanner('Saved the 3-module frame plate: base, shuttle, cover. ' + built.meta.plateW.toFixed(1) + ' x ' + built.meta.plateH.toFixed(1) + ' mm, screws at 83.5 mm.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Plate test failed: ' + err.message);
+        }
+      });
+
+      function tallGripLift(sm) {
+        const faceTop = sm.zRailTop + 2.50 + 1.8;
+        const oldRidgeTop = sm.zHandleTop + 0.20 + 1.15 / 2;
+        return { faceTop, oldRidgeTop, lift: (faceTop + 5.0) - oldRidgeTop };
+      }
+
+      document.getElementById('btn-exp-tallgrip').addEventListener('click', async () => {
+        showStatusBanner('Checking the taller grip, then saving the shuttle only…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const spec = tallGripLift(sm);
+          const mat = createGlossMat('#f6d86a', false, 0.38, 0.05);
+          const plain = new THREE.Group();
+          const tall = new THREE.Group();
+          buildOneShuttle(plain, sm, 0, 0, 1, mat, 0, 'F55', 0);
+          buildOneShuttle(tall, sm, 0, 0, 1, mat, 0, 'F55', spec.lift);
+          const built = buildPlateTest(sm);
+          const api = await ensureManifold();
+          const Manifold = api.Manifold;
+          [plain, tall, built.base, built.cover, built.coverFlex].forEach(group => {
+            const info = solidifyGroup(group, Manifold);
+            if (info.shells !== 1 || !(info.volume > 0)) throw new Error('A grip part is not one solid');
+          });
+          const plainS = toolFreeSolid(plain, Manifold);
+          const tallS = toolFreeSolid(tall, Manifold);
+          const baseS = toolFreeSolid(built.base, Manifold);
+          const coverS = toolFreeSolid(built.cover, Manifold);
+          const flexS = toolFreeSolid(built.coverFlex, Manifold);
+          const zCut = sm.zHandleTop - 0.50;
+          const clip = Manifold.cube([50, 90, zCut + 8], true).translate([0, 0, (zCut - 8) / 2]);
+          const lowPlain = Manifold.intersection(plainS, clip);
+          const lowTall = Manifold.intersection(tallS, clip);
+          const gone = Manifold.difference(lowPlain, lowTall);
+          const added = Manifold.difference(lowTall, lowPlain);
+          const bodyDelta = gone.getProperties().volume + added.getProperties().volume;
+          gone.delete(); added.delete(); lowPlain.delete(); lowTall.delete(); clip.delete();
+          let travelHit = 0;
+          [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+            const moved = toolFreeMoved(Manifold, tallS, shift, 0);
+            travelHit = Math.max(travelHit, toolFreeOverlap(Manifold, coverS, moved), toolFreeOverlap(Manifold, baseS, moved));
+            moved.delete();
+          });
+          let stopped = false;
+          for (let shift = sm.travel / 2; shift <= sm.travel / 2 + 4; shift += 0.2) {
+            const moved = toolFreeMoved(Manifold, tallS, shift, 0);
+            const coverHit = toolFreeOverlap(Manifold, coverS, moved);
+            const railHit = toolFreeOverlap(Manifold, baseS, moved);
+            moved.delete();
+            if (coverHit > 0.3 && railHit < 0.05) { stopped = true; break; }
+          }
+          let flexHit = 0;
+          for (let z = 10; z >= 0; z -= 0.5) {
+            const cover = toolFreeMoved(Manifold, flexS, 0, z);
+            const shuttle = toolFreeMoved(Manifold, tallS, 0, 0);
+            flexHit = Math.max(flexHit, toolFreeOverlap(Manifold, cover, shuttle), toolFreeOverlap(Manifold, baseS, cover));
+            cover.delete();
+            shuttle.delete();
+          }
+          const width = plateWidthAbove(tall, -100);
+          const ridgeTop = sm.zHandleTop + spec.lift + 0.20 + 1.15 / 2;
+          const report = {
+            ok: bodyDelta < 0.2 && travelHit < 0.08 && stopped && flexHit < 0.08 && width <= 22.5,
+            bodyDelta: +bodyDelta.toFixed(3),
+            travelHit: +travelHit.toFixed(3),
+            stopped,
+            flexHit: +flexHit.toFixed(3),
+            width: +width.toFixed(2),
+            lift: +spec.lift.toFixed(3),
+            faceTop: +spec.faceTop.toFixed(3),
+            oldRidgeTop: +spec.oldRidgeTop.toFixed(3),
+            ridgeTop: +ridgeTop.toFixed(3),
+            exposed: +(ridgeTop - spec.faceTop).toFixed(2)
+          };
+          window.__arteor.tallGrip = report;
+          if (!report.ok) throw new Error('Taller grip check failed ' + JSON.stringify(report));
+          downloadPrintReadySTL(tall, `Arteor_${APP_VERSION}_Plate3M_F55_Shuttle_TallGrip.stl`, -Math.PI / 2);
+          [plainS, tallS, baseS, coverS, flexS].forEach(m => m.delete());
+          showStatusBanner('Saved the taller grip only. The ridges stand ' + report.exposed.toFixed(1) + ' mm above the cover face. The plate and cover were not written.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Taller grip failed: ' + err.message);
+        }
+      });
+
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
         if (sourceId === 'inp-pegdia' || sourceId === 'inp-threadtol') {
@@ -4461,6 +6735,16 @@
 
       updateProfileSelect('');
       applyPreset('alublade');
+      window.__arteor = {
+        camera: camera, controls: controls, scene: scene, rebuild: rebuildModel, getParams: getParams,
+        groups: { chassisGroup, faceplateGroup, slideGroup, slideStopGroup, slideGhostGroup, overlayGroup, legrandRefGroup, bubblesGroup },
+        auditSlideFit: auditSlideFit,
+        computeSlideMetrics: computeSlideMetrics,
+        couponMetrics: couponMetrics,
+        buildRemovableRailFit: buildRemovableRailFit,
+        buildToolFreeF55: buildToolFreeF55,
+        buildPlateTest: buildPlateTest
+      };
 
       function animate() {
         requestAnimationFrame(animate);
