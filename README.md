@@ -159,23 +159,11 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 
 ### Tool-free F55 test (the one to print)
 
-**⬇ Tool-free F55 test** writes three files. Both rails are on one piece. The middle of the entrance plate is open, 9.2 mm, so the 7.2 mm cams can slide through. There is no second rail and no screw. This is a bench coupon, not a finished wall switch. The stop is not locked in. Turn the coupon over and the stop can fall out. The cover, when it is fitted later, is what keeps the stop from falling toward the room.
+The track and the shuttle that Carl printed are unchanged. Do not reprint them. The first stop falls out. **⬇ Clip stop only** writes a replacement stop that squeezes the two posts already on that track. Those posts have no head, so this is a friction grip, not a snap. No screw.
 
-| Part | File | On the bed |
-| --- | --- | --- |
-| Track | `Arteor_v25_ToolFree_F55_Track.stl` | Room side up. Supports off. |
-| Shuttle | `Arteor_v25_ToolFree_F55_Shuttle.stl` | Already on its side. Supports on. |
-| Stop | `Arteor_v25_ToolFree_F55_Stop.stl` | Flat face down, feet up. Supports off. |
+The replacement file is `Arteor_v25_ToolFree_F55_Stop_Clip.stl`. Print it flat face down, feet and arms up, supports off. Press it onto the two posts at **OPEN**. Pull it straight off to remove it. Turn the coupon over and shake it gently. It should stay. If the arms whiten or a post chips, stop. This grip has not been printed.
 
-The dovetail gap is 0.55 mm per side and 0.30 mm in Z. Travel is 11 mm. Both cams are on the shuttle, 6 mm deep, for the rocker at 5.2 mm pressed and 10.5 mm raised. **OPEN** is on the loading end. **F55** is on the far end.
-
-1. Track on the bench, **OPEN** toward you.
-2. Slide the shuttle straight in from **OPEN**. Leave the stop out.
-3. Drop the stop into the two slots at **OPEN**.
-4. Slide the shuttle by hand. It should stay in the rails.
-5. Lift the stop straight up, then slide the shuttle back out.
-
-Pass if that needs no cutting, the plastic does not whiten, the shuttle moves freely, and the mouth width changes by less than 0.2 mm. This set has not been printed.
+The proven files, left as printed, are `Arteor_v25_ToolFree_F55_Track.stl` and `Arteor_v25_ToolFree_F55_Shuttle.stl`. The old `Arteor_v25_ToolFree_F55_Stop.stl` is the one that falls out.
 
 ### Older removable-rail test (do not print)
 

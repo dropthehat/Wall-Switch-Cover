@@ -717,7 +717,7 @@
         <button id="btn-exp-slide-coupon" class="py-1.5 px-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded text-[10px] transition truncate" title="Six files: fit tracks, ramp tracks, fit shuttles, ramp shuttles, fit stops, ramp stops. Fixed rails. Not the removable-rail fit test.">⬇ Coupon parts</button>
       </div>
       <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[10px] border border-slate-600 transition" title="Older test. Needs an M3 screw and nut. Not the current tool-free test.">Older: removable rail with a screw</button>
-      <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Current test. One F55 station, both rails fixed, open middle, drop-in stop. No screw. Not the old coupons.">⬇ Tool-free F55 test — slide in, drop the stop</button>
+      <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Saves only the clip stop for the track Carl already printed. Does not rewrite the track or shuttle.">⬇ Clip stop only — for the printed F55 track</button>
     </div>
   </aside>
 
@@ -3650,6 +3650,28 @@
         }
       }
 
+      function slideEmbossPosY(group, text, ySurface, xLeft, zTop, mat, cw) {
+        cw = cw || 0.42;
+        const embed = 0.28;
+        const proud = 0.40;
+        const depth = embed + proud;
+        const yCenter = ySurface + (proud - embed) / 2;
+        let cursor = xLeft;
+        const gap = cw * 0.42;
+        const cols = 5;
+        for (let i = 0; i < text.length; i++) {
+          const rows = SLIDE_GLYPH[text[i]] || SLIDE_GLYPH[' '];
+          for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < rows[r].length; c++) {
+              if (rows[r][c] !== '1') continue;
+              addBox(group, cw * 0.82, depth, cw * 0.82,
+                cursor + (c + 0.5) * cw, yCenter, zTop - (r + 0.5) * cw, mat);
+            }
+          }
+          cursor += cols * cw + gap;
+        }
+      }
+
       function slideEmbossNegY(group, text, ySurface, xLeft, zTop, mat, cw) {
         cw = cw || 0.48;
         const embed = 0.30;
@@ -6080,9 +6102,44 @@
         const bridgeZ0 = sm.zBodyBack + 0.55;
         const bridgeZ1 = zFoot1;
         addBox(stop, xOut * 2, footY, bridgeZ1 - bridgeZ0, 0, yC, (bridgeZ0 + bridgeZ1) / 2, matP);
-        const stopFace = yC - footY / 2;
-        const stopMark = slideTextSize('STOP', 0.42);
-        slideEmbossNegY(stop, 'STOP', stopFace, -stopMark.width / 2, bridgeZ1 - 0.25, matP, 0.34);
+        const stopMark = slideTextSize('STOP', 0.36);
+        slideEmbossPosY(stop, 'STOP', yC + footY / 2, -stopMark.width / 2, bridgeZ1 - 0.15, matP, 0.36);
+        // The open-end posts are plain rectangles. These arms squeeze them.
+        // There is no head to snap under. 0.30 mm of squeeze is friction, not a lock.
+        const xO = sm.winHalf + sm.railW;
+        const xKeep = Math.min(xO - 0.8, sm.winHalf + sm.tWide + sm.xyClear + 0.35);
+        const pinY0 = -sm.trackInnerHalf;
+        const pinY1 = pinY0 + sm.stopLead + 0.20;
+        const grip = 0.25;
+        const leafT = 1.6;
+        const leafZ0 = bridgeZ1 - 1.7;
+        const leafZ1 = bridgeZ1;
+        [1, -1].forEach(side => {
+          const pinIn = side * xKeep;
+          const pinOut = side * xO;
+          const padFace = pinIn - side * 0.12;
+          const padX0 = Math.min(padFace, padFace - side * 2.0);
+          const padX1 = Math.max(padFace, padFace - side * 2.0);
+          addBox(stop, padX1 - padX0, (yC - footY / 2 + 0.4) - (pinY0 - 0.05), leafZ1 - (sm.zFloor + 0.8),
+            (padX0 + padX1) / 2, ((pinY0 - 0.05) + (yC - footY / 2 + 0.4)) / 2,
+            ((sm.zFloor + 0.8) + leafZ1) / 2, matP);
+          const leafIn = pinOut + side * 0.70;
+          const leafX0 = Math.min(leafIn, leafIn + side * leafT);
+          const leafX1 = Math.max(leafIn, leafIn + side * leafT);
+          const leafY0 = pinY0 + 0.05;
+          const leafY1 = pinY1 + 8.2;
+          addBox(stop, leafX1 - leafX0, leafY1 - leafY0, leafZ1 - leafZ0,
+            (leafX0 + leafX1) / 2, (leafY0 + leafY1) / 2, (leafZ0 + leafZ1) / 2, matP);
+          const bite = pinOut - side * grip;
+          const biteX0 = Math.min(bite, leafIn);
+          const biteX1 = Math.max(bite, leafIn);
+          addBox(stop, biteX1 - biteX0, (pinY1 - 0.05) - (pinY0 + 0.08), 1.35,
+            (biteX0 + biteX1) / 2, ((pinY0 + 0.08) + (pinY1 - 0.05)) / 2, leafZ1 - 0.85, matP);
+          const rootX0 = Math.min(padX0, leafX0, side * (xOut - 0.4));
+          const rootX1 = Math.max(padX1, leafX1, side * (xOut - 0.4));
+          addBox(stop, rootX1 - rootX0, (yC + 0.2) - (pinY1 + 0.15), leafZ1 - leafZ0,
+            (rootX0 + rootX1) / 2, ((pinY1 + 0.15) + (yC + 0.2)) / 2, (leafZ0 + leafZ1) / 2, matP);
+        });
 
         return {
           track, shuttle, stop, sm,
@@ -6181,15 +6238,19 @@
         }
         if (dropHit > 0.05) fail('stop drop and lift', 'hits the shuttle, ' + dropHit.toFixed(3) + ' mm3');
         else pass('stop drop and lift', 'the stop moves straight down and back up clear of the seated shuttle');
-        let trackStop = 0;
-        for (let z = 16; z >= 0; z -= 1) {
+        let clearLift = 0;
+        let seatedGrip = 0;
+        for (let z = 12; z >= 0; z -= 0.5) {
           const stop = toolFreeMoved(Manifold, stop0, 0, z);
           const hit = toolFreeOverlap(Manifold, track, stop);
           stop.delete();
-          if (hit > trackStop) trackStop = hit;
+          if (z >= 2.5) clearLift = Math.max(clearLift, hit);
+          if (z < 0.01) seatedGrip = hit;
         }
-        if (trackStop > 0.05) fail('stop fits the slots', 'hits the track by ' + trackStop.toFixed(3) + ' mm3');
-        else pass('stop fits the slots', 'the stop drops into the slots without touching the rails');
+        report.gripVolume = +seatedGrip.toFixed(3);
+        if (clearLift > 0.05) fail('stop approach', 'hits the posts before the grip, ' + clearLift.toFixed(3) + ' mm3');
+        else if (seatedGrip < 0.15) fail('grip', 'the arms do not reach the posts');
+        else pass('grip', 'arms clear the posts until the last 2 mm, then squeeze them by ' + seatedGrip.toFixed(2) + ' mm3. Friction, not a snap');
         let blocked = false;
         let blockShift = null;
         for (let shift = -sm.travel / 2; shift >= -sm.travel / 2 - 12; shift -= 0.5) {
@@ -6243,10 +6304,8 @@
           const spin = new THREE.Matrix4().makeRotationX(Math.PI);
           built.stop.updateMatrixWorld(true);
           built.stop.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
-          downloadPrintReadySTL(built.track, `Arteor_${APP_VERSION}_ToolFree_F55_Track.stl`);
-          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_ToolFree_F55_Shuttle.stl`, -Math.PI / 2);
-          downloadPrintReadySTL(built.stop, `Arteor_${APP_VERSION}_ToolFree_F55_Stop.stl`);
-          showStatusBanner('Saved 3 tool-free files: track, shuttle, stop. No screw. The stop can fall out if the coupon is turned over.');
+          downloadPrintReadySTL(built.stop, `Arteor_${APP_VERSION}_ToolFree_F55_Stop_Clip.stl`);
+          showStatusBanner('Saved the clip stop only. The printed track and shuttle stay as they are. The arms squeeze the two posts; they do not lock under a head.');
         } catch (err) {
           console.error(err);
           showStatusBanner('Tool-free test failed: ' + err.message);
