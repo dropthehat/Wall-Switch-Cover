@@ -167,6 +167,8 @@ The first plate was a 100 by 112 mm rectangle. That size is not an Arteor frame.
 
 The open end is the top of the plate, the end marked **TOP**. The bottom is closed. The cover's slot ends stop the shuttle. The dovetail lips stop it lifting out. Three fingers hook under a shelf and two hoods, so the cover stays on without relying on gravity. Nothing loose sits in the mechanism: no stop, nut, or bolt. Pinch the fingers about 1 mm to put the cover on or take it off. The grip passes through the slot.
 
+The first shuttle's ridges stopped at 18.45 mm, 1.33 mm below the cover face at 19.77 mm, so the grip could not be used. **⬇ Taller grip only** writes `Arteor_v25_Plate3M_F55_Shuttle_TallGrip.stl` and nothing else. The stem is 6.33 mm taller. The ridges stand at 24.77 mm, 5.00 mm above the cover face. The cams, the dovetail, and the plate and cover files are unchanged. That cover is the same file as the earlier plate-test cover, so the taller shuttle fits both. It has not been printed.
+
 This plate has not been printed. The mesh checks do not show that it mounts or that the cams move a real rocker. Print notes are in the zip.
 
 ### Tool-free F55 coupon (already printed, do not reprint)

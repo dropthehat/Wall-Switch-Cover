@@ -719,6 +719,7 @@
       <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[10px] border border-slate-600 transition" title="Older test. Needs an M3 screw and nut. Not the current tool-free test.">Older: removable rail with a screw</button>
       <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Saves only the clip stop for the track Carl already printed. Does not rewrite the track or shuttle.">⬇ Clip stop only — for the printed F55 track</button>
       <button id="btn-exp-plate" class="w-full py-1.5 px-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded text-[10px] transition" title="One switch on the 83.5 mm screw ears. Cover keeps the shuttle in. Not the coupon and not an M3 fastener.">⬇ Plate test F55 — one switch, two wall screws</button>
+      <button id="btn-exp-tallgrip" class="w-full py-1.5 px-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold rounded text-[10px] transition" title="Replacement shuttle only. The grip stands about 5 mm above the cover. The plate and cover stay as they are.">⬇ Taller grip only — same plate and cover</button>
     </div>
   </aside>
 
@@ -3922,7 +3923,7 @@
         }
       }
 
-      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips, label) {
+      function buildOneShuttle(group, sm, cx, shift, pos, mat, pips, label, gripExtra) {
         const y0 = -sm.shuttleHalf + shift;
         const y1 = sm.shuttleHalf + shift;
         const cross = shuttleCrossPts(sm).map(pt => [pt[0] + cx, pt[1]]);
@@ -3944,7 +3945,7 @@
           addBox(group, Math.max(0.30, 0.70), 1.50, 0.30,
             nubTip - 0.35, nubY, beamZ, mat);
         }
-        const handleTopZ = (typeof sm.zHandleTop === 'number') ? sm.zHandleTop : (sm.zBodyFront + 6.2);
+        const handleTopZ = ((typeof sm.zHandleTop === 'number') ? sm.zHandleTop : (sm.zBodyFront + 6.2)) + (gripExtra || 0);
         const hCx = cx;
         const hCy = shift;
         addBox(group, sm.handleW, sm.handleL, Math.max(0.8, handleTopZ - (sm.zBodyFront - 0.25)),
@@ -6616,6 +6617,90 @@
         } catch (err) {
           console.error(err);
           showStatusBanner('Plate test failed: ' + err.message);
+        }
+      });
+
+      function tallGripLift(sm) {
+        const faceTop = sm.zRailTop + 2.50 + 1.8;
+        const oldRidgeTop = sm.zHandleTop + 0.20 + 1.15 / 2;
+        return { faceTop, oldRidgeTop, lift: (faceTop + 5.0) - oldRidgeTop };
+      }
+
+      document.getElementById('btn-exp-tallgrip').addEventListener('click', async () => {
+        showStatusBanner('Checking the taller grip, then saving the shuttle only…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const spec = tallGripLift(sm);
+          const mat = createGlossMat('#f6d86a', false, 0.38, 0.05);
+          const plain = new THREE.Group();
+          const tall = new THREE.Group();
+          buildOneShuttle(plain, sm, 0, 0, 1, mat, 0, 'F55', 0);
+          buildOneShuttle(tall, sm, 0, 0, 1, mat, 0, 'F55', spec.lift);
+          const built = buildPlateTest(sm);
+          const api = await ensureManifold();
+          const Manifold = api.Manifold;
+          [plain, tall, built.base, built.cover, built.coverFlex].forEach(group => {
+            const info = solidifyGroup(group, Manifold);
+            if (info.shells !== 1 || !(info.volume > 0)) throw new Error('A grip part is not one solid');
+          });
+          const plainS = toolFreeSolid(plain, Manifold);
+          const tallS = toolFreeSolid(tall, Manifold);
+          const baseS = toolFreeSolid(built.base, Manifold);
+          const coverS = toolFreeSolid(built.cover, Manifold);
+          const flexS = toolFreeSolid(built.coverFlex, Manifold);
+          const zCut = sm.zHandleTop - 0.50;
+          const clip = Manifold.cube([50, 90, zCut + 8], true).translate([0, 0, (zCut - 8) / 2]);
+          const lowPlain = Manifold.intersection(plainS, clip);
+          const lowTall = Manifold.intersection(tallS, clip);
+          const gone = Manifold.difference(lowPlain, lowTall);
+          const added = Manifold.difference(lowTall, lowPlain);
+          const bodyDelta = gone.getProperties().volume + added.getProperties().volume;
+          gone.delete(); added.delete(); lowPlain.delete(); lowTall.delete(); clip.delete();
+          let travelHit = 0;
+          [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+            const moved = toolFreeMoved(Manifold, tallS, shift, 0);
+            travelHit = Math.max(travelHit, toolFreeOverlap(Manifold, coverS, moved), toolFreeOverlap(Manifold, baseS, moved));
+            moved.delete();
+          });
+          let stopped = false;
+          for (let shift = sm.travel / 2; shift <= sm.travel / 2 + 4; shift += 0.2) {
+            const moved = toolFreeMoved(Manifold, tallS, shift, 0);
+            const coverHit = toolFreeOverlap(Manifold, coverS, moved);
+            const railHit = toolFreeOverlap(Manifold, baseS, moved);
+            moved.delete();
+            if (coverHit > 0.3 && railHit < 0.05) { stopped = true; break; }
+          }
+          let flexHit = 0;
+          for (let z = 10; z >= 0; z -= 0.5) {
+            const cover = toolFreeMoved(Manifold, flexS, 0, z);
+            const shuttle = toolFreeMoved(Manifold, tallS, 0, 0);
+            flexHit = Math.max(flexHit, toolFreeOverlap(Manifold, cover, shuttle), toolFreeOverlap(Manifold, baseS, cover));
+            cover.delete();
+            shuttle.delete();
+          }
+          const width = plateWidthAbove(tall, -100);
+          const ridgeTop = sm.zHandleTop + spec.lift + 0.20 + 1.15 / 2;
+          const report = {
+            ok: bodyDelta < 0.2 && travelHit < 0.08 && stopped && flexHit < 0.08 && width <= 22.5,
+            bodyDelta: +bodyDelta.toFixed(3),
+            travelHit: +travelHit.toFixed(3),
+            stopped,
+            flexHit: +flexHit.toFixed(3),
+            width: +width.toFixed(2),
+            lift: +spec.lift.toFixed(3),
+            faceTop: +spec.faceTop.toFixed(3),
+            oldRidgeTop: +spec.oldRidgeTop.toFixed(3),
+            ridgeTop: +ridgeTop.toFixed(3),
+            exposed: +(ridgeTop - spec.faceTop).toFixed(2)
+          };
+          window.__arteor.tallGrip = report;
+          if (!report.ok) throw new Error('Taller grip check failed ' + JSON.stringify(report));
+          downloadPrintReadySTL(tall, `Arteor_${APP_VERSION}_Plate3M_F55_Shuttle_TallGrip.stl`, -Math.PI / 2);
+          [plainS, tallS, baseS, coverS, flexS].forEach(m => m.delete());
+          showStatusBanner('Saved the taller grip only. The ridges stand ' + report.exposed.toFixed(1) + ' mm above the cover face. The plate and cover were not written.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Taller grip failed: ' + err.message);
         }
       });
 
