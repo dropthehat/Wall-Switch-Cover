@@ -718,6 +718,7 @@
       </div>
       <button id="btn-exp-rail-fit" class="w-full py-1.5 px-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[10px] border border-slate-600 transition" title="Older test. Needs an M3 screw and nut. Not the current tool-free test.">Older: removable rail with a screw</button>
       <button id="btn-exp-toolfree" class="w-full py-1.5 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded text-[10px] transition" title="Saves only the clip stop for the track Carl already printed. Does not rewrite the track or shuttle.">⬇ Clip stop only — for the printed F55 track</button>
+      <button id="btn-exp-plate" class="w-full py-1.5 px-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded text-[10px] transition" title="One switch on the 83.5 mm screw ears. Cover keeps the shuttle in. Not the coupon and not an M3 fastener.">⬇ Plate test F55 — one switch, two wall screws</button>
     </div>
   </aside>
 
@@ -6312,6 +6313,293 @@
         }
       });
 
+      function buildPlateTest(sm) {
+        const matB = createGlossMat('#e7edf3', false, 0.46, 0.04);
+        const matS = createGlossMat('#f6d86a', false, 0.38, 0.05);
+        const matC = createGlossMat('#bae6fd', false, 0.4, 0.04);
+        const base = new THREE.Group();
+        const yBot = -sm.trackInnerHalf;
+        const yTop = sm.trackInnerHalf;
+        const flare0 = yTop - sm.flareLen;
+        const spans = [
+          { y0: yBot, y1: flare0, mode: 'full', extra: 0 },
+          { y0: flare0, y1: yTop, mode: 'full', extra: sm.flare }
+        ];
+        spans.forEach((sp, i) => {
+          const yA = sp.y0 - (i > 0 ? 0.2 : 0);
+          const yB = sp.y1 + (i < spans.length - 1 ? 0.2 : 0);
+          const pts = rightRailPts(sm, sp.extra, sp.mode);
+          addProfileXZ(base, pts, yA, yB, matB);
+          addProfileXZ(base, mirrorXPts(pts), yA, yB, matB);
+        });
+        const zBot = sm.zFloor - 0.9;
+        const railH = sm.zRailTop - zBot;
+        const barLen = sm.endBar + 0.5;
+        const yBar1 = yBot + 0.45;
+        const yBar0 = yBar1 - barLen;
+        addBox(base, sm.outerW, barLen, railH, 0, (yBar0 + yBar1) / 2, (zBot + sm.zRailTop) / 2, matB);
+        const tieH = 0.9;
+        const tieY0 = yTop - 6;
+        const tieY1 = yTop + sm.tieLen;
+        addBox(base, sm.railW, tieY1 - tieY0, tieH, sm.winHalf + sm.railW / 2, (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
+        addBox(base, sm.railW, tieY1 - tieY0, tieH, -(sm.winHalf + sm.railW / 2), (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
+        const deckT = 2.4;
+        const plateW = 100;
+        const plateH = 112;
+        addBox(base, plateW, plateH, deckT, 0, 2, deckT / 2, matB);
+        addBoxCutter(base, 22.5, 44, deckT + 0.8, 0, 0, deckT / 2);
+        const screwX = 83.5 / 2;
+        [-screwX, screwX].forEach(x => {
+          addBoxCutter(base, 4.2, 3.2, deckT + 0.8, x, 0, deckT / 2);
+          addVerticalCutter(base, 2.1, -0.4, deckT + 0.4, x, 1.6);
+          addVerticalCutter(base, 2.1, -0.4, deckT + 0.4, x, -1.6);
+        });
+        const wallZ1 = zBot + 0.3;
+        [-1, 1].forEach(side => {
+          [-1, 1].forEach(end => {
+            const y0 = end < 0 ? -46 : 23;
+            const y1 = end < 0 ? -23 : 46;
+            const cx = side * (sm.winHalf + sm.railW / 2);
+            addBox(base, sm.railW, y1 - y0, wallZ1 - (deckT - 0.35), cx, (y0 + y1) / 2, ((deckT - 0.35) + wallZ1) / 2, matB);
+          });
+        });
+        const zR = sm.zRailTop;
+        const shelfW = 8.0;
+        const shelfY0 = yBar1 - 0.40;
+        const shelfY1 = yBar1 + 1.05;
+        const shelfZ0 = zBot - 2.55;
+        const shelfZ1 = zBot - 1.25;
+        addBox(base, shelfW, 0.70, (zBot + 0.40) - shelfZ0, 0, yBar1 - 0.20, (shelfZ0 + zBot + 0.40) / 2, matB);
+        addBox(base, shelfW, shelfY1 - shelfY0, shelfZ1 - shelfZ0, 0, (shelfY0 + shelfY1) / 2, (shelfZ0 + shelfZ1) / 2, matB);
+        const beamZ0 = zR + 0.40;
+        const beamZ1 = zR + 1.70;
+        const hoodZ0 = beamZ1 + 0.30;
+        const hoodZ1 = hoodZ0 + 1.15;
+        [-1, 1].forEach(side => {
+          addBox(base, 3.0, 2.8, hoodZ1 - (zR - 0.35), side * 9.0, yTop - 2.75, ((zR - 0.35) + hoodZ1) / 2, matB);
+          addBox(base, 1.75, 1.40, hoodZ1 - hoodZ0, side * 7.425, yTop - 2.85, (hoodZ0 + hoodZ1) / 2, matB);
+        });
+        slideEmboss(base, 'TOP', -4.2, 50, deckT, matB, 0.7);
+        slideEmboss(base, 'F55', -4.6, 42, deckT, matB, 0.55);
+
+        const shuttle = new THREE.Group();
+        buildOneShuttle(shuttle, sm, 0, 0, 1, matS, 0, 'F55');
+
+        const faceT = 1.8;
+        const faceZ0 = zR + 2.50;
+        const coverW = 22.4;
+        const coverY0 = yBar0 + 0.35;
+        const coverY1 = yTop - 4.70;
+        const slotW = 9.4;
+        const slotL = sm.handleL + sm.travel + 1.4;
+        const noseZ0 = shelfZ0 - 1.15;
+        const noseZ1 = shelfZ0 - 0.28;
+        function addCoverBody(target, flexY, flexX) {
+          addBox(target, coverW, coverY1 - coverY0, faceT, 0, (coverY0 + coverY1) / 2, faceZ0 + faceT / 2, matC);
+          const collarZ0 = zR + 0.55;
+          addBox(target, 13.6, slotL + 3.6, (faceZ0 + 0.25) - collarZ0, 0, 0, (collarZ0 + faceZ0 + 0.25) / 2, matC);
+          addBoxCutter(target, slotW, slotL, (faceZ0 + faceT + 0.45) - (collarZ0 - 0.2), 0, 0, ((collarZ0 - 0.2) + faceZ0 + faceT + 0.45) / 2);
+          const bridgeY0 = yBar1 + 0.40 + flexY;
+          const fingerY0 = yBar1 + 1.20 + flexY;
+          const fingerT = 1.05;
+          addBox(target, 6.0, (fingerY0 + fingerT) - bridgeY0, noseZ1 - noseZ0, 0, (bridgeY0 + fingerY0 + fingerT) / 2, (noseZ0 + noseZ1) / 2, matC);
+          addBox(target, 6.0, fingerT, (faceZ0 + 0.30) - noseZ0, 0, fingerY0 + fingerT / 2, (noseZ0 + faceZ0 + 0.30) / 2, matC);
+          [-1, 1].forEach(side => {
+            const dodge = side > 0 ? -flexX : flexX;
+            const x0 = side * 5.35 + dodge;
+            const x1 = side * 6.50 + dodge;
+            const yA = yTop - 14.4;
+            const yB = yTop - 2.15;
+            addBox(target, Math.abs(x1 - x0), yB - yA, beamZ1 - beamZ0, (x0 + x1) / 2, (yA + yB) / 2, (beamZ0 + beamZ1) / 2, matC);
+            const n0 = side * 6.25 + dodge;
+            const n1 = side * 7.20 + dodge;
+            addBox(target, Math.abs(n1 - n0), 1.35, (beamZ1 - 0.08) - beamZ0, (n0 + n1) / 2, yTop - 2.875, (beamZ0 + beamZ1 - 0.08) / 2, matC);
+            const r0 = side * 5.15;
+            const r1 = side * 6.70;
+            addBox(target, Math.abs(r1 - r0), 1.7, (faceZ0 + 0.25) - beamZ0, (r0 + r1) / 2, yTop - 13.30, (beamZ0 + faceZ0 + 0.25) / 2, matC);
+          });
+          slideEmboss(target, 'F55', -3.4, 18, faceZ0 + faceT, matC, 0.42);
+        }
+        const cover = new THREE.Group();
+        addCoverBody(cover, 0, 0);
+        const coverFlex = new THREE.Group();
+        addCoverBody(coverFlex, 0.85, 0.85);
+
+        return {
+          base, shuttle, cover, coverFlex, sm,
+          meta: {
+            yBot, yTop, yBar0, yBar1, zBot, faceZ0, faceT, coverW, slotW, slotL,
+            shelfZ0, shelfZ1, noseZ0, noseZ1, screwPitch: 83.5, limit: 22.5,
+            flex: 0.85, zGap: 0.28
+          }
+        };
+      }
+
+      function plateWidthAbove(group, zMin) {
+        let maxAbs = 0;
+        group.updateMatrixWorld(true);
+        group.traverse(ch => {
+          if (!ch.isMesh || !ch.geometry || (ch.userData && ch.userData.cutter)) return;
+          const p = ch.geometry.attributes.position;
+          for (let i = 0; i < p.count; i++) {
+            if (p.getZ(i) > zMin) maxAbs = Math.max(maxAbs, Math.abs(p.getX(i)));
+          }
+        });
+        return maxAbs * 2;
+      }
+
+      function auditPlateTest(built, Manifold) {
+        const sm = built.sm;
+        const base = toolFreeSolid(built.base, Manifold);
+        const shuttle0 = toolFreeSolid(built.shuttle, Manifold);
+        const cover0 = toolFreeSolid(built.cover, Manifold);
+        const report = { ok: true, steps: [], maxTrack: 0 };
+        const fail = (name, detail) => { report.ok = false; report.steps.push({ name, ok: false, detail }); };
+        const pass = (name, detail) => report.steps.push({ name, ok: true, detail });
+        const yStart = sm.shuttleHalf + sm.trackInnerHalf + 8;
+        for (let shift = yStart; shift >= -sm.travel / 2 - 1e-6; shift -= 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const hit = toolFreeOverlap(Manifold, base, shuttle);
+          shuttle.delete();
+          if (hit > report.maxTrack) { report.maxTrack = hit; report.worstShift = +shift.toFixed(2); }
+          if (hit > 1) report.hits = (report.hits || []).concat([{ shift: +shift.toFixed(1), hit: +hit.toFixed(2) }]);
+        }
+        if (report.maxTrack > 0.05) fail('load and travel', 'track hit ' + report.maxTrack.toFixed(3) + ' mm3');
+        else pass('load and travel', 'both cams clear from outside the top through +5.5 mm');
+        let gripHit = 0;
+        [-sm.travel / 2, 0, sm.travel / 2].forEach(shift => {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          gripHit = Math.max(gripHit, toolFreeOverlap(Manifold, cover0, shuttle));
+          shuttle.delete();
+        });
+        if (gripHit > 0.05) fail('cover during travel', 'cover hits the shuttle by ' + gripHit.toFixed(3) + ' mm3');
+        else pass('cover during travel', 'the grip stays inside the slot for the full 11 mm');
+        let escapeBlocked = false;
+        for (let shift = sm.travel / 2; shift <= sm.travel / 2 + 8; shift += 0.5) {
+          const shuttle = toolFreeMoved(Manifold, shuttle0, shift, 0);
+          const coverHit = toolFreeOverlap(Manifold, cover0, shuttle);
+          const railHit = toolFreeOverlap(Manifold, base, shuttle);
+          shuttle.delete();
+          if (coverHit > 0.3 && railHit < 0.05) { escapeBlocked = true; break; }
+        }
+        if (!escapeBlocked) fail('top escape', 'the cover does not stop the shuttle before the rails do');
+        else pass('top escape', 'the slot end stops the shuttle while the dovetail is still engaged');
+        const lipX = sm.winHalf + sm.tNarrow + sm.xyClear;
+        const lipZ = (sm.zBodyFront + sm.zRailTop) / 2;
+        let held = true;
+        [sm.travel / 2, -sm.travel / 2].forEach(shift => {
+          [-12, 12].forEach(yy0 => {
+            const yy = yy0 + shift * 0 + (yy0 < 0 ? Math.max(-sm.shuttleHalf + shift + 3, -16) : Math.min(sm.shuttleHalf + shift - 3, 16));
+            let probe = Manifold.cube([0.4, 0.5, 0.4], true).translate([-(lipX + 0.5), yy, lipZ]);
+            const left = toolFreeOverlap(Manifold, base, probe);
+            probe.delete();
+            probe = Manifold.cube([0.4, 0.5, 0.4], true).translate([lipX + 0.5, yy, lipZ]);
+            const right = toolFreeOverlap(Manifold, base, probe);
+            probe.delete();
+            if (left < 0.002 || right < 0.002) held = false;
+          });
+        });
+        if (!held) fail('lips', 'a tongue end is not under both lips');
+        else pass('lips', 'both lips still cover the tongue at both ends of travel');
+        const flex0 = toolFreeSolid(built.coverFlex, Manifold);
+        let flexHit = 0;
+        for (let z = 8; z >= 0; z -= 0.5) {
+          const cover = toolFreeMoved(Manifold, flex0, 0, z);
+          const shuttle = toolFreeMoved(Manifold, shuttle0, 0, 0);
+          flexHit = Math.max(flexHit, toolFreeOverlap(Manifold, base, cover), toolFreeOverlap(Manifold, shuttle, cover));
+          cover.delete();
+          shuttle.delete();
+        }
+        const seated = toolFreeOverlap(Manifold, base, cover0);
+        const seatedShuttle = toolFreeOverlap(Manifold, shuttle0, cover0);
+        let liftHit = 0;
+        [0.45, 0.7].forEach(z => {
+          const cover = toolFreeMoved(Manifold, cover0, 0, z);
+          liftHit = Math.max(liftHit, toolFreeOverlap(Manifold, base, cover));
+          cover.delete();
+        });
+        report.coverSeat = +seated.toFixed(3);
+        report.liftHit = +liftHit.toFixed(3);
+        report.flexHit = +flexHit.toFixed(3);
+        if (flexHit > 0.08) fail('cover on', 'pinching the fingers 0.85 mm still hits by ' + flexHit.toFixed(3) + ' mm3');
+        else if (seated > 0.08 || seatedShuttle > 0.08) fail('cover seat', 'seated cover intersects the plate by ' + seated.toFixed(3) + ' or the shuttle by ' + seatedShuttle.toFixed(3));
+        else if (liftHit < 0.4) fail('cover catch', 'a straight lift is not blocked, overlap ' + liftHit.toFixed(3) + ' mm3');
+        else pass('cover on', 'grip passes the slot. Seated gap is clear. A straight lift hits the undercuts by ' + liftHit.toFixed(2) + ' mm3. Pinching the fingers 0.85 mm clears the whole path.');
+        flex0.delete();
+        let escapeZ = true;
+        [0.6, 1.2].forEach(z => {
+          [-1, 1].forEach(dir => {
+            const shuttle = toolFreeMoved(Manifold, shuttle0, dir * (sm.travel / 2 + 1.4), z);
+            const coverHit = toolFreeOverlap(Manifold, cover0, shuttle);
+            const railHit = toolFreeOverlap(Manifold, base, shuttle);
+            shuttle.delete();
+            if (coverHit < 0.3 && railHit < 0.3) escapeZ = false;
+          });
+        });
+        const lifted = toolFreeMoved(Manifold, shuttle0, 0, 0.85);
+        const lipHold = toolFreeOverlap(Manifold, base, lifted);
+        lifted.delete();
+        const pressed = toolFreeMoved(Manifold, shuttle0, 0, -0.50);
+        const soleHold = toolFreeOverlap(Manifold, base, pressed);
+        pressed.delete();
+        if (!escapeZ) fail('diagonal', 'the shuttle can pass a travel end while raised');
+        else if (lipHold < 0.3) fail('lips out of plane', 'raising the shuttle 0.85 mm does not meet the lips, hit ' + lipHold.toFixed(3));
+        else if (soleHold < 0.3) fail('sole', 'pressing the shuttle 0.50 mm does not meet the floor, hit ' + soleHold.toFixed(3));
+        else pass('diagonal', 'slot ends still stop a raised shuttle. The 45 degree lips meet a 0.85 mm lift by ' + lipHold.toFixed(1) + ' mm3, and the floor meets a 0.50 mm press by ' + soleHold.toFixed(1) + ' mm3');
+        let screwOpen = true;
+        [-41.75, 41.75].forEach(x => {
+          const probe = Manifold.cube([3.0, 6.0, 3.2], true).translate([x, 0, 1.6]);
+          if (toolFreeOverlap(Manifold, base, probe) > 0.05) screwOpen = false;
+          probe.delete();
+        });
+        if (!screwOpen) fail('screws', 'a screw slot is closed');
+        else pass('screws', 'both 83.5 mm slots are open');
+        const channelW = plateWidthAbove(built.base, 3);
+        const coverW = plateWidthAbove(built.cover, -100);
+        const shuttleW = plateWidthAbove(built.shuttle, -100);
+        report.widths = {
+          channel: +channelW.toFixed(2),
+          cover: +coverW.toFixed(2),
+          shuttle: +shuttleW.toFixed(2)
+        };
+        if (channelW > 22.5 || coverW > 22.5 || shuttleW > 22.5) {
+          fail('width', 'channel ' + channelW.toFixed(2) + ' cover ' + coverW.toFixed(2) + ' shuttle ' + shuttleW.toFixed(2));
+        } else {
+          pass('width', 'channel ' + channelW.toFixed(2) + ' mm, cover ' + coverW.toFixed(2) + ' mm, shuttle ' + shuttleW.toFixed(2) + ' mm, all within 22.5');
+        }
+        [base, shuttle0, cover0].forEach(m => m.delete());
+        report.maxTrack = +report.maxTrack.toFixed(4);
+        return report;
+      }
+
+      document.getElementById('btn-exp-plate').addEventListener('click', async () => {
+        showStatusBanner('Checking the plate, then saving base, shuttle, and cover…');
+        try {
+          const sm = couponMetrics(getParams(), { xy: 0.55, ramp: 6.0, code: 'F55', pips: 0 });
+          const built = buildPlateTest(sm);
+          const api = await ensureManifold();
+          [built.base, built.shuttle, built.cover, built.coverFlex].forEach(group => {
+            const info = solidifyGroup(group, api.Manifold);
+            if (info.shells !== 1 || !(info.volume > 0)) throw new Error('A plate part is not one solid');
+          });
+          const report = auditPlateTest(built, api.Manifold);
+          window.__arteor.plateAudit = report;
+          if (!report.ok) {
+            throw new Error(report.steps.filter(s => !s.ok).map(s => s.name + ': ' + s.detail).join('; '));
+          }
+          const spin = new THREE.Matrix4().makeRotationX(Math.PI);
+          built.cover.updateMatrixWorld(true);
+          built.cover.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
+          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_PlateTest_F55_Base.stl`);
+          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_PlateTest_F55_Shuttle.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(built.cover, `Arteor_${APP_VERSION}_PlateTest_F55_Cover.stl`);
+          showStatusBanner('Saved the plate test: base, shuttle, cover. Wall screws are the 83.5 mm pair. No M3 fastener.');
+        } catch (err) {
+          console.error(err);
+          showStatusBanner('Plate test failed: ' + err.message);
+        }
+      });
+
       let rebuildQueued = false;
       function scheduleRebuild(sourceId) {
         if (sourceId === 'inp-pegdia' || sourceId === 'inp-threadtol') {
@@ -6350,7 +6638,8 @@
         computeSlideMetrics: computeSlideMetrics,
         couponMetrics: couponMetrics,
         buildRemovableRailFit: buildRemovableRailFit,
-        buildToolFreeF55: buildToolFreeF55
+        buildToolFreeF55: buildToolFreeF55,
+        buildPlateTest: buildPlateTest
       };
 
       function animate() {

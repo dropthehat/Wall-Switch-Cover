@@ -157,9 +157,19 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 
 **Ramp tracks** `Arteor_v25_Slide_Ramp_Tracks_R55_R60_R65.stl`, with matching `Arteor_v25_Slide_Ramp_Shuttles_R55_R60_R65.stl` and `Arteor_v25_Slide_Ramp_Stops_R55_R60_R65.stl`. Clearance is the F55 pair (0.55 mm per side, 0.30 mm in Z) on every station. Only the ramp height changes: 5.5, 6.0, and 6.5 mm.
 
-### Tool-free F55 test (the one to print)
+### Single-switch plate test (the one to print)
 
-The track and the shuttle that Carl printed are unchanged. Do not reprint them. The first stop falls out. **⬇ Clip stop only** writes a replacement stop that squeezes the two posts already on that track. Those posts have no head, so this is a friction grip, not a snap. No screw.
+**⬇ Plate test F55 — one switch, two wall screws** writes three files: `Arteor_v25_PlateTest_F55_Base.stl`, `Arteor_v25_PlateTest_F55_Shuttle.stl`, and `Arteor_v25_PlateTest_F55_Cover.stl`. This is a new model. It is not the coupon below.
+
+Carl measured the original Arteor rocker at 22.5 mm, widest exterior, left to right. That is the limit for the rails, the shuttle, and the cover catches. On the exported meshes those widths are 22.20 mm for the channel, 22.40 mm for the cover, and 16.10 mm for the shuttle. The mounting plate itself is 100 mm wide so it can reach the two screw ears. The ears use the existing plate screws on 83.5 mm centers. They are not the rejected M3 mechanism screw.
+
+The open end is the top of the plate, the end marked **TOP**. The bottom is closed. The cover's slot ends stop the shuttle. The dovetail lips stop it lifting out. Three fingers hook under a shelf and two hoods, so the cover stays on without relying on gravity. Nothing loose sits in the mechanism: no stop, nut, or bolt. Pinch the fingers about 1 mm to put the cover on or take it off. The grip passes through the slot.
+
+This plate has not been printed. The mesh checks do not show that it mounts or that the cams move a real rocker. Print notes are in the zip.
+
+### Tool-free F55 coupon (already printed, do not reprint)
+
+The track and the shuttle that Carl printed are unchanged. Do not reprint them. The first stop falls out. **⬇ Clip stop only** writes a replacement stop that squeezes the two posts already on that track. Those posts have no head, so this is a friction grip, not a snap. The clip is wider than 22.5 mm, so it is not used on the plate.
 
 The replacement file is `Arteor_v25_ToolFree_F55_Stop_Clip.stl`. Print it flat face down, feet and arms up, supports off. Press it onto the two posts at **OPEN**. Pull it straight off to remove it. Turn the coupon over and shake it gently. It should stay. If the arms whiten or a post chips, stop. This grip has not been printed.
 
