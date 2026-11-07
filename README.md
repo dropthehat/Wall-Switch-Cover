@@ -161,7 +161,9 @@ The first printed set mixed a tight dovetail, a detent nub, and identification p
 
 **⬇ Plate test F55 — one switch, two wall screws** writes three files: `Arteor_v25_PlateTest_F55_Base.stl`, `Arteor_v25_PlateTest_F55_Shuttle.stl`, and `Arteor_v25_PlateTest_F55_Cover.stl`. This is a new model. It is not the coupon below.
 
-Carl measured the original Arteor rocker at 22.5 mm, widest exterior, left to right. That is the limit for the rails, the shuttle, and the cover catches. On the exported meshes those widths are 22.20 mm for the channel, 22.40 mm for the cover, and 16.10 mm for the shuttle. The mounting plate itself is 100 mm wide so it can reach the two screw ears. The ears use the existing plate screws on 83.5 mm centers. They are not the rejected M3 mechanism screw.
+Carl measured the original Arteor rocker at 22.5 mm, widest exterior, left to right. That is the limit for the rails, the shuttle, and the cover catches. On the exported meshes those widths are 22.20 mm for the channel, 22.40 mm for the cover, and 16.10 mm for the shuttle.
+
+The first plate was a 100 by 112 mm rectangle. That size is not an Arteor frame. The files to print now are `Arteor_v25_Plate3M_F55_Base.stl`, `Arteor_v25_Plate3M_F55_Shuttle.stl`, and `Arteor_v25_Plate3M_F55_Cover.stl`. The plate outline is the studio’s 3-module reference frame face: **113.7 by 78.7 mm**, corner radius 2.5 mm, ear 2.4 mm, back on the support-frame face. The screws stay on **83.5 mm** centers. 114.5 by 79.5 mm is the chassis inner default, not the outside of this plate, and 119.5 by 84.5 mm is that inner size plus a design wall. Neither of those is a measured faceplate. If Carl’s frame is a different size, this plate will not match it.
 
 The open end is the top of the plate, the end marked **TOP**. The bottom is closed. The cover's slot ends stop the shuttle. The dovetail lips stop it lifting out. Three fingers hook under a shelf and two hoods, so the cover stays on without relying on gravity. Nothing loose sits in the mechanism: no stop, nut, or bolt. Pinch the fingers about 1 mm to put the cover on or take it off. The grip passes through the slot.
 

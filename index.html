@@ -6343,11 +6343,16 @@
         const tieY1 = yTop + sm.tieLen;
         addBox(base, sm.railW, tieY1 - tieY0, tieH, sm.winHalf + sm.railW / 2, (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
         addBox(base, sm.railW, tieY1 - tieY0, tieH, -(sm.winHalf + sm.railW / 2), (tieY0 + tieY1) / 2, zBot + tieH / 2, matB);
+        // 3-module support frame the screw ears are drawn against (buildLegrandReferenceHardware):
+        // outer is the chassis inner size minus 0.8 mm, front face at the rocker datum, 2.2 mm thick behind it.
+        // 114.5 x 79.5 is that chassis inner size, not a measured plate exterior.
         const deckT = 2.4;
-        const plateW = 100;
-        const plateH = 112;
-        addBox(base, plateW, plateH, deckT, 0, 2, deckT / 2, matB);
-        addBoxCutter(base, 22.5, 44, deckT + 0.8, 0, 0, deckT / 2);
+        const plateW = 114.5 - 0.8;
+        const plateH = 79.5 - 0.8;
+        const frameWinH = 45.4;
+        const deckGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(plateW, plateH, 2.5), { depth: deckT, bevelEnabled: false });
+        base.add(new THREE.Mesh(deckGeo, matB));
+        addBoxCutter(base, 22.5, frameWinH, deckT + 0.8, 0, 0, deckT / 2);
         const screwX = 83.5 / 2;
         [-screwX, screwX].forEach(x => {
           addBoxCutter(base, 4.2, 3.2, deckT + 0.8, x, 0, deckT / 2);
@@ -6357,8 +6362,10 @@
         const wallZ1 = zBot + 0.3;
         [-1, 1].forEach(side => {
           [-1, 1].forEach(end => {
-            const y0 = end < 0 ? -46 : 23;
-            const y1 = end < 0 ? -23 : 46;
+            const yLim = plateH / 2 - 1.6;
+            const yOpen = frameWinH / 2 + 0.45;
+            const y0 = end < 0 ? -yLim : yOpen;
+            const y1 = end < 0 ? -yOpen : yLim;
             const cx = side * (sm.winHalf + sm.railW / 2);
             addBox(base, sm.railW, y1 - y0, wallZ1 - (deckT - 0.35), cx, (y0 + y1) / 2, ((deckT - 0.35) + wallZ1) / 2, matB);
           });
@@ -6379,8 +6386,8 @@
           addBox(base, 3.0, 2.8, hoodZ1 - (zR - 0.35), side * 9.0, yTop - 2.75, ((zR - 0.35) + hoodZ1) / 2, matB);
           addBox(base, 1.75, 1.40, hoodZ1 - hoodZ0, side * 7.425, yTop - 2.85, (hoodZ0 + hoodZ1) / 2, matB);
         });
-        slideEmboss(base, 'TOP', -4.2, 50, deckT, matB, 0.7);
-        slideEmboss(base, 'F55', -4.6, 42, deckT, matB, 0.55);
+        slideEmboss(base, 'TOP', -5.2, 36.4, deckT, matB, 0.55);
+        slideEmboss(base, 'F55', -4.8, 31.6, deckT, matB, 0.48);
 
         const shuttle = new THREE.Group();
         buildOneShuttle(shuttle, sm, 0, 0, 1, matS, 0, 'F55');
@@ -6430,7 +6437,7 @@
           meta: {
             yBot, yTop, yBar0, yBar1, zBot, faceZ0, faceT, coverW, slotW, slotL,
             shelfZ0, shelfZ1, noseZ0, noseZ1, screwPitch: 83.5, limit: 22.5,
-            flex: 0.85, zGap: 0.28
+            plateW, plateH, frameWinH, deckT, flex: 0.85, zGap: 0.28
           }
         };
       }
@@ -6554,6 +6561,18 @@
         });
         if (!screwOpen) fail('screws', 'a screw slot is closed');
         else pass('screws', 'both 83.5 mm slots are open');
+        let outside = 0;
+        built.base.updateMatrixWorld(true);
+        built.base.traverse(ch => {
+          if (!ch.isMesh || !ch.geometry || (ch.userData && ch.userData.cutter)) return;
+          const p = ch.geometry.attributes.position;
+          for (let i = 0; i < p.count; i++) {
+            if (Math.abs(p.getX(i)) > built.meta.plateW / 2 + 0.05 || Math.abs(p.getY(i)) > built.meta.plateH / 2 + 0.05) outside++;
+          }
+        });
+        report.plate = { w: built.meta.plateW, h: built.meta.plateH };
+        if (outside) fail('envelope', outside + ' vertices sit outside the 3-module frame face');
+        else pass('envelope', 'the plate is the 3-module frame face, ' + built.meta.plateW.toFixed(1) + ' x ' + built.meta.plateH.toFixed(1) + ' mm');
         const channelW = plateWidthAbove(built.base, 3);
         const coverW = plateWidthAbove(built.cover, -100);
         const shuttleW = plateWidthAbove(built.shuttle, -100);
@@ -6590,10 +6609,10 @@
           const spin = new THREE.Matrix4().makeRotationX(Math.PI);
           built.cover.updateMatrixWorld(true);
           built.cover.traverse(ch => { if (ch.isMesh && ch.geometry) ch.geometry.applyMatrix4(spin); });
-          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_PlateTest_F55_Base.stl`);
-          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_PlateTest_F55_Shuttle.stl`, -Math.PI / 2);
-          downloadPrintReadySTL(built.cover, `Arteor_${APP_VERSION}_PlateTest_F55_Cover.stl`);
-          showStatusBanner('Saved the plate test: base, shuttle, cover. Wall screws are the 83.5 mm pair. No M3 fastener.');
+          downloadPrintReadySTL(built.base, `Arteor_${APP_VERSION}_Plate3M_F55_Base.stl`);
+          downloadPrintReadySTL(built.shuttle, `Arteor_${APP_VERSION}_Plate3M_F55_Shuttle.stl`, -Math.PI / 2);
+          downloadPrintReadySTL(built.cover, `Arteor_${APP_VERSION}_Plate3M_F55_Cover.stl`);
+          showStatusBanner('Saved the 3-module frame plate: base, shuttle, cover. ' + built.meta.plateW.toFixed(1) + ' x ' + built.meta.plateH.toFixed(1) + ' mm, screws at 83.5 mm.');
         } catch (err) {
           console.error(err);
           showStatusBanner('Plate test failed: ' + err.message);
