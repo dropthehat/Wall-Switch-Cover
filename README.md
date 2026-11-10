@@ -1,6 +1,8 @@
 # ArteorCAD v25 Studio
 
-ArteorCAD is a single-file browser tool (`index.html`) for designing 3D-printed wall switch covers. It builds the cover parametrically with three.js, shows it in an orbit view, and downloads binary STL files with the mesh shifted so its lowest point sits on Z = 0.
+ArteorCAD is a browser tool for designing 3D-printed wall switch covers. The page is `index.html`. It builds the cover parametrically with three.js, shows it in an orbit view, and downloads binary STL files with the mesh shifted so its lowest point sits on Z = 0.
+
+The **Mode** menu adds a second designer, **Round-knob slider cover (V7)**. That mode is the physically iterated two-module slider (V6 base and gate, V7 cover and two-piece shuttle), sized for 1–4 lanes. Its geometry lives in `v7-slider.js` and uses the same manifold kernel as the original CAD. The standard plate — wall-box screws, the Arteor pin bridge, slip-over, and the Middle Eastern overlays — is unchanged when Mode is **Standard plate**.
 
 The product version lives in one place, `APP_VERSION` (`v25`), in the script at the top of `index.html`. That token is the page title, every STL filename, the JSON setup download, and the suggested name when you save a setup. The green header badge is the same token plus `.0 Studio`, so it reads **v25.0 Studio**.
 
@@ -16,7 +18,47 @@ python3 -m http.server
 
 Then open `http://localhost:8000/`.
 
+The slider mode loads `v7-slider.js` and manifold from a CDN, so it needs that server (or GitHub Pages). Opening `index.html` as a file still runs the standard plate. The slider kernel will not start from a `file://` URL.
+
 On startup the **Alu-Blade** preset is applied. The chassis readout is then **119.5 × 84.5 mm**: 3-module inner size 114.5 × 79.5 mm and wall 2.5 mm. That preset writes a 0.8 mm corner, and the corner slider steps by 0.5 mm, so the control settles on 1 mm. That is still under 1.2 mm, which is why the outer size does not grow past the wall thickness.
+
+## Round-knob slider cover
+
+Choose **Round-knob slider cover (V7)** in the Mode menu, or press **⬤ V7 Slider**. The footer buttons switch to the print parts. The standard plate buttons come back when you return to Standard plate.
+
+The mechanism is Carl's V7 kit. Protected coupon values are fixed and are not sliders: runner 19.8×59×2.4 mm with the underside at installed Z 11.3, cams 16 mm wide, toe / knee / end at 19.5 / 28 / 29.5, cam drop 5.3 mm, vertical gap 0.35 mm, stroke ±7 mm, track width 20.9 mm. Lanes repeat at 22.5 mm, centred, so two lanes sit at ±11.25. Each lane stays inside the 22.5 mm Arteor rocker width (the assembled shuttle is 21.8 mm wide). Nothing in the joint is a loose part: the cap presses onto a tenon with four crush ribs.
+
+| Part | What it is | Print orientation | Layer |
+| --- | --- | --- | --- |
+| Base | V6 reinforced track. Outer fences are 2.3 mm with a 45° foot, the centre divider is 1.6 mm, and the screw slots are 83.5 mm apart on the test kit. | Flat on the bed | 0.12 mm |
+| Cover | One plate, 121×92×21.2 mm on the test kit. Stadium openings only (19.2×33.2 per lane), 0.5 mm eased face edge, solid keepers fused to the side wall. | Face down. Snip off the corner ears after printing. | 0.12 mm |
+| Slider | Runner, cams, skis and the shield fill, plus the tenon. One file; print one per lane. | Side-on, runner edge on the plate | 0.12 mm |
+| Cap | Shield 21.8×50, round 45° neck Ø14.5→Ø18.4, puck Ø18.4 with a 1.6 mm soft edge and a 0.6 mm dome. | Face up, shield on the plate. No supports. | 0.08 mm |
+| Gate | The V4 stop gate, unchanged. | Rear face down | 0.12 mm |
+
+Printer notes from the validated kit: Bambu A1, 0.4 mm nozzle, PLA+. Caps use 0.08 mm because the 0.6 mm dome needs the finer layers. Sliders use the 0.12 mm profile; supports stay off the runner underside, the cam ramps and the wing undersides.
+
+**Rocker lanes** is 1, 2, 3 or 4. **Plate / frame** is either the V7 test kit (base 115×78, cover 121×92×21.2, screws at ±41.75) or the studio chassis. Studio frame uses the chassis inner width and height, and the screw pitch already on the page (83.5 mm on a 3-module chassis, 106 mm on a 4-module chassis). If that plate is too narrow for the fences, corner posts and keys, the mesh grows to the minimum that still fits and the status line says the plate was enlarged.
+
+Only 2 lanes on the 115×78 kit is **validated** against the physical part. Every other combination is labelled **untested** in the panel. The status line is green for the kit and amber otherwise.
+
+The assembled view shows the base, gate and shuttles in the installed frame (runner underside at Z 11.3). **Assembled preview** sets the cover solid, translucent, or hidden. **Knob stroke** runs ±7 mm, and **Stroke ±7** flips between the ends. Explode lifts the cover. The cover colour is Body A, the base is Stripe/Base B, and the knobs follow Knob Stem. Multi-Color Knobs tints each lane.
+
+Overlays apply to the face only. The printed cover STL is still the clean plate with the stadium openings and the eased edge. A face overlay is a separate STL, inset 0.6 mm from the eased arris, with the same openings cut out — including Khatam, Mashrabiya, Girih and the cedar frieze. It is not fused into the cover, so it cannot close a slot or add a feature inside the mechanism.
+
+**⬇ ZIP print kit** downloads every print STL plus `PRINT.txt` (quantity, orientation, and the lock/unlock sequence). Each button downloads that one piece already in its print orientation, lowest point on Z = 0. Slider and cap files are one part each; print as many as there are lanes.
+
+`npm run test:v7` builds the kit with manifold-3d 3.5.4 and compares the 2-lane STLs with `test/fixtures/v7/`. Bounding boxes match, and volume error on those files is numerical noise (under 10⁻⁷ %). The same run checks that 1-, 3- and 4-lane meshes, on both the test-kit plate and the studio 3- and 4-module chassis, are single watertight solids, sit on the bed, keep the shuttle inside 22.5 mm, and fit the base and gate inside the cover.
+
+![V7 slider, 2 lanes, cover translucent](docs/v7/preview-2-lane.png)
+
+![1 lane in the 3-module chassis, untested](docs/v7/preview-1-lane.png)
+
+![3 lanes, plate enlarged to fit, untested](docs/v7/preview-3-lane.png)
+
+A face overlay stays outside the mechanism. Khatam on the solid cover keeps both stadium openings:
+
+![Khatam overlay on the 2-lane cover, openings left clear](docs/v7/preview-2-lane-khatam.png)
 
 ## Mounting
 
@@ -56,6 +98,8 @@ A rectangular outlet cut is the module pitch (times two for Schuko) plus 0.2 mm,
 When the mix of covered switches and outlets changes, cavity depth is rewritten unless the chassis section is locked: 11.0 mm while any switch is covered, 5.6 mm for a cover-bezel outlet with no covered switch, otherwise `max(2.4, 5.2 + 0.43 − face thickness)` mm.
 
 ## Parts the STL buttons export
+
+These buttons are the **standard plate**. In the slider mode the footer is the print kit described above (base, cover with ears, slider, cap, gate, face overlay, ZIP).
 
 Each button downloads a binary STL and drops the mesh onto Z = 0. Names use `APP_VERSION` (`v25` today). `fixMode` is `hpins`, `screwtabs`, or `slipover`. `coverBuild` is the cover-construction value (`fulltop_snaps` in the control default, `fulltop_magnets` after the opening Alu-Blade preset).
 

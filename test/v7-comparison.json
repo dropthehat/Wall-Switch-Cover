@@ -1,0 +1,145 @@
+{
+  "comparisons": [
+    {
+      "part": "base",
+      "gotVolume": 28645.33,
+      "refVolume": 28645.33,
+      "volumeErrorPct": 2.921e-13,
+      "gotExtents": [
+        115,
+        79.3,
+        19
+      ],
+      "refExtents": [
+        115,
+        79.3,
+        19
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "gate",
+      "gotVolume": 1740.96,
+      "refVolume": 1740.96,
+      "volumeErrorPct": 1.306e-14,
+      "gotExtents": [
+        66,
+        10,
+        9.9
+      ],
+      "refExtents": [
+        66,
+        10,
+        9.9
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "cover finished",
+      "gotVolume": 54100.9,
+      "refVolume": 54100.9,
+      "volumeErrorPct": 2.69e-13,
+      "gotExtents": [
+        121,
+        92,
+        21.2
+      ],
+      "refExtents": [
+        121,
+        92,
+        21.2
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "cover print",
+      "gotVolume": 54478.96,
+      "refVolume": 54478.96,
+      "volumeErrorPct": 6.707e-10,
+      "gotExtents": [
+        143.6877,
+        114.6877,
+        21.2
+      ],
+      "refExtents": [
+        143.6877,
+        114.6877,
+        21.2
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "slider",
+      "gotVolume": 6526.63,
+      "refVolume": 6526.63,
+      "volumeErrorPct": 3.392e-8,
+      "gotExtents": [
+        14.15,
+        59,
+        19.8
+      ],
+      "refExtents": [
+        14.15,
+        59,
+        19.8
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "cap",
+      "gotVolume": 3042.71,
+      "refVolume": 3042.71,
+      "volumeErrorPct": 5.743e-10,
+      "gotExtents": [
+        21.8,
+        50,
+        9.65
+      ],
+      "refExtents": [
+        21.8,
+        50,
+        9.65
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    },
+    {
+      "part": "shuttle assembly",
+      "gotVolume": 9645.14,
+      "refVolume": 9645.14,
+      "volumeErrorPct": 3.901e-8,
+      "gotExtents": [
+        21.8,
+        59,
+        20.4
+      ],
+      "refExtents": [
+        21.8,
+        59,
+        20.4
+      ],
+      "bboxErrorMm": 0,
+      "watertight": true,
+      "components": 1,
+      "pass": true
+    }
+  ],
+  "failed": 0
+}
