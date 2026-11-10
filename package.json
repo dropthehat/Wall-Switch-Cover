@@ -1,0 +1,11 @@
+{
+  "name": "arteor-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:v7": "node test/v7-slider.test.mjs"
+  },
+  "devDependencies": {
+    "manifold-3d": "3.5.4"
+  }
+}
